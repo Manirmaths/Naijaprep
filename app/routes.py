@@ -24,7 +24,7 @@ class QuizForm(FlaskForm):
 
 @app.route('/')
 def home():
-    return "Hello, Maths Exam Prep!"
+    return render_template('home.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
