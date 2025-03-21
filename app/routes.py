@@ -81,19 +81,34 @@ def quiz():
     if not all_questions:
         flash('No questions available yet.', 'warning')
         return redirect(url_for('home'))
+    if len(all_questions) < 3:
+        flash('Not enough questions available. Please add more questions.', 'warning')
+        return redirect(url_for('home'))
 
-    # Select 3 questions, prioritizing weaker topics
+    # Select 3 unique questions, prioritizing weaker topics
     selected_questions = []
+    available_questions = all_questions.copy()  # Work with a copy to avoid modifying original list
+
     for _ in range(3):
         if topic_stats:
+            # Find weakest topic based on correct percentage
             weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
-            candidates = [q for q in all_questions if q.topic == weakest_topic and q not in selected_questions]
+            # Filter available questions for weakest topic
+            candidates = [q for q in available_questions if q.topic == weakest_topic]
         else:
-            candidates = [q for q in all_questions if q not in selected_questions]
+            candidates = available_questions  # Use all available if no stats
+
+        # If no candidates in weakest topic, fall back to any available question
+        if not candidates:
+            candidates = available_questions
+
+        # Pick a random question and remove it from available pool
         if candidates:
-            selected_questions.append(choice(candidates))
+            chosen = choice(candidates)
+            selected_questions.append(chosen)
+            available_questions.remove(chosen)  # Ensure no duplicates
         else:
-            selected_questions.append(choice([q for q in all_questions if q not in selected_questions]))
+            break  # Shouldn’t happen due to earlier check, but safety net
 
     forms = [QuizForm(prefix=str(q.id)) for q in selected_questions]
     quiz_data = list(zip(selected_questions, forms))
