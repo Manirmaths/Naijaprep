@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from random import choice
+from app import bcrypt
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -31,7 +32,8 @@ def home():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash('Account created successfully!', 'success')
@@ -41,25 +43,16 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    print(f"Request method: {request.method}")  # Debug
-    if request.method == 'POST':
-        print(f"Form data: {form.email.data}, {form.password.data}")  # Debug
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
-            if user:
-                print(f"User found: {user.username}")  # Debug
-                if user.password == form.password.data:
-                    login_user(user)
-                    flash('Login successful!', 'success')
-                    return redirect(url_for('home'))
-                else:
-                    flash('Incorrect password.', 'danger')
-            else:
-                flash('No account found with that email.', 'danger')
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
         else:
-            flash('Form validation failed. Please check your input.', 'danger')
-            print(f"Form errors: {form.errors}")  # Debug
+            flash('Login failed. Check your email and password.', 'danger')
     return render_template('login.html', form=form)
+
 
 @app.route('/logout')
 @login_required

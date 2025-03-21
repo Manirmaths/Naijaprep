@@ -2,7 +2,7 @@ from app import app, db
 from app.models import Question
 
 with app.app_context():
-    db.drop_all()  # Reset database (optional, removes old data)
+    
     db.create_all()
 
     questions = [
