@@ -16,6 +16,9 @@ with app.app_context():
                  option_a="4", option_b="5", option_c="6", option_d="7", 
                  correct_option="B", explanation="Sum = 2 + 4 + 6 + 8 = 20, then divide by 4: 20 / 4 = 5."),
     ]
+    questions.append(Question(topic="Trigonometry", difficulty=3, question_text="If sin θ = 0.5, find θ (0° ≤ θ ≤ 90°)", 
+                         option_a="30°", option_b="45°", option_c="60°", option_d="90°", 
+                         correct_option="A", explanation="sin θ = 0.5 implies θ = 30° in the first quadrant."))
     db.session.add_all(questions)
     db.session.commit()
     print("Seeded questions with explanations!")
