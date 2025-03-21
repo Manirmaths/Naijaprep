@@ -17,15 +17,15 @@ class User(db.Model, UserMixin):
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String(100), nullable=False)  # e.g., "Algebra"
-    difficulty = db.Column(db.Integer, nullable=False)  # 1-5
+    topic = db.Column(db.String(100), nullable=False)
+    difficulty = db.Column(db.Integer, nullable=False)
     question_text = db.Column(db.Text, nullable=False)
     option_a = db.Column(db.String(100), nullable=False)
     option_b = db.Column(db.String(100), nullable=False)
     option_c = db.Column(db.String(100), nullable=False)
     option_d = db.Column(db.String(100), nullable=False)
-    correct_option = db.Column(db.String(1), nullable=False)  # "A", "B", "C", "D"
-    explanation = db.Column(db.Text, nullable=True)  # New field for solutions
+    correct_option = db.Column(db.String(1), nullable=False)
+    explanation = db.Column(db.Text, nullable=True)  # Add this
 
     def __repr__(self):
         return f"Question('{self.topic}', '{self.difficulty}')"
