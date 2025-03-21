@@ -7,7 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         body { background-color: #f8f9fa; }
-        .results-card { max-width: 600px; margin: 50px auto; }
+        .results-card { max-width: 800px; margin: 50px auto; }
+        .score-badge { font-size: 1.5rem; }
     </style>
 </head>
 <body>
@@ -45,8 +46,38 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            <p class="text-center">Quiz completed! Results coming soon.</p>
-            <div class="d-grid">
+            <div class="text-center mb-4">
+                <h4>Your Score: <span class="badge bg-primary score-badge">{{ score }} / {{ total_questions }}</span></h4>
+                <p class="text-muted">You got {{ score }} out of {{ total_questions }} questions correct!</p>
+            </div>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Question</th>
+                        <th scope="col">Your Answer</th>
+                        <th scope="col">Correct Answer</th>
+                        <th scope="col">Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results_data %}
+                        <tr>
+                            <td>{{ result.question_text }}</td>
+                            <td>{{ result.selected_option }}</td>
+                            <td>{{ result.correct_option }}</td>
+                            <td>
+                                {% if result.is_correct %}
+                                    <span class="badge bg-success">Correct</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Incorrect</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                <a href="{{ url_for('quiz') }}" class="btn btn-outline-primary">Try Again</a>
                 <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
             </div>
         </div>

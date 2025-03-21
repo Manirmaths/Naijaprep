@@ -82,4 +82,25 @@ def quiz():
 @app.route('/results')
 @login_required
 def results():
-    return render_template('results.html')
+    # Get the latest 3 responses for the current user (assuming 3-question quiz)
+    responses = UserResponse.query.filter_by(user_id=current_user.id).order_by(UserResponse.id.desc()).limit(3).all()
+    if not responses:
+        flash('No quiz results found. Please take the quiz first.', 'warning')
+        return redirect(url_for('quiz'))
+
+    # Calculate score
+    score = sum(1 for r in responses if r.is_correct)
+    total_questions = len(responses)
+
+    # Prepare results data
+    results_data = [
+        {
+            'question_text': r.question.question_text,
+            'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
+            'correct_option': f"{r.question.correct_option}. {getattr(r.question, f'option_{r.question.correct_option.lower()}')}",
+            'is_correct': r.is_correct
+        }
+        for r in responses
+    ]
+
+    return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
