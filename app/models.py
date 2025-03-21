@@ -25,6 +25,7 @@ class Question(db.Model):
     option_c = db.Column(db.String(100), nullable=False)
     option_d = db.Column(db.String(100), nullable=False)
     correct_option = db.Column(db.String(1), nullable=False)  # "A", "B", "C", "D"
+    explanation = db.Column(db.Text, nullable=True)  # New field for solutions
 
     def __repr__(self):
         return f"Question('{self.topic}', '{self.difficulty}')"

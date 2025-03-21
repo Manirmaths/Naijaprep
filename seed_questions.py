@@ -2,23 +2,20 @@ from app import app, db
 from app.models import Question
 
 with app.app_context():
-    # Drop existing tables and recreate them (optional, only if you want a fresh start)
-    db.drop_all()
+    db.drop_all()  # Reset database (optional, removes old data)
     db.create_all()
 
-    # Add sample questions
-    q1 = Question(topic="Algebra", difficulty=1, question_text="What is 2 + 2?", 
-                  option_a="3", option_b="4", option_c="5", option_d="6", correct_option="B")
-    q2 = Question(topic="Geometry", difficulty=2, question_text="What is the area of a circle with radius 3?", 
-                  option_a="9π", option_b="6π", option_c="3π", option_d="12π", correct_option="A")
-    q3 = Question(topic="Arithmetic", difficulty=1, question_text="What is 10% of 100?", 
-                  option_a="10", option_b="20", option_c="30", option_d="40", correct_option="A")
-
-    # Add to database
-    db.session.add_all([q1, q2, q3])
+    questions = [
+        Question(topic="Algebra", difficulty=2, question_text="Solve: 2x + 3 = 7", 
+                 option_a="1", option_b="2", option_c="3", option_d="4", 
+                 correct_option="B", explanation="Subtract 3 from both sides: 2x = 4, then divide by 2: x = 2."),
+        Question(topic="Geometry", difficulty=1, question_text="Area of triangle, base 5, height 6?", 
+                 option_a="15", option_b="30", option_c="12", option_d="18", 
+                 correct_option="A", explanation="Area = ½ × base × height = ½ × 5 × 6 = 15."),
+        Question(topic="Statistics", difficulty=1, question_text="Mean of 2, 4, 6, 8?", 
+                 option_a="4", option_b="5", option_c="6", option_d="7", 
+                 correct_option="B", explanation="Sum = 2 + 4 + 6 + 8 = 20, then divide by 4: 20 / 4 = 5."),
+    ]
+    db.session.add_all(questions)
     db.session.commit()
-
-    # Verify
-    print("Questions added successfully:")
-    for q in Question.query.all():
-        print(f"- {q}")
+    print("Seeded questions with explanations!")

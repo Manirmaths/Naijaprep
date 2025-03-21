@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         body { background-color: #f8f9fa; }
-        .results-card { max-width: 800px; margin: 50px auto; }
+        .results-card { max-width: 1000px; margin: 50px auto; } /* Widened for explanation */
         .score-badge { font-size: 1.5rem; }
     </style>
 </head>
@@ -21,12 +21,24 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('quiz') }}">Take Quiz Again</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('quiz') }}">Take Quiz</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -57,6 +69,7 @@
                         <th scope="col">Your Answer</th>
                         <th scope="col">Correct Answer</th>
                         <th scope="col">Result</th>
+                        <th scope="col">Explanation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,6 +85,7 @@
                                     <span class="badge bg-danger">Incorrect</span>
                                 {% endif %}
                             </td>
+                            <td>{{ result.explanation }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
