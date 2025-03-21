@@ -7,6 +7,7 @@ from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from random import choice
 from sqlalchemy.exc import IntegrityError
+import random
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -66,7 +67,6 @@ def logout():
 @app.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
-    # Get user's past performance by topic
     responses = UserResponse.query.filter_by(user_id=current_user.id).all()
     topic_stats = {}
     for r in responses:
@@ -78,37 +78,21 @@ def quiz():
             topic_stats[topic]['correct'] += 1
 
     all_questions = Question.query.all()
-    if not all_questions:
-        flash('No questions available yet.', 'warning')
-        return redirect(url_for('home'))
     if len(all_questions) < 3:
         flash('Not enough questions available. Please add more questions.', 'warning')
         return redirect(url_for('home'))
 
-    # Select 3 unique questions, prioritizing weaker topics
-    selected_questions = []
-    available_questions = all_questions.copy()  # Work with a copy to avoid modifying original list
-
-    for _ in range(3):
-        if topic_stats:
-            # Find weakest topic based on correct percentage
-            weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
-            # Filter available questions for weakest topic
-            candidates = [q for q in available_questions if q.topic == weakest_topic]
+    # Select 3 unique questions using random.sample
+    if topic_stats:
+        weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
+        candidates = [q for q in all_questions if q.topic == weakest_topic]
+        if len(candidates) >= 3:
+            selected_questions = random.sample(candidates, 3)
         else:
-            candidates = available_questions  # Use all available if no stats
-
-        # If no candidates in weakest topic, fall back to any available question
-        if not candidates:
-            candidates = available_questions
-
-        # Pick a random question and remove it from available pool
-        if candidates:
-            chosen = choice(candidates)
-            selected_questions.append(chosen)
-            available_questions.remove(chosen)  # Ensure no duplicates
-        else:
-            break  # Shouldn’t happen due to earlier check, but safety net
+            remaining = [q for q in all_questions if q not in candidates]
+            selected_questions = candidates + random.sample(remaining, 3 - len(candidates))
+    else:
+        selected_questions = random.sample(all_questions, 3)
 
     forms = [QuizForm(prefix=str(q.id)) for q in selected_questions]
     quiz_data = list(zip(selected_questions, forms))
