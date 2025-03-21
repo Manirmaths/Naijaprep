@@ -1,12 +1,12 @@
 from flask import render_template, request, redirect, url_for, flash
-from app import app, db
+from app import app, db, bcrypt
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User, Question, UserResponse
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from random import choice
-from app import bcrypt
+from sqlalchemy.exc import IntegrityError
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -34,10 +34,14 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Account created successfully!', 'success')
+            return redirect(url_for('login'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('Username or email already taken. Please choose a different one.', 'danger')
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -52,7 +56,6 @@ def login():
         else:
             flash('Login failed. Check your email and password.', 'danger')
     return render_template('login.html', form=form)
-
 
 @app.route('/logout')
 @login_required
