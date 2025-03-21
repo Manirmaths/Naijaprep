@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diagnostic Quiz</title>
+</head>
+<body>
+    <h1>Diagnostic Quiz</h1>
+    <form method="POST" action="">
+        {% for question, form in quiz_data %}
+            <div>
+                <p><strong>{{ question.question_text }}</strong></p>
+                <p>A. {{ question.option_a }}</p>
+                <p>B. {{ question.option_b }}</p>
+                <p>C. {{ question.option_c }}</p>
+                <p>D. {{ question.option_d }}</p>
+                {{ form.hidden_tag() }}
+                {{ form.answer.label }}<br>
+                {{ form.answer() }}
+            </div>
+            <hr>
+        {% endfor %}
+        <div>
+            <input type="submit" value="Submit Quiz">
+        </div>
+    </form>
+</body>
+</html>
