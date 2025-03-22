@@ -19,24 +19,15 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('quiz') }}">Take Quiz</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-                        </li>
-                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('quiz') }}">Take Quiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -46,14 +37,15 @@
         <div class="card dashboard-card p-4 shadow">
             <h2 class="text-center mb-4">Your Progress</h2>
             <div class="text-center mb-4">
-                <h4>Total Points: {{ points }}</h4> <!-- Added for gamification -->
+                <h4>Total Points: {{ points }}</h4>
             </div>
             {% if topic_stats %}
                 {% for topic, stats in topic_stats.items() %}
                     <div class="mb-3">
                         <h5>{{ topic }}</h5>
                         <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" 
+                                 aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
                                 {{ stats.correct }} / {{ stats.total }} ({{ stats.percentage | round(1) }}%)
                             </div>
                         </div>
