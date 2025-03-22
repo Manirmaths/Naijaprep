@@ -113,7 +113,7 @@ def quiz():
 
     # Load current question and form
     question = Question.query.get(session['quiz_questions'][current_idx])
-    form = QuizForm(prefix=str(question.id))
+    form = QuizForm()  # Removed prefix=str(question.id)
 
     if form.validate_on_submit():
         selected = form.answer.data
@@ -145,16 +145,23 @@ def results():
     score = sum(1 for r in responses if r.is_correct)
     total_questions = len(responses)
 
-    results_data = [
-        {
+    results_data = []
+    valid_options = ['A', 'B', 'C', 'D']
+    for r in responses:
+        correct_option = r.question.correct_option
+        # Check if correct_option is valid; if not, display it as-is without attribute lookup
+        if correct_option in valid_options:
+            correct_text = f"{correct_option}. {getattr(r.question, f'option_{correct_option.lower()}')}"
+        else:
+            correct_text = f"{correct_option} (Invalid option)"
+        
+        results_data.append({
             'question_text': r.question.question_text,
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
-            'correct_option': f"{r.question.correct_option}. {getattr(r.question, f'option_{r.question.correct_option.lower()}')}",
+            'correct_option': correct_text,
             'is_correct': r.is_correct,
             'explanation': r.question.explanation or "No explanation available."
-        }
-        for r in responses
-    ]
+        })
 
     return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
 
