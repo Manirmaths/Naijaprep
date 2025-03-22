@@ -1,0 +1,101 @@
+topic,difficulty,question_text,option_a,option_b,option_c,option_d,correct_option,explanation
+Number Theory,2,"A group of market women sell at least one of yam, plantain and maize. 12 of them sell maize, 10 sell yam and 14 sell plantain. 5 sell plantain and maize, 4 sell yam and maize, 2 sell yam and plantain only while 3 sell all the three items. How many women are in the group",25,19,18,17,TO_FILL,TO_FILL
+Algebra,2,"If log₁₀ 8 = X, evaluate log₁₀ 5 in terms of X.",½X,X - ¼,X - ⅓,X - ½,TO_FILL,TO_FILL
+Algebra,3,"If (a² b⁻³ c)^(3/4) / (a⁻¹ b⁴ c⁵) = a^p b^q c^r, what is the value of p + 2q?",TO_FILL,TO_FILL,TO_FILL,TO_FILL,TO_FILL,TO_FILL
+Algebra,3,"If |2 3; 5 3x| = |4 1; 3 2x|, find the value of x",-6,6,-12,12,TO_FILL,TO_FILL
+Algebra,3,Evaluate |4 2 -1; 2 3 -1; -1 1 3|,25,45,15,55,TO_FILL,TO_FILL
+Number Theory,2,"In a class of 40 students, 32 offer Mathematics, 24 offer Physics and 4 offer neither Mathematics nor Physics. How many offer both Mathematics and Physics",4,8,16,20,TO_FILL,TO_FILL
+Algebra,1,Factorize 4a² - 9b²,(2a-3b)(2a+3b),(2a-b)(2a+3b),(2a-3b)(a+3b),(a-3b)(a+3b),TO_FILL,TO_FILL
+Algebra,3,Solve the following equation: 2/(2r - 1) - 5/3 = 1/(r + 2),"(-1, 5/2)","(1, -5/2)","(5/2, 1)","(2,1)",TO_FILL,TO_FILL
+Algebra,3,The second term of a geometric series is -2/3 and its sum to infinity is 3/2. Find its common ratio,-1/3,2,4/3,2/9,TO_FILL,TO_FILL
+Algebra,2,"Tickets for the school play were priced at ₦520.00 each for adults and ₦250.00 each for kids. How many kids' tickets were sold if the total sales were ₦171,000.00 and there were 5 times as many adult tickets sold as children's tickets?",60,50,40,30,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 11 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 12 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 13 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,1,Placeholder question 14 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 15 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,3,Placeholder question 16 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 17 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,3,Placeholder question 18 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 19 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 20 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 21 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 22 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 23 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,3,Placeholder question 24 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 25 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 26 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 27 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 28 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 29 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 30 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 31 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 32 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 33 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,2,Placeholder question 34 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 35 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 36 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 37 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,2,Placeholder question 38 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,2,Placeholder question 39 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 40 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 41 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,1,Placeholder question 42 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 43 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,3,Placeholder question 44 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 45 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,1,Placeholder question 46 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 47 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 48 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 49 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,3,Placeholder question 50 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 51 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 52 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 53 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 54 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 55 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 56 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 57 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,2,Placeholder question 58 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 59 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 60 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 61 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,2,Placeholder question 62 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,1,Placeholder question 63 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 64 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 65 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 66 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 67 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 68 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 69 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,3,Placeholder question 70 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 71 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 72 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 73 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,3,Placeholder question 74 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 75 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,1,Placeholder question 76 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 77 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,2,Placeholder question 78 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,1,Placeholder question 79 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,3,Placeholder question 80 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,2,Placeholder question 81 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 82 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,1,Placeholder question 83 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,1,Placeholder question 84 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 85 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,1,Placeholder question 86 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,3,Placeholder question 87 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,2,Placeholder question 88 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 89 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,1,Placeholder question 90 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Geometry,3,Placeholder question 91 for Geometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,3,Placeholder question 92 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Calculus,2,Placeholder question 93 for Calculus,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,2,Placeholder question 94 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,3,Placeholder question 95 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Statistics,3,Placeholder question 96 for Statistics,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Number Theory,2,Placeholder question 97 for Number Theory,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,3,Placeholder question 98 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Algebra,2,Placeholder question 99 for Algebra,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
+Trigonometry,3,Placeholder question 100 for Trigonometry,Option A,Option B,Option C,Option D,TO_FILL,TO_FILL
