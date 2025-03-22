@@ -48,14 +48,20 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    print(f"Request method: {request.method}")  # Debug
     if form.validate_on_submit():
+        print("Form validated successfully")  # Debug
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
+            print("User logged in, redirecting to home")  # Debug
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
             flash('Login failed. Check your email and password.', 'danger')
+    else:
+        if request.method == 'POST':
+            print("Form validation failed:", form.errors)  # Debug
     return render_template('login.html', form=form)
 
 @app.route('/logout')
