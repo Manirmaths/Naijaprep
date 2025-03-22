@@ -1,16 +1,16 @@
 import csv
 from app import app, db
-from app.models import Question
+from app.models import Question, UserResponse
 
 with app.app_context():
-    db.create_all()
-
-    # Clear existing questions (optional, comment out if appending)
+    # Delete dependent UserResponse records first
+    db.session.query(UserResponse).delete()
+    # Then delete all Question records
     db.session.query(Question).delete()
-    db.session.commit()
+    db.session.commit()  # Commit the deletions
 
-    questions = []
-    with open('questions2.csv', newline='', encoding='utf-8') as csvfile:
+    # Seed new questions from CSV
+    with open('questions.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             question = Question(
@@ -22,10 +22,8 @@ with app.app_context():
                 option_c=row['option_c'],
                 option_d=row['option_d'],
                 correct_option=row['correct_option'],
-                explanation=row['explanation']
+                explanation=row.get('explanation', '')
             )
-            questions.append(question)
-
-    db.session.add_all(questions)
-    db.session.commit()
-    print(f"Seeded {len(questions)} questions from CSV!")
+            db.session.add(question)
+        db.session.commit()
+    print(f"Seeded {Question.query.count()} questions from CSV!")
