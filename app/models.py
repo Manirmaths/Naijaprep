@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    points = db.Column(db.Integer, default=0)  # Added for gamification
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
@@ -25,7 +26,7 @@ class Question(db.Model):
     option_c = db.Column(db.String(100), nullable=False)
     option_d = db.Column(db.String(100), nullable=False)
     correct_option = db.Column(db.String(1), nullable=False)
-    explanation = db.Column(db.Text, nullable=True)  # Add this
+    explanation = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return f"Question('{self.topic}', '{self.difficulty}')"

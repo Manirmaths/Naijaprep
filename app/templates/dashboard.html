@@ -45,6 +45,9 @@
     <div class="container">
         <div class="card dashboard-card p-4 shadow">
             <h2 class="text-center mb-4">Your Progress</h2>
+            <div class="text-center mb-4">
+                <h4>Total Points: {{ points }}</h4> <!-- Added for gamification -->
+            </div>
             {% if topic_stats %}
                 {% for topic, stats in topic_stats.items() %}
                     <div class="mb-3">
@@ -60,7 +63,7 @@
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Practice More</a>
                 </div>
             {% else %}
-                <p class="text-center">Take a quiz to see your progress!</p>
+                <p class="text-center">Take a quiz to see your progress and earn points!</p>
                 <div class="d-grid">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Start Quiz</a>
                 </div>
