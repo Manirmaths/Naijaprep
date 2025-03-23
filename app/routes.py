@@ -1,7 +1,7 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from app import app, db, bcrypt, mail
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import User, Question, UserResponse
+from app.models import User, Question, UserResponse, ReviewQuestion  # Add ReviewQuestion
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
@@ -28,7 +28,6 @@ class QuizForm(FlaskForm):
     answer = RadioField('Answer', choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], validators=[DataRequired()])
     submit = SubmitField('Next')
 
-# New Forms
 class ChangePasswordForm(FlaskForm):
     current_password = PasswordField('Current Password', validators=[DataRequired()])
     new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
@@ -49,7 +48,7 @@ def generate_reset_token(email):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     return serializer.dumps(email, salt='password-reset-salt')
 
-def verify_reset_token(token, expiration=3600):  # 1 hour expiration
+def verify_reset_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(token, salt='password-reset-salt', max_age=expiration)
@@ -81,20 +80,20 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    print(f"Request method: {request.method}")  # Debug
+    print(f"Request method: {request.method}")
     if form.validate_on_submit():
-        print("Form validated successfully")  # Debug
+        print("Form validated successfully")
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
-            print("User logged in, redirecting to home")  # Debug
+            print("User logged in, redirecting to home")
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
             flash('Login failed. Check your email and password.', 'danger')
     else:
         if request.method == 'POST':
-            print("Form validation failed:", form.errors)  # Debug
+            print("Form validation failed:", form.errors)
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -106,7 +105,6 @@ def logout():
 @app.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
-    # Initialize quiz session if not already started
     if 'quiz_questions' not in session:
         responses = UserResponse.query.filter_by(user_id=current_user.id).all()
         topic_stats = {}
@@ -123,7 +121,6 @@ def quiz():
             flash('Not enough questions available. Please add more questions.', 'warning')
             return redirect(url_for('home'))
 
-        # Select 3 unique questions
         if topic_stats:
             weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
             candidates = [q for q in all_questions if q.topic == weakest_topic]
@@ -139,7 +136,6 @@ def quiz():
         session['current_question'] = 0
         session['score'] = 0
 
-    # Get current question index and check if quiz is complete
     current_idx = session['current_question']
     if current_idx >= len(session['quiz_questions']):
         score = session['score']
@@ -150,7 +146,6 @@ def quiz():
         flash(f'Quiz completed! Your score: {score}/{total}', 'success')
         return redirect(url_for('results'))
 
-    # Load current question and form
     question = Question.query.get(session['quiz_questions'][current_idx])
     form = QuizForm()
 
@@ -194,6 +189,7 @@ def results():
             correct_text = f"{correct_option} (Invalid option)"
         
         results_data.append({
+            'question_id': r.question.id,  # Add question_id for marking
             'question_text': r.question.question_text,
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
             'correct_option': correct_text,
@@ -223,7 +219,7 @@ def dashboard():
 
     return render_template('dashboard.html', topic_stats=topic_stats, points=points)
 
-# New Routes
+# New Routes for Password Management
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -278,3 +274,26 @@ def reset_token(token):
         flash('Your password has been reset! Please log in.', 'success')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+# New Routes for Review Feature
+@app.route('/mark_review', methods=['POST'])
+@login_required
+def mark_review():
+    question_id = request.form.get('question_id')
+    if question_id:
+        existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
+        if not existing:
+            review = ReviewQuestion(user_id=current_user.id, question_id=question_id)
+            db.session.add(review)
+            db.session.commit()
+            return jsonify({'status': 'success'})
+        else:
+            return jsonify({'status': 'already_marked'})
+    return jsonify({'status': 'error'})
+
+@app.route('/review')
+@login_required
+def review():
+    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
+    questions = [rq.question for rq in review_questions]
+    return render_template('review.html', questions=questions)

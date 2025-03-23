@@ -11,7 +11,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    points = db.Column(db.Integer, default=0)  # Added for gamification
+    points = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
@@ -25,7 +25,7 @@ class Question(db.Model):
     option_b = db.Column(db.String(100), nullable=False)
     option_c = db.Column(db.String(100), nullable=False)
     option_d = db.Column(db.String(100), nullable=False)
-    correct_option = db.Column(db.String(10), nullable=False)  # correct_option = db.Column(db.String(10), nullable=False)  # Changed from db.String(1)
+    correct_option = db.Column(db.String(10), nullable=False)
     explanation = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
@@ -44,3 +44,15 @@ class UserResponse(db.Model):
 
     def __repr__(self):
         return f"UserResponse(User: {self.user_id}, Question: {self.question_id}, Correct: {self.is_correct})"
+
+class ReviewQuestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('review_questions', lazy=True))
+    question = db.relationship('Question', backref=db.backref('review_questions', lazy=True))
+
+    def __repr__(self):
+        return f"ReviewQuestion(User: {self.user_id}, Question: {self.question_id})"
