@@ -401,18 +401,22 @@ def explain(question_id):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful math tutor."},
+                {"role": "system", "content": "You are a helpful math tutor. Keep explanations concise, max 50 words."},
                 {"role": "user", "content": f"Explain why the correct answer to this math question is {question.correct_option}: {question.question_text}"}
             ],
-            max_tokens=150,
+            max_tokens=60,  # Limits output to roughly 50 words
             temperature=0.7
         )
         explanation = response.choices[0].message.content.strip()
+        # Truncate to 50 words if needed
+        words = explanation.split()
+        if len(words) > 50:
+            explanation = " ".join(words[:50]) + "..."
         app.logger.info("Explanation generated successfully")
         return jsonify({'explanation': explanation})
     except Exception as e:
         app.logger.error(f"OpenAI API error: {str(e)}")
-        return jsonify({'explanation': "Sorry, I couldn't generate an explanation right now."}), 500
+        return jsonify({'explanation': "Sorry, explanation unavailable."}), 500
 
 @app.route('/ai_feedback', methods=['POST'])
 @login_required

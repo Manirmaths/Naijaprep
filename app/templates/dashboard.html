@@ -8,87 +8,173 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #e9ecef 0%, #d4e2f5 100%); /* Softer gradient */
             font-family: 'Poppins', sans-serif;
             color: #333;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .navbar { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-        .navbar-brand { font-weight: 600; font-size: 1.5rem; }
+        .navbar {
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link {
+            color: #d1d8e0 !important;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #74c0fc !important;
+        }
         .dashboard-card {
-            max-width: 800px;
-            margin: 50px auto;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            max-width: 900px;
+            margin: 60px auto;
+            border-radius: 20px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            padding: 40px;
             background: #fff;
+            transition: transform 0.3s ease;
         }
-        h2 {
-            font-weight: 600;
-            color: #007bff;
+        .dashboard-card:hover {
+            transform: translateY(-5px); /* Subtle lift on hover */
+        }
+        .dashboard-title {
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #74c0fc, #4dabf7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             animation: fadeInDown 0.8s ease-in-out;
         }
-        h4 { font-weight: 600; color: #333; }
-        h5 { font-weight: 600; color: #555; margin-bottom: 10px; }
+        .points-display {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            padding: 10px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            animation: fadeInUp 0.8s ease-in-out;
+        }
+        h5 {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         .progress {
-            height: 25px;
-            border-radius: 12px;
-            background-color: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            background-color: #dee2e6;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
         .progress-bar {
-            background: linear-gradient(135deg, #007bff, #00d4ff);
+            background: linear-gradient(135deg, #4dabf7, #1864ab);
             font-weight: 600;
+            font-size: 1rem;
+            transition: width 1s ease-in-out;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #007bff, #00d4ff);
+            background: linear-gradient(135deg, #4dabf7, #1864ab);
             border: none;
             border-radius: 30px;
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-weight: 600;
-            transition: transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
         .btn-primary:hover {
+            background: linear-gradient(135deg, #1864ab, #0d4378);
             transform: scale(1.05);
-            background: linear-gradient(135deg, #0056b3, #00b7eb);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        p { font-size: 1.1rem; color: #666; }
+        .btn-outline-primary {
+            border-color: #4dabf7;
+            color: #4dabf7;
+            border-radius: 20px;
+            padding: 6px 15px;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-primary:hover {
+            background: #4dabf7;
+            color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-outline-secondary {
+            border-color: #6c757d;
+            color: #6c757d;
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        p { font-size: 1.1rem; color: #495057; }
         .marked-questions-text {
             font-size: 1rem;
-            color: #666;
+            color: #495057;
             animation: fadeInUp 0.5s ease-in-out;
         }
         .marked-questions-text .badge {
-            font-size: 1.1rem;
-            padding: 8px 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        .marked-questions-text .badge:hover {
+            transform: scale(1.05);
         }
         .marked-questions-text small {
-            font-size: 0.85rem;
-            margin-top: 5px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #868e96;
+        }
+        #feedback-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            color: #495057;
         }
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home') }}">Maths Exam Prep</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('quiz') }}">Take Quiz</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('review') }}">Review Marked Questions</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('review') }}">Review Marked</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('change_password') }}">Change Password</a></li>
                 </ul>
@@ -96,41 +182,44 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container">
         <div class="card dashboard-card">
-            <h2 class="text-center mb-4">Your Learning Progress</h2>
-            <div class="text-center mb-4">
-                <h4>Total Points: {{ points }}</h4>
+            <h2 class="text-center mb-4 dashboard-title">Your Learning Progress</h2>
+            <div class="text-center mb-5">
+                <span class="points-display">Total Points: {{ points }}</span>
             </div>
             {% if topic_stats %}
-            {% for topic, stats in topic_stats.items() %}
-            <div class="mb-3">
-                <h5>{{ topic }}</h5>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" 
-                         aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
-                        {{ stats.correct }} / {{ stats.total }} ({{ stats.percentage | round(1) }}%)
+                {% for topic, stats in topic_stats.items() %}
+                    <div class="mb-4">
+                        <h5>{{ topic }}</h5>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" 
+                                 aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ stats.correct }} / {{ stats.total }} ({{ stats.percentage | round(1) }}%)
+                            </div>
+                        </div>
+                        <a href="{{ url_for('quiz', topic=topic) }}" class="btn btn-outline-primary mt-2">Practice {{ topic }}</a>
                     </div>
-                </div>
-                <a href="{{ url_for('quiz', topic=topic) }}" class="btn btn-sm btn-outline-primary mt-2">Practice {{ topic }}</a>
-            </div>
                 {% endfor %}
-                <button class="btn btn-outline-secondary mt-3" onclick="getAIFeedback()">Get AI Feedback</button>
-                <div id="feedback-container" class="mt-3 text-muted"></div>
-                <div class="d-grid mt-4">
-                    <a href="{{ url_for('quiz') }}" class="btn btn-primary">Practice More</a>
-                    <p class="text-center mt-3 marked-questions-text">
+                <div class="text-center">
+                    <button class="btn btn-outline-secondary mt-3" onclick="getAIFeedback()">Get AI Feedback</button>
+                    <div id="feedback-container" class="mt-3"></div>
+                </div>
+                <div class="text-center mt-5">
+                    <a href="{{ url_for('quiz') }}" class="btn btn-primary mb-3">Practice More</a>
+                    <p class="marked-questions-text">
                         {% if review_questions %}
                             {% if review_questions|length >= 3 %}
                                 <span class="badge bg-success rounded-pill">🎉 {{ review_questions|length }} Marked Questions Ready!</span>
-                                <small class="d-block text-muted">You’re all set to practice your marked questions.</small>
+                                <small class="d-block">Ready to tackle your marked questions?</small>
                             {% else %}
                                 <span class="badge bg-primary rounded-pill">📌 {{ review_questions|length }} Marked Question{% if review_questions|length > 1 %}s{% endif %}</span>
-                                <small class="d-block text-muted">Mark at least {{ 3 - (review_questions|length) }} more question{% if 3 - (review_questions|length) > 1 %}s{% endif %} to practice.</small>
+                                <small class="d-block">Mark {{ 3 - (review_questions|length) }} more to practice!</small>
                             {% endif %}
                         {% else %}
                             <span class="badge bg-info rounded-pill">✨ No Marked Questions Yet</span>
-                            <small class="d-block text-muted">Mark 3 questions to unlock practice mode!</small>
+                            <small class="d-block">Mark 3 questions to unlock practice mode!</small>
                         {% endif %}
                     </p>
                     {% if review_questions and review_questions|length >= 3 %}
@@ -138,32 +227,42 @@
                     {% endif %}
                 </div>
             {% else %}
-                <p class="text-center">Take a quiz to track your progress and earn points!</p>
-                <div class="d-grid">
+                <p class="text-center mt-4">Take a quiz to track your progress and earn points!</p>
+                <div class="text-center">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Start Quiz</a>
                 </div>
             {% endif %}
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer text-center mt-auto py-4">
+        <div class="container">
+            <p class="mb-1">© 2025 Maths Exam Prep. All rights reserved.</p>
+            <p><a href="#" class="text-white text-decoration-none">Privacy Policy</a> | <a href="#" class="text-white text-decoration-none">Terms of Service</a></p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         function getAIFeedback() {
-            console.log('Fetching AI feedback');
-            const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : '{{ csrf_token() }}';
+            const feedbackContainer = document.getElementById('feedback-container');
             fetch('/ai_feedback', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-Token': csrfToken
-                }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('feedback-container').innerText = data.feedback;
+                feedbackContainer.innerText = data.feedback;
+                feedbackContainer.style.opacity = 0;
+                setTimeout(() => {
+                    feedbackContainer.style.transition = 'opacity 0.5s ease';
+                    feedbackContainer.style.opacity = 1;
+                }, 100);
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('feedback-container').innerText = 'Failed to get feedback.';
+                feedbackContainer.innerText = 'Failed to load feedback.';
             });
         }
     </script>
