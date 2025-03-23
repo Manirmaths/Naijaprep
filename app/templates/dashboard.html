@@ -103,16 +103,17 @@
                 <h4>Total Points: {{ points }}</h4>
             </div>
             {% if topic_stats %}
-                {% for topic, stats in topic_stats.items() %}
-                    <div class="mb-3">
-                        <h5>{{ topic }}</h5>
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" 
-                                 aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
-                                {{ stats.correct }} / {{ stats.total }} ({{ stats.percentage | round(1) }}%)
-                            </div>
-                        </div>
+            {% for topic, stats in topic_stats.items() %}
+            <div class="mb-3">
+                <h5>{{ topic }}</h5>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: {{ stats.percentage }}%;" 
+                         aria-valuenow="{{ stats.percentage }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ stats.correct }} / {{ stats.total }} ({{ stats.percentage | round(1) }}%)
                     </div>
+                </div>
+                <a href="{{ url_for('quiz', topic=topic) }}" class="btn btn-sm btn-outline-primary mt-2">Practice {{ topic }}</a>
+            </div>
                 {% endfor %}
                 <div class="d-grid mt-4">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Practice More</a>

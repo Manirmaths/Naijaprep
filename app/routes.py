@@ -106,40 +106,45 @@ def logout():
 @app.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
-    # Initialize quiz session if not already started
+    topic = request.args.get('topic')
     if 'quiz_questions' not in session:
-        responses = UserResponse.query.filter_by(user_id=current_user.id).all()
-        topic_stats = {}
-        for r in responses:
-            topic = r.question.topic
-            if topic not in topic_stats:
-                topic_stats[topic] = {'correct': 0, 'total': 0}
-            topic_stats[topic]['total'] += 1
-            if r.is_correct:
-                topic_stats[topic]['correct'] += 1
-
-        all_questions = Question.query.all()
-        if len(all_questions) < 3:
-            flash('Not enough questions available. Please add more questions.', 'warning')
-            return redirect(url_for('home'))
-
-        # Select 3 unique questions
-        if topic_stats:
-            weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
-            candidates = [q for q in all_questions if q.topic == weakest_topic]
-            if len(candidates) >= 3:
-                selected_questions = random.sample(candidates, 3)
-            else:
-                remaining = [q for q in all_questions if q not in candidates]
-                selected_questions = candidates + random.sample(remaining, 3 - len(candidates))
-        else:
+        if topic:
+            all_questions = Question.query.filter_by(topic=topic).all()
+            if len(all_questions) < 3:
+                flash(f'Not enough questions in {topic}. Please choose another topic or take a general quiz.', 'warning')
+                return redirect(url_for('dashboard'))
             selected_questions = random.sample(all_questions, 3)
+        else:
+            responses = UserResponse.query.filter_by(user_id=current_user.id).all()
+            topic_stats = {}
+            for r in responses:
+                topic = r.question.topic
+                if topic not in topic_stats:
+                    topic_stats[topic] = {'correct': 0, 'total': 0}
+                topic_stats[topic]['total'] += 1
+                if r.is_correct:
+                    topic_stats[topic]['correct'] += 1
+
+            all_questions = Question.query.all()
+            if len(all_questions) < 3:
+                flash('Not enough questions available. Please add more questions.', 'warning')
+                return redirect(url_for('home'))
+
+            if topic_stats:
+                weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
+                candidates = [q for q in all_questions if q.topic == weakest_topic]
+                if len(candidates) >= 3:
+                    selected_questions = random.sample(candidates, 3)
+                else:
+                    remaining = [q for q in all_questions if q not in candidates]
+                    selected_questions = candidates + random.sample(remaining, 3 - len(candidates))
+            else:
+                selected_questions = random.sample(all_questions, 3)
 
         session['quiz_questions'] = [q.id for q in selected_questions]
         session['current_question'] = 0
         session['score'] = 0
 
-    # Get current question index and check if quiz is complete
     current_idx = session['current_question']
     if current_idx >= len(session['quiz_questions']):
         score = session['score']
@@ -150,7 +155,6 @@ def quiz():
         flash(f'Quiz completed! Your score: {score}/{total}', 'success')
         return redirect(url_for('results'))
 
-    # Load current question and form
     question = Question.query.get(session['quiz_questions'][current_idx])
     form = QuizForm()
 
@@ -172,7 +176,6 @@ def quiz():
         return redirect(url_for('quiz'))
 
     return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))
-
 @app.route('/results')
 @login_required
 def results():
