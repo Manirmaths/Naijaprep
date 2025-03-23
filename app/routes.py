@@ -278,3 +278,18 @@ def reset_token(token):
         flash('Your password has been reset! Please log in.', 'success')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.route('/mark_review', methods=['POST'])
+@login_required
+def mark_review():
+    question_id = request.form.get('question_id')
+    if question_id:
+        existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
+        if not existing:
+            review = ReviewQuestion(user_id=current_user.id, question_id=question_id)
+            db.session.add(review)
+            db.session.commit()
+            return jsonify({'status': 'success'})
+        else:
+            return jsonify({'status': 'already_marked'})
+    return jsonify({'status': 'error'})

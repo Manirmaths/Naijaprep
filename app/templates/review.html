@@ -25,10 +25,13 @@
                         <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('review') }}">Review Questions</a>
+                        <a class="nav-link" href="{{ url_for('review') }}">Review Marked Questions</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('change_password') }}">Change Password</a>
                     </li>
                 </ul>
             </div>
@@ -42,20 +45,14 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5>{{ question.question_text }}</h5>
-                            <p>Options:</p>
-                            <ul>
-                                <li>A. {{ question.option_a }}</li>
-                                <li>B. {{ question.option_b }}</li>
-                                <li>C. {{ question.option_c }}</li>
-                                <li>D. {{ question.option_d }}</li>
-                            </ul>
-                            <p><strong>Correct Answer:</strong> {{ question.correct_option }}</p>
-                            <p><strong>Explanation:</strong> {{ question.explanation or "No explanation available." }}</p>
+                            <p>Options: A. {{ question.option_a }}, B. {{ question.option_b }}, C. {{ question.option_c }}, D. {{ question.option_d }}</p>
+                            <p>Correct Answer: {{ question.correct_option }}</p>
+                            <p>Explanation: {{ question.explanation or "No explanation available." }}</p>
                         </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="text-center">No questions marked for review yet. Go to your quiz results to mark questions!</p>
+                <p class="text-center">No questions marked for review yet.</p>
                 <div class="d-grid">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Take a Quiz</a>
                 </div>

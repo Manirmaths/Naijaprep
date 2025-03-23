@@ -44,3 +44,15 @@ class UserResponse(db.Model):
 
     def __repr__(self):
         return f"UserResponse(User: {self.user_id}, Question: {self.question_id}, Correct: {self.is_correct})"
+    
+class ReviewQuestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('review_questions', lazy=True))
+    question = db.relationship('Question', backref=db.backref('review_questions', lazy=True))
+
+    def __repr__(self):
+        return f"ReviewQuestion(User: {self.user_id}, Question: {self.question_id})"
