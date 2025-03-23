@@ -221,8 +221,9 @@ def dashboard():
         topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
     
     points = current_user.points
+    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('dashboard.html', topic_stats=topic_stats, points=points)
+    return render_template('dashboard.html', topic_stats=topic_stats, points=points, review_questions=review_questions)
 
 # New Routes
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -311,3 +312,49 @@ def review():
     review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
     questions = [rq.question for rq in review_questions]
     return render_template('review.html', questions=questions)
+
+
+@app.route('/marked_quiz', methods=['GET', 'POST'])
+@login_required
+def marked_quiz():
+    if 'quiz_questions' not in session:
+        marked_questions = [rq.question for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()]
+        if len(marked_questions) < 3:
+            flash('Not enough marked questions. Please mark at least 3 questions to practice.', 'warning')
+            return redirect(url_for('review'))
+        selected_questions = random.sample(marked_questions, 3)
+        session['quiz_questions'] = [q.id for q in selected_questions]
+        session['current_question'] = 0
+        session['score'] = 0
+
+    current_idx = session['current_question']
+    if current_idx >= len(session['quiz_questions']):
+        score = session['score']
+        total = len(session['quiz_questions'])
+        session.pop('quiz_questions', None)
+        session.pop('current_question', None)
+        session.pop('score', None)
+        flash(f'Marked questions quiz completed! Your score: {score}/{total}', 'success')
+        return redirect(url_for('results'))
+
+    question = Question.query.get(session['quiz_questions'][current_idx])
+    form = QuizForm()
+
+    if form.validate_on_submit():
+        selected = form.answer.data
+        is_correct = (selected == question.correct_option)
+        response = UserResponse(
+            user_id=current_user.id,
+            question_id=question.id,
+            selected_option=selected,
+            is_correct=is_correct
+        )
+        db.session.add(response)
+        if is_correct:
+            current_user.points += 10
+            session['score'] += 1
+        db.session.commit()
+        session['current_question'] += 1
+        return redirect(url_for('marked_quiz'))
+
+    return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))

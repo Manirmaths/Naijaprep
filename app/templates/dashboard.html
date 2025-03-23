@@ -96,8 +96,12 @@
                         </div>
                     </div>
                 {% endfor %}
-                <div class="d-grid">
+                <div class="d-grid mt-4">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Practice More</a>
+                    <p>Debug: {{ review_questions|length }} marked questions</p>  <!-- Debug line -->
+                    {% if review_questions and review_questions|length >= 3 %}
+                        <a href="{{ url_for('marked_quiz') }}" class="btn btn-primary mt-2">Practice Marked Questions</a>
+                    {% endif %}
                 </div>
             {% else %}
                 <p class="text-center">Take a quiz to track your progress and earn points!</p>
