@@ -389,3 +389,62 @@ def unmark_review():
     except Exception as e:
         app.logger.error(f"Error in unmark_review: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
+    
+
+@app.route('/explain/<int:question_id>', methods=['POST'])  # Changed to POST for CSRF
+@login_required
+def explain(question_id):
+    question = Question.query.get_or_404(question_id)
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful math tutor."},
+                {"role": "user", "content": f"Explain why the correct answer to this math question is {question.correct_option}: {question.question_text}"}
+            ],
+            max_tokens=150,
+            temperature=0.7
+        )
+        explanation = response.choices[0].message['content'].strip()
+        return jsonify({'explanation': explanation})
+    except Exception as e:
+        app.logger.error(f"OpenAI API error: {str(e)}")
+        return jsonify({'explanation': "Sorry, I couldn't generate an explanation right now."}), 500
+
+
+@app.route('/ai_feedback', methods=['POST'])  # Changed to POST for CSRF
+@login_required
+def ai_feedback():
+    responses = UserResponse.query.filter_by(user_id=current_user.id).all()
+    topic_stats = {}
+    for r in responses:
+        topic = r.question.topic
+        if topic not in topic_stats:
+            topic_stats[topic] = {'correct': 0, 'total': 0}
+        topic_stats[topic]['total'] += 1
+        if r.is_correct:
+            topic_stats[topic]['correct'] += 1
+    
+    for topic in topic_stats:
+        topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
+    
+    prompt = "Based on the following topic statistics, provide feedback and study recommendations:\n" + \
+             "\n".join(f"- {t}: {s['correct']}/{s['total']} ({s['percentage']:.1f}%)" for t, s in topic_stats.items())
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful math tutor."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=200,
+            temperature=0.7
+        )
+        feedback = response.choices[0].message['content'].strip()
+        return jsonify({'feedback': feedback})
+    except Exception as e:
+        app.logger.error(f"OpenAI API error: {str(e)}")
+        return jsonify({'feedback': "Sorry, I couldn't generate feedback right now."}), 500   
+
+
+
