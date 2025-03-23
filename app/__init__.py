@@ -31,7 +31,7 @@ bcrypt = Bcrypt(app)
 mail = Mail(app)
 
 # Import models to register them with SQLAlchemy
-from app.models import User, Question, UserResponse
+from app.models import User, Question, UserResponse, ReviewQuestion  # Added ReviewQuestion
 
 # Create tables if they don’t exist
 with app.app_context():

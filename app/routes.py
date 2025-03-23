@@ -1,7 +1,7 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from app import app, db, bcrypt, mail
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import User, Question, UserResponse
+from app.models import User, Question, UserResponse, ReviewQuestion
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
@@ -194,6 +194,7 @@ def results():
             correct_text = f"{correct_option} (Invalid option)"
         
         results_data.append({
+            'question_id': r.question.id,  # Added this line
             'question_text': r.question.question_text,
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
             'correct_option': correct_text,
@@ -282,8 +283,14 @@ def reset_token(token):
 @app.route('/mark_review', methods=['POST'])
 @login_required
 def mark_review():
-    question_id = request.form.get('question_id')
-    if question_id:
+    try:
+        question_id = request.form.get('question_id')
+        if not question_id:
+            return jsonify({'status': 'error', 'message': 'No question ID provided'}), 400
+        question_id = int(question_id)  # This line fails, triggering ValueError
+        question = Question.query.get(question_id)
+        if not question:
+            return jsonify({'status': 'error', 'message': 'Question not found'}), 404
         existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
         if not existing:
             review = ReviewQuestion(user_id=current_user.id, question_id=question_id)
@@ -292,4 +299,15 @@ def mark_review():
             return jsonify({'status': 'success'})
         else:
             return jsonify({'status': 'already_marked'})
-    return jsonify({'status': 'error'})
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400  # Caught here
+    except Exception as e:
+        app.logger.error(f"Error in mark_review: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
+
+@app.route('/review')
+@login_required
+def review():
+    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
+    questions = [rq.question for rq in review_questions]
+    return render_template('review.html', questions=questions)

@@ -79,25 +79,45 @@
             </div>
         </div>
     </div>
+    <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function markForReview(questionId) {
+            console.log('Question ID being sent:', questionId);  // Debug
+            const csrfToken = document.getElementById('csrf_token').value;
+            if (!questionId || isNaN(questionId)) {
+                alert('Invalid question ID: ' + questionId);
+                return;
+            }
             fetch('/mark_review', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrfToken
+                },
                 body: 'question_id=' + questionId
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error('Network response was not ok: ' + response.status + ' - ' + (err.message || 'No message'));
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.status === 'success') {
                     alert('Question marked for review!');
                 } else if (data.status === 'already_marked') {
                     alert('This question is already marked for review.');
                 } else {
-                    alert('Error marking question.');
+                    alert('Error marking question: ' + (data.message || 'Unknown error'));
                 }
             })
-            .catch(error => alert('Error: ' + error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            });
         }
     </script>
 </body>
