@@ -49,7 +49,6 @@
                         <th scope="col">Correct Answer</th>
                         <th scope="col">Result</th>
                         <th scope="col">Explanation</th>
-                        <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,9 +65,6 @@
                                 {% endif %}
                             </td>
                             <td>{{ result.explanation }}</td>
-                            <td>
-                                <button class="btn btn-secondary btn-sm" onclick="markForReview({{ result.question_id }})">Review Later</button>
-                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -76,29 +72,9 @@
             <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
                 <a href="{{ url_for('quiz') }}" class="btn btn-outline-primary">Try Again</a>
                 <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
-                <a href="{{ url_for('review') }}" class="btn btn-info">View Review Questions</a>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function markForReview(questionId) {
-            fetch('/mark_review', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'question_id=' + questionId
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Question marked for review!');
-                } else if (data.status === 'already_marked') {
-                    alert('This question is already marked for review.');
-                } else {
-                    alert('Error marking question.');
-                }
-            });
-        }
-    </script>
 </body>
 </html>
