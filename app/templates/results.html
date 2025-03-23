@@ -104,8 +104,7 @@
                         <th scope="col">Your Answer</th>
                         <th scope="col">Correct Answer</th>
                         <th scope="col">Result</th>
-                        <th scope="col">Explanation</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">Action</th> <!-- Removed Explanation column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -121,7 +120,6 @@
                                     <span class="badge bg-danger">Incorrect</span>
                                 {% endif %}
                             </td>
-                            <td>{{ result.explanation }}</td>
                             <td>
                                 {% if result.is_marked %}
                                     <button class="btn btn-danger btn-sm" onclick="unmarkForReview({{ result.question_id }})">Unmark</button>
@@ -129,7 +127,7 @@
                                     <button class="btn btn-secondary btn-sm" onclick="markForReview({{ result.question_id }})">Review Later</button>
                                 {% endif %}
                                 <button class="btn btn-info btn-sm mt-1" onclick="getExplanation({{ result.question_id }})">Explain</button>
-                            </td>
+                            </td> <!-- Removed explanation display -->
                         </tr>
                     {% endfor %}
                 </tbody>

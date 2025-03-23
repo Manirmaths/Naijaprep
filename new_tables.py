@@ -4,6 +4,5 @@ from sqlalchemy import text
 
 with app.app_context():
     # Drop the explanation column directly (PostgreSQL supports this)
-    db.session.execute(text('ALTER TABLE question DROP COLUMN explanation'))
-    db.session.commit()
-    print("Explanation column dropped successfully!")
+    db.create_all()
+    print("Table created successfully!")

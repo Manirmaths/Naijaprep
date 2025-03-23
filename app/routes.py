@@ -192,7 +192,6 @@ def results():
     score = sum(1 for r in responses if r.is_correct)
     total_questions = len(responses)
 
-    # Get all marked question IDs for the current user
     marked_question_ids = {rq.question_id for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()}
 
     results_data = []
@@ -210,8 +209,7 @@ def results():
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
             'correct_option': correct_text,
             'is_correct': r.is_correct,
-            'explanation': r.question.explanation or "No explanation available.",
-            'is_marked': r.question.id in marked_question_ids  # New field
+            'is_marked': r.question.id in marked_question_ids  # Removed 'explanation' key
         })
 
     return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
