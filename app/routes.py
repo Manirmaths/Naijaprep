@@ -1,5 +1,5 @@
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from app import app, db, bcrypt, mail
+from flask import render_template, request, redirect, url_for, flash, session
+from app import app, db, bcrypt
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User, Question, UserResponse, ReviewQuestion  # Add ReviewQuestion
 from flask_wtf import FlaskForm
@@ -26,37 +26,8 @@ class LoginForm(FlaskForm):
 
 class QuizForm(FlaskForm):
     answer = RadioField('Answer', choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], validators=[DataRequired()])
-    submit = SubmitField('Next')
+    submit = SubmitField('Next')  # Changed to "Next" for pagination
 
-class ChangePasswordForm(FlaskForm):
-    current_password = PasswordField('Current Password', validators=[DataRequired()])
-    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
-    confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
-    submit = SubmitField('Change Password')
-
-class RequestResetForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
-
-class ResetPasswordForm(FlaskForm):
-    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Reset Password')
-
-# Token generation for password reset
-def generate_reset_token(email):
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt='password-reset-salt')
-
-def verify_reset_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(token, salt='password-reset-salt', max_age=expiration)
-    except:
-        return None
-    return email
-
-# Existing Routes
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -218,82 +189,3 @@ def dashboard():
     points = current_user.points
 
     return render_template('dashboard.html', topic_stats=topic_stats, points=points)
-
-# New Routes for Password Management
-@app.route('/change_password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    form = ChangePasswordForm()
-    if form.validate_on_submit():
-        if bcrypt.check_password_hash(current_user.password, form.current_password.data):
-            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            current_user.password = hashed_password
-            db.session.commit()
-            flash('Your password has been updated!', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Current password is incorrect.', 'danger')
-    return render_template('change_password.html', form=form)
-
-@app.route('/reset_password', methods=['GET', 'POST'])
-def request_reset():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = RequestResetForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = generate_reset_token(user.email)
-            reset_url = url_for('reset_token', token=token, _external=True)
-            msg = Message('Password Reset Request', recipients=[user.email])
-            msg.body = f'To reset your password, visit this link: {reset_url}\nIf you didn’t request this, ignore this email.'
-            mail.send(msg)
-            flash('An email has been sent with instructions to reset your password.', 'info')
-            return redirect(url_for('login'))
-        else:
-            flash('No account found with that email.', 'danger')
-    return render_template('reset_request.html', form=form)
-
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    email = verify_reset_token(token)
-    if not email:
-        flash('The reset link is invalid or has expired.', 'danger')
-        return redirect(url_for('request_reset'))
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash('No account found with that email.', 'danger')
-        return redirect(url_for('request_reset'))
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password = hashed_password
-        db.session.commit()
-        flash('Your password has been reset! Please log in.', 'success')
-        return redirect(url_for('login'))
-    return render_template('reset_password.html', form=form)
-
-# New Routes for Review Feature
-@app.route('/mark_review', methods=['POST'])
-@login_required
-def mark_review():
-    question_id = request.form.get('question_id')
-    if question_id:
-        existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
-        if not existing:
-            review = ReviewQuestion(user_id=current_user.id, question_id=question_id)
-            db.session.add(review)
-            db.session.commit()
-            return jsonify({'status': 'success'})
-        else:
-            return jsonify({'status': 'already_marked'})
-    return jsonify({'status': 'error'})
-
-@app.route('/review')
-@login_required
-def review():
-    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
-    questions = [rq.question for rq in review_questions]
-    return render_template('review.html', questions=questions)
