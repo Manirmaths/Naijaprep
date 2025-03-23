@@ -39,7 +39,7 @@
             overflow: hidden;
         }
         .table-dark { background: #343a40; }
-        .btn-primary, .btn-outline-primary, .btn-secondary {
+        .btn-primary, .btn-outline-primary, .btn-secondary, .btn-danger {
             border-radius: 20px;
             padding: 8px 20px;
             font-weight: 600;
@@ -61,6 +61,12 @@
             transition: transform 0.3s ease;
         }
         .btn-secondary:hover { transform: scale(1.05); background: #5a6268; }
+        .btn-danger {
+            background: #dc3545;
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        .btn-danger:hover { transform: scale(1.05); background: #c82333; }
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -117,7 +123,11 @@
                             </td>
                             <td>{{ result.explanation }}</td>
                             <td>
-                                <button class="btn btn-secondary btn-sm" onclick="markForReview({{ result.question_id }})">Review Later</button>
+                                {% if result.is_marked %}
+                                    <button class="btn btn-danger btn-sm" onclick="unmarkForReview({{ result.question_id }})">Unmark</button>
+                                {% else %}
+                                    <button class="btn btn-secondary btn-sm" onclick="markForReview({{ result.question_id }})">Review Later</button>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -133,12 +143,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         function markForReview(questionId) {
-            console.log('Question ID being sent:', questionId);
+            console.log('Marking question ID:', questionId);
             const csrfToken = document.getElementById('csrf_token').value;
-            if (!questionId || isNaN(questionId)) {
-                alert('Invalid question ID: ' + questionId);
-                return;
-            }
             fetch('/mark_review', {
                 method: 'POST',
                 headers: {
@@ -147,26 +153,46 @@
                 },
                 body: 'question_id=' + questionId
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error('Network response was not ok: ' + response.status + ' - ' + (err.message || 'No message'));
-                    });
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
                     alert('Question marked for review!');
+                    location.reload(); // Refresh to show "Unmark"
                 } else if (data.status === 'already_marked') {
                     alert('This question is already marked for review.');
                 } else {
-                    alert('Error marking question: ' + (data.message || 'Unknown error'));
+                    alert('Error: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error: ' + error.message);
+                alert('Error marking question: ' + error.message);
+            });
+        }
+
+        function unmarkForReview(questionId) {
+            console.log('Unmarking question ID:', questionId);
+            const csrfToken = document.getElementById('csrf_token').value;
+            fetch('/unmark_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: 'question_id=' + questionId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Question unmarked from review!');
+                    location.reload(); // Refresh to show "Review Later"
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error unmarking question: ' + error.message);
             });
         }
     </script>

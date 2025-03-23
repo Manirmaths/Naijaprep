@@ -184,6 +184,9 @@ def results():
     score = sum(1 for r in responses if r.is_correct)
     total_questions = len(responses)
 
+    # Get all marked question IDs for the current user
+    marked_question_ids = {rq.question_id for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()}
+
     results_data = []
     valid_options = ['A', 'B', 'C', 'D']
     for r in responses:
@@ -194,12 +197,13 @@ def results():
             correct_text = f"{correct_option} (Invalid option)"
         
         results_data.append({
-            'question_id': r.question.id,  # Added this line
+            'question_id': r.question.id,
             'question_text': r.question.question_text,
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
             'correct_option': correct_text,
             'is_correct': r.is_correct,
-            'explanation': r.question.explanation or "No explanation available."
+            'explanation': r.question.explanation or "No explanation available.",
+            'is_marked': r.question.id in marked_question_ids  # New field
         })
 
     return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
@@ -358,3 +362,24 @@ def marked_quiz():
         return redirect(url_for('marked_quiz'))
 
     return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))
+
+@app.route('/unmark_review', methods=['POST'])
+@login_required
+def unmark_review():
+    try:
+        question_id = request.form.get('question_id')
+        if not question_id:
+            return jsonify({'status': 'error', 'message': 'No question ID provided'}), 400
+        question_id = int(question_id)
+        review = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
+        if review:
+            db.session.delete(review)
+            db.session.commit()
+            return jsonify({'status': 'success', 'message': 'Question unmarked'})
+        else:
+            return jsonify({'status': 'error', 'message': 'Question not marked for review'}), 404
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400
+    except Exception as e:
+        app.logger.error(f"Error in unmark_review: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
