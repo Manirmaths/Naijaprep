@@ -53,8 +53,26 @@
             background: linear-gradient(135deg, #0056b3, #00b7eb);
         }
         p { font-size: 1.1rem; color: #666; }
+        .marked-questions-text {
+            font-size: 1rem;
+            color: #666;
+            animation: fadeInUp 0.5s ease-in-out;
+        }
+        .marked-questions-text .badge {
+            font-size: 1.1rem;
+            padding: 8px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .marked-questions-text small {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -98,7 +116,20 @@
                 {% endfor %}
                 <div class="d-grid mt-4">
                     <a href="{{ url_for('quiz') }}" class="btn btn-primary">Practice More</a>
-                    <p>Debug: {{ review_questions|length }} marked questions</p>  <!-- Debug line -->
+                    <p class="text-center mt-3 marked-questions-text">
+                        {% if review_questions %}
+                            {% if review_questions|length >= 3 %}
+                                <span class="badge bg-success rounded-pill">🎉 {{ review_questions|length }} Marked Questions Ready!</span>
+                                <small class="d-block text-muted">You’re all set to practice your marked questions.</small>
+                            {% else %}
+                                <span class="badge bg-primary rounded-pill">📌 {{ review_questions|length }} Marked Question{% if review_questions|length > 1 %}s{% endif %}</span>
+                                <small class="d-block text-muted">Mark at least {{ 3 - (review_questions|length) }} more question{% if 3 - (review_questions|length) > 1 %}s{% endif %} to practice.</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-info rounded-pill">✨ No Marked Questions Yet</span>
+                            <small class="d-block text-muted">Mark 3 questions to unlock practice mode!</small>
+                        {% endif %}
+                    </p>
                     {% if review_questions and review_questions|length >= 3 %}
                         <a href="{{ url_for('marked_quiz') }}" class="btn btn-primary mt-2">Practice Marked Questions</a>
                     {% endif %}
