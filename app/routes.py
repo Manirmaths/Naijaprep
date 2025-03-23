@@ -416,9 +416,10 @@ def explain(question_id):
         app.logger.error(f"OpenAI API error: {str(e)}")
         return jsonify({'explanation': "Sorry, I couldn't generate an explanation right now."}), 500
 
-@app.route('/ai_feedback', methods=['POST'])  # Changed to POST for CSRF
+@app.route('/ai_feedback', methods=['POST'])
 @login_required
 def ai_feedback():
+    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     responses = UserResponse.query.filter_by(user_id=current_user.id).all()
     topic_stats = {}
     for r in responses:
@@ -435,7 +436,7 @@ def ai_feedback():
     prompt = "Based on the following topic statistics, provide feedback and study recommendations:\n" + \
              "\n".join(f"- {t}: {s['correct']}/{s['total']} ({s['percentage']:.1f}%)" for t, s in topic_stats.items())
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful math tutor."},
@@ -444,12 +445,11 @@ def ai_feedback():
             max_tokens=200,
             temperature=0.7
         )
-        feedback = response.choices[0].message['content'].strip()
+        feedback = response.choices[0].message.content.strip()
         return jsonify({'feedback': feedback})
     except Exception as e:
         app.logger.error(f"OpenAI API error: {str(e)}")
-        return jsonify({'feedback': "Sorry, I couldn't generate feedback right now."}), 500   
-
+        return jsonify({'feedback': "Sorry, I couldn't generate feedback right now."}), 500
 
 @app.route('/test_openai')
 @login_required
