@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, session
-from app import app, db, bcrypt
+from app import app, db, bcrypt, mail
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User, Question, UserResponse
 from flask_wtf import FlaskForm
@@ -8,7 +8,10 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo
 from random import choice
 from sqlalchemy.exc import IntegrityError
 import random
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message
 
+# Existing Forms
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -23,8 +26,38 @@ class LoginForm(FlaskForm):
 
 class QuizForm(FlaskForm):
     answer = RadioField('Answer', choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], validators=[DataRequired()])
-    submit = SubmitField('Next')  # Changed to "Next" for pagination
+    submit = SubmitField('Next')
 
+# New Forms
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Change Password')
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')
+
+# Token generation for password reset
+def generate_reset_token(email):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt='password-reset-salt')
+
+def verify_reset_token(token, expiration=3600):  # 1 hour expiration
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=expiration)
+    except:
+        return None
+    return email
+
+# Existing Routes
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -119,7 +152,7 @@ def quiz():
 
     # Load current question and form
     question = Question.query.get(session['quiz_questions'][current_idx])
-    form = QuizForm()  # Removed prefix=str(question.id)
+    form = QuizForm()
 
     if form.validate_on_submit():
         selected = form.answer.data
@@ -132,7 +165,7 @@ def quiz():
         )
         db.session.add(response)
         if is_correct:
-            current_user.points += 10  # Award 10 points for correct answer
+            current_user.points += 10
             session['score'] += 1
         db.session.commit()
         session['current_question'] += 1
@@ -155,7 +188,6 @@ def results():
     valid_options = ['A', 'B', 'C', 'D']
     for r in responses:
         correct_option = r.question.correct_option
-        # Check if correct_option is valid; if not, display it as-is without attribute lookup
         if correct_option in valid_options:
             correct_text = f"{correct_option}. {getattr(r.question, f'option_{correct_option.lower()}')}"
         else:
@@ -187,6 +219,62 @@ def dashboard():
     for topic in topic_stats:
         topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
     
-    points = current_user.points  # Added for gamification
+    points = current_user.points
 
     return render_template('dashboard.html', topic_stats=topic_stats, points=points)
+
+# New Routes
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.current_password.data):
+            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            current_user.password = hashed_password
+            db.session.commit()
+            flash('Your password has been updated!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Current password is incorrect.', 'danger')
+    return render_template('change_password.html', form=form)
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def request_reset():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = generate_reset_token(user.email)
+            reset_url = url_for('reset_token', token=token, _external=True)
+            msg = Message('Password Reset Request', recipients=[user.email])
+            msg.body = f'To reset your password, visit this link: {reset_url}\nIf you didn’t request this, ignore this email.'
+            mail.send(msg)
+            flash('An email has been sent with instructions to reset your password.', 'info')
+            return redirect(url_for('login'))
+        else:
+            flash('No account found with that email.', 'danger')
+    return render_template('reset_request.html', form=form)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    email = verify_reset_token(token)
+    if not email:
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('request_reset'))
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('No account found with that email.', 'danger')
+        return redirect(url_for('request_reset'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been reset! Please log in.', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
