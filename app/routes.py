@@ -10,10 +10,12 @@ from sqlalchemy.exc import IntegrityError
 import random
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
-import openai
+from openai import OpenAI
 import os
+  # Add this near the top
 
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+print("API Key:", os.environ.get('OPENAI_API_KEY'))
+
 # Existing Forms
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -391,12 +393,14 @@ def unmark_review():
         return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
     
 
-@app.route('/explain/<int:question_id>', methods=['POST'])  # Changed to POST for CSRF
+@app.route('/explain/<int:question_id>', methods=['POST'])
 @login_required
 def explain(question_id):
+    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     question = Question.query.get_or_404(question_id)
+    app.logger.info(f"Fetching explanation for question {question_id}")
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful math tutor."},
@@ -405,12 +409,12 @@ def explain(question_id):
             max_tokens=150,
             temperature=0.7
         )
-        explanation = response.choices[0].message['content'].strip()
+        explanation = response.choices[0].message.content.strip()
+        app.logger.info("Explanation generated successfully")
         return jsonify({'explanation': explanation})
     except Exception as e:
         app.logger.error(f"OpenAI API error: {str(e)}")
         return jsonify({'explanation': "Sorry, I couldn't generate an explanation right now."}), 500
-
 
 @app.route('/ai_feedback', methods=['POST'])  # Changed to POST for CSRF
 @login_required
@@ -447,4 +451,16 @@ def ai_feedback():
         return jsonify({'feedback': "Sorry, I couldn't generate feedback right now."}), 500   
 
 
-
+@app.route('/test_openai')
+@login_required
+def test_openai():
+    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "Say hello!"}],
+            max_tokens=10
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {str(e)}"
