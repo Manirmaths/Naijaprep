@@ -10,7 +10,10 @@ from sqlalchemy.exc import IntegrityError
 import random
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
+import openai
+import os
 
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 # Existing Forms
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
