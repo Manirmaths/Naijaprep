@@ -26,7 +26,6 @@ Maths Exam Prep is a web application designed to help users improve their math s
 - **Deployment**: Heroku
 
 ## Live Demo
-Try it out at: [https://maths-exam-prep-f6f2608f5038.herokuapp.com/](https://maths-exam-prep-f6f2608f5038.herokuapp.com/)
 
 ## Setup Instructions
 
