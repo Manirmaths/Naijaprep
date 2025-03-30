@@ -1,0 +1,31 @@
+topic,difficulty,question_text,option_a,option_b,option_c,option_d,correct_option,explanation
+Sets,2,"A group of market women sell at least one of yam, plantain and maize. 12 of them sell maize, 10 sell yam and 14 sell plantain. 5 sell plantain and maize, 4 sell yam and maize, 2 sell yam and plantain only while 3 sell all the three items. How many women are in the group?",25,19,18,17,A,"Using the principle of inclusion-exclusion: We add all who sell individual items (12 maize, 10 yam, 14 plantain), then subtract those counted twice (5 sell maize and plantain, 4 sell yam and maize, 2 sell yam and plantain only). Finally, we add those counted thrice (3 sell all three items). Calculation: \( 12 + 10 + 14 - 5 - 4 - 2 + 3 = 25 \). So, the correct answer is A."
+Logarithms,2,"If \( \log_8 10 = X \), evaluate \( \log_8 5 \) in terms of \( X \).",\( \frac{1}{2}X \),\( X - \frac{1}{4} \),\( X - \frac{1}{3} \),\( X - \frac{1}{2} \),C,"We know that \( \log_8 10 = X \). Since \( 8 = 2^3 \), we can rewrite the expression as:
+\[ \log_8 10 = 3 \log_2 2 = X \]
+Therefore, \( \log_2 2 = \frac{X}{3} \).
+Using the fact that \( \log_2 5 = \log_2 10 - \log_2 2 \):
+\[ \log_8 5 = 1 - \frac{X}{3} \]. So, the correct answer is C."
+Algebra,3,Find the value of \( X \) if \( \frac{\sqrt{2}}{x+\sqrt{2}} = \frac{1}{x-\sqrt{2}} \).,3\sqrt{2} + 4,3\sqrt{2} - 4,3 - 2\sqrt{2},4 + 2\sqrt{2},B,"We are given:
+\[ \frac{\sqrt{2}}{x+\sqrt{2}} = \frac{1}{x-\sqrt{2}} \].
+Cross-multiply to clear the fractions:
+\[ \sqrt{2}(x - \sqrt{2}) = x + \sqrt{2} \].
+Expand and simplify:
+\[ x\sqrt{2} - 2 = x + \sqrt{2} \].
+Now, isolate x:
+\[ x\sqrt{2} - x = 2 + \sqrt{2} \].
+\[ x(\sqrt{2} - 1) = 2 + \sqrt{2} \].
+\[ x = \frac{2 + \sqrt{2}}{\sqrt{2} - 1} \].
+By rationalizing the denominator, we find that the correct answer is B."
+Exponents,3,"If \( \frac{(a^2 b^{-3}c)^{\frac{3}{4}}}{a^{-1}b^{4}c^{5}}=a^{p} b^{q} c^{r} \), what is the value of \( p+2q \)?",\( \frac{5}{2} \),-\( \frac{5}{4} \),-\( \frac{25}{4} \),-10,D,"Using the laws of exponents:
+\[ \frac{(a^2 b^{-3}c)^{\frac{3}{4}}}{a^{-1}b^{4}c^{5}} = a^{p}b^{q}c^{r} \].
+Breaking down the exponentiation and simplifying each part:
+\[ a^{\frac{3}{2}}, b^{-\frac{9}{4}}, c^{\frac{3}{4}} \].
+Now, divide by:
+\[ a^{-1}, b^{4}, c^{5} \].
+Using the rule that when you divide, you subtract exponents:
+\[ p = \frac{3}{2} + 1 = \frac{5}{2}, \]
+\[ q = -\frac{9}{4} - 4 = -\frac{25}{4}, \]
+\[ r = \frac{3}{4} - 5 = -\frac{17}{4}. \]
+Now, finding \( p + 2q \):
+\[ p + 2q = \frac{5}{2} - \frac{50}{4} = -10. \]
+So, the correct answer is D."

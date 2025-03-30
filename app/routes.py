@@ -12,8 +12,8 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from openai import OpenAI
 import os
-  # Add this near the top
 
+# Debug: Print API key (remove in production)
 print("API Key:", os.environ.get('OPENAI_API_KEY'))
 
 # Existing Forms
@@ -115,10 +115,10 @@ def quiz():
     if 'quiz_questions' not in session:
         if topic:
             all_questions = Question.query.filter_by(topic=topic).all()
-            if len(all_questions) < 3:
+            if len(all_questions) < 5:
                 flash(f'Not enough questions in {topic}. Please choose another topic or take a general quiz.', 'warning')
                 return redirect(url_for('dashboard'))
-            selected_questions = random.sample(all_questions, 3)
+            selected_questions = random.sample(all_questions, 5)
         else:
             responses = UserResponse.query.filter_by(user_id=current_user.id).all()
             topic_stats = {}
@@ -131,20 +131,20 @@ def quiz():
                     topic_stats[topic]['correct'] += 1
 
             all_questions = Question.query.all()
-            if len(all_questions) < 3:
+            if len(all_questions) < 5:
                 flash('Not enough questions available. Please add more questions.', 'warning')
                 return redirect(url_for('home'))
 
             if topic_stats:
                 weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
                 candidates = [q for q in all_questions if q.topic == weakest_topic]
-                if len(candidates) >= 3:
-                    selected_questions = random.sample(candidates, 3)
+                if len(candidates) >= 5:
+                    selected_questions = random.sample(candidates, 5)
                 else:
                     remaining = [q for q in all_questions if q not in candidates]
-                    selected_questions = candidates + random.sample(remaining, 3 - len(candidates))
+                    selected_questions = candidates + random.sample(remaining, 5 - len(candidates))
             else:
-                selected_questions = random.sample(all_questions, 3)
+                selected_questions = random.sample(all_questions, 5)
 
         session['quiz_questions'] = [q.id for q in selected_questions]
         session['current_question'] = 0
@@ -181,10 +181,11 @@ def quiz():
         return redirect(url_for('quiz'))
 
     return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))
+
 @app.route('/results')
 @login_required
 def results():
-    responses = UserResponse.query.filter_by(user_id=current_user.id).order_by(UserResponse.id.desc()).limit(3).all()
+    responses = UserResponse.query.filter_by(user_id=current_user.id).order_by(UserResponse.id.desc()).limit(5).all()
     if not responses:
         flash('No quiz results found. Please take the quiz first.', 'warning')
         return redirect(url_for('quiz'))
@@ -209,7 +210,7 @@ def results():
             'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
             'correct_option': correct_text,
             'is_correct': r.is_correct,
-            'is_marked': r.question.id in marked_question_ids  # Removed 'explanation' key
+            'is_marked': r.question.id in marked_question_ids
         })
 
     return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
@@ -298,7 +299,7 @@ def mark_review():
         question_id = request.form.get('question_id')
         if not question_id:
             return jsonify({'status': 'error', 'message': 'No question ID provided'}), 400
-        question_id = int(question_id)  # This line fails, triggering ValueError
+        question_id = int(question_id)
         question = Question.query.get(question_id)
         if not question:
             return jsonify({'status': 'error', 'message': 'Question not found'}), 404
@@ -311,10 +312,10 @@ def mark_review():
         else:
             return jsonify({'status': 'already_marked'})
     except ValueError:
-        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400  # Caught here
+        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400
     except Exception as e:
         app.logger.error(f"Error in mark_review: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
+        return jsonify({'status': 'error', 'message': 'Server error'}), 500
 
 @app.route('/review')
 @login_required
@@ -323,16 +324,15 @@ def review():
     questions = [rq.question for rq in review_questions]
     return render_template('review.html', questions=questions)
 
-
 @app.route('/marked_quiz', methods=['GET', 'POST'])
 @login_required
 def marked_quiz():
     if 'quiz_questions' not in session:
         marked_questions = [rq.question for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()]
-        if len(marked_questions) < 3:
-            flash('Not enough marked questions. Please mark at least 3 questions to practice.', 'warning')
+        if len(marked_questions) < 5:
+            flash('Not enough marked questions. Please mark at least 5 questions to practice.', 'warning')
             return redirect(url_for('review'))
-        selected_questions = random.sample(marked_questions, 3)
+        selected_questions = random.sample(marked_questions, 5)
         session['quiz_questions'] = [q.id for q in selected_questions]
         session['current_question'] = 0
         session['score'] = 0
@@ -388,40 +388,29 @@ def unmark_review():
         return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400
     except Exception as e:
         app.logger.error(f"Error in unmark_review: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Server error: ' + str(e)}), 500
-    
+        return jsonify({'status': 'error', 'message': 'Server error'}), 500
 
 @app.route('/explain/<int:question_id>', methods=['POST'])
 @login_required
 def explain(question_id):
-    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     question = Question.query.get_or_404(question_id)
     app.logger.info(f"Fetching explanation for question {question_id}")
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful math tutor. Keep explanations concise, max 50 words."},
-                {"role": "user", "content": f"Explain why the correct answer to this math question is {question.correct_option}: {question.question_text}"}
-            ],
-            max_tokens=60,  # Limits output to roughly 50 words
-            temperature=0.7
-        )
-        explanation = response.choices[0].message.content.strip()
-        # Truncate to 50 words if needed
-        words = explanation.split()
-        if len(words) > 50:
-            explanation = " ".join(words[:50]) + "..."
-        app.logger.info("Explanation generated successfully")
+        # Use the pre-stored explanation from the database
+        explanation = question.explanation if question.explanation else "No explanation available."
         return jsonify({'explanation': explanation})
     except Exception as e:
-        app.logger.error(f"OpenAI API error: {str(e)}")
+        app.logger.error(f"Error retrieving explanation: {str(e)}")
         return jsonify({'explanation': "Sorry, explanation unavailable."}), 500
 
 @app.route('/ai_feedback', methods=['POST'])
 @login_required
 def ai_feedback():
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+    if not client.api_key:
+        app.logger.error("OpenAI API key not set")
+        return jsonify({'feedback': "AI feedback unavailable due to configuration error."}), 500
+
     responses = UserResponse.query.filter_by(user_id=current_user.id).all()
     topic_stats = {}
     for r in responses:
@@ -435,13 +424,13 @@ def ai_feedback():
     for topic in topic_stats:
         topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
     
-    prompt = "Based on the following topic statistics, provide feedback and study recommendations:\n" + \
+    prompt = "Based on the following topic statistics, provide concise feedback and study recommendations in LaTeX-friendly format (use \( \) for equations):\n" + \
              "\n".join(f"- {t}: {s['correct']}/{s['total']} ({s['percentage']:.1f}%)" for t, s in topic_stats.items())
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful math tutor."},
+                {"role": "system", "content": "You are a helpful math tutor. Keep feedback concise and use LaTeX where appropriate."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=200,

@@ -1,3 +1,4 @@
+# seed_questions.py
 import csv
 from app import app, db
 from app.models import Question, UserResponse
@@ -7,7 +8,7 @@ with app.app_context():
     db.session.query(Question).delete()
     db.session.commit()
 
-    with open('questions.csv', newline='', encoding='utf-8') as csvfile:
+    with open('questions3.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             question = Question(
@@ -18,9 +19,9 @@ with app.app_context():
                 option_b=row['option_b'],
                 option_c=row['option_c'],
                 option_d=row['option_d'],
-                correct_option=row['correct_option']
-                # Removed: explanation=row.get('explanation', '')
+                correct_option=row['correct_option'],
+                explanation=row.get('explanation', '')
             )
             db.session.add(question)
         db.session.commit()
-    print(f"Seeded {Question.query.count()} questions from CSV!")
+    print(f"Seeded {Question.query.count()} questions from question1.csv!")

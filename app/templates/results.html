@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Quiz Results - Maths Exam Prep</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -49,7 +52,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             color: white;
-            margin-right: 10px; /* Space between buttons */
+            margin-right: 10px;
         }
         .btn-explain:hover {
             background: linear-gradient(135deg, #138496, #0d6b7d);
@@ -64,7 +67,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             color: white;
-            margin-right: 10px; /* Space between buttons */
+            margin-right: 10px;
         }
         .btn-review:hover {
             background: linear-gradient(135deg, #5a6268, #495057);
@@ -79,7 +82,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             color: white;
-            margin-right: 10px; /* Space between buttons */
+            margin-right: 10px;
         }
         .btn-unmark:hover {
             background: linear-gradient(135deg, #c82333, #b21f2d);
@@ -96,6 +99,7 @@
             padding: 5px 10px;
             border-radius: 5px;
             margin-top: 5px;
+            line-height: 1.5; /* Improved readability for LaTeX */
         }
         .explanation-text.show {
             opacity: 1;
@@ -106,6 +110,7 @@
             border: 1px solid #dee2e6;
             padding: 10px;
             border-radius: 5px;
+            line-height: 1.5; /* Improved readability for LaTeX */
         }
         .answer-cell {
             background-color: #ffffff;
@@ -113,6 +118,7 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            line-height: 1.5; /* Improved readability for LaTeX */
         }
         .table-dark th {
             background: linear-gradient(135deg, #343a40, #23272b);
@@ -125,8 +131,17 @@
         }
         .back-home {
             display: block;
-            margin: 20px auto; /* Centered */
+            margin: 20px auto;
             width: fit-content;
+            background: linear-gradient(135deg, #007bff, #00d4ff);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            transition: transform 0.3s ease;
+        }
+        .back-home:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #0056b3, #00b7eb);
         }
     </style>
 </head>
@@ -171,9 +186,9 @@
             <tbody>
                 {% for result in results_data %}
                     <tr>
-                        <td class="question-cell">{{ result.question_text }}</td>
-                        <td class="answer-cell">{{ result.selected_option }}</td>
-                        <td class="answer-cell">{{ result.correct_option }}</td>
+                        <td class="question-cell">{{ result.question_text | safe }}</td>
+                        <td class="answer-cell">{{ result.selected_option | safe }}</td>
+                        <td class="answer-cell">{{ result.correct_option | safe }}</td>
                         <td>
                             {% if result.is_correct %}
                                 <span class="badge bg-success">Correct</span>
@@ -250,8 +265,8 @@
 
         function toggleExplanation(questionId) {
             const explanationDiv = document.getElementById(`explanation-${questionId}`);
-            if (explanationDiv.innerText) {
-                explanationDiv.innerText = '';
+            if (explanationDiv.innerHTML) {
+                explanationDiv.innerHTML = '';
             } else {
                 const csrfToken = document.getElementById('csrf_token').value;
                 fetch('/explain/' + questionId, {
@@ -264,12 +279,14 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    explanationDiv.innerText = data.explanation;
+                    explanationDiv.innerHTML = data.explanation; // Use innerHTML for LaTeX
                     explanationDiv.classList.add('show');
-                    setTimeout(() => {
-                        explanationDiv.classList.remove('show');
-                        setTimeout(() => { explanationDiv.innerText = ''; }, 500);
-                    }, 5000);
+                    MathJax.typesetPromise([explanationDiv]).then(() => {
+                        setTimeout(() => {
+                            explanationDiv.classList.remove('show');
+                            setTimeout(() => { explanationDiv.innerHTML = ''; }, 500);
+                        }, 5000);
+                    });
                 })
                 .catch(error => {
                     console.error('Error:', error);

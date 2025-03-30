@@ -6,6 +6,9 @@
     <title>Dashboard - Maths Exam Prep</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #e9ecef 0%, #d4e2f5 100%); /* Softer gradient */
@@ -151,6 +154,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             font-size: 1rem;
             color: #495057;
+            line-height: 1.5; /* Improved readability for LaTeX */
         }
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
@@ -253,12 +257,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                feedbackContainer.innerText = data.feedback;
+                feedbackContainer.innerHTML = data.feedback; // Use innerHTML for LaTeX
                 feedbackContainer.style.opacity = 0;
-                setTimeout(() => {
-                    feedbackContainer.style.transition = 'opacity 0.5s ease';
-                    feedbackContainer.style.opacity = 1;
-                }, 100);
+                MathJax.typesetPromise([feedbackContainer]).then(() => {
+                    setTimeout(() => {
+                        feedbackContainer.style.transition = 'opacity 0.5s ease';
+                        feedbackContainer.style.opacity = 1;
+                    }, 100);
+                });
             })
             .catch(error => {
                 console.error('Error:', error);
