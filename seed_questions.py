@@ -20,8 +20,10 @@ with app.app_context():
                 option_c=row['option_c'],
                 option_d=row['option_d'],
                 correct_option=row['correct_option'],
-                explanation=row.get('explanation', '')
+                explanation=row.get('explanation', ''),
+                exam_year=row.get('exam_year') or None  # new field handling
             )
             db.session.add(question)
         db.session.commit()
-    print(f"Seeded {Question.query.count()} questions from question1.csv!")
+    print(f"Seeded {Question.query.count()} questions from questions3.csv!")
+ 

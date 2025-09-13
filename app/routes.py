@@ -1,3 +1,4 @@
+#routes.py
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from app import app, db, bcrypt, mail
 from flask_login import login_user, logout_user, login_required, current_user
@@ -12,6 +13,7 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from openai import OpenAI
 import os
+import time
 
 # Debug: Print API key (remove in production)
 print("API Key:", os.environ.get('OPENAI_API_KEY'))
@@ -111,6 +113,26 @@ def logout():
 @app.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
+    total_time_allowed = 600  # overall quiz time in seconds (10 minutes)
+
+    # Set overall quiz start time when quiz begins
+    if 'quiz_start_time' not in session:
+        session['quiz_start_time'] = time.time()
+
+    # Calculate time elapsed and remaining overall time
+    elapsed_time = time.time() - session['quiz_start_time']
+    remaining_time = total_time_allowed - elapsed_time
+
+    # If overall time is up, clear the session variables and redirect to results
+    if remaining_time <= 0:
+        flash("Time is up for the quiz!", "warning")
+        session.pop('quiz_questions', None)
+        session.pop('current_question', None)
+        session.pop('score', None)
+        session.pop('quiz_start_time', None)
+        return redirect(url_for('results'))
+
+    # Existing logic to initialize quiz_questions if not in session.
     topic = request.args.get('topic')
     if 'quiz_questions' not in session:
         if topic:
@@ -150,6 +172,7 @@ def quiz():
         session['current_question'] = 0
         session['score'] = 0
 
+    # Check if quiz is complete (this part remains unchanged).
     current_idx = session['current_question']
     if current_idx >= len(session['quiz_questions']):
         score = session['score']
@@ -157,6 +180,7 @@ def quiz():
         session.pop('quiz_questions', None)
         session.pop('current_question', None)
         session.pop('score', None)
+        session.pop('quiz_start_time', None)  # clear timer session variable
         flash(f'Quiz completed! Your score: {score}/{total}', 'success')
         return redirect(url_for('results'))
 
@@ -180,7 +204,13 @@ def quiz():
         session['current_question'] += 1
         return redirect(url_for('quiz'))
 
-    return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))
+    # Pass the remaining overall time (as an integer) to the template.
+    return render_template('quiz.html', 
+                           question=question, 
+                           form=form, 
+                           current=current_idx + 1, 
+                           total=len(session['quiz_questions']),
+                           overall_time=int(remaining_time))
 
 @app.route('/results')
 @login_required
@@ -227,14 +257,20 @@ def dashboard():
         topic_stats[topic]['total'] += 1
         if r.is_correct:
             topic_stats[topic]['correct'] += 1
-    
+
     for topic in topic_stats:
         topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
-    
+
     points = current_user.points
+
+    # Retrieve distinct exam_year values (that are not null)
+    exam_years = db.session.query(Question.exam_year).filter(Question.exam_year.isnot(None)).distinct().all()
+    # exam_years is a list of tuples; extract the actual values
+    exam_years = [year for (year,) in exam_years]
+
     review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('dashboard.html', topic_stats=topic_stats, points=points, review_questions=review_questions)
+    return render_template('dashboard.html', topic_stats=topic_stats, points=points, review_questions=review_questions, exam_years=exam_years)
 
 # New Routes
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -455,3 +491,52 @@ def test_openai():
         return response.choices[0].message.content
     except Exception as e:
         return f"Error: {str(e)}"
+    
+
+@app.route('/jamb')
+@login_required
+def jamb_practice():
+    # Filter questions with "jamb" in the exam_year (case-insensitive)
+    jamb_questions = Question.query.filter(Question.exam_year.ilike('%jamb%')).all()
+
+    if len(jamb_questions) < 5:
+        flash("Not enough JAMB questions available.", "warning")
+        return redirect(url_for('dashboard'))
+    
+    # Randomly select 5 questions
+    selected_questions = random.sample(jamb_questions, 5)
+    session['quiz_questions'] = [q.id for q in selected_questions]
+    session['current_question'] = 0
+    session['score'] = 0
+    # Reset overall timer if used
+    session.pop('quiz_start_time', None)
+    
+    flash("JAMB practice quiz started!", "info")
+    return redirect(url_for('quiz'))
+
+@app.route('/filter')
+@login_required
+def filter_questions():
+    # Get the selected year from the query parameters
+    selected_year = request.args.get('year')
+    if selected_year:
+        # Filter questions where exam_year contains the selected value (case-insensitive)
+        filtered_questions = Question.query.filter(Question.exam_year.ilike(f"%{selected_year}%")).all()
+    else:
+        # If no year is selected, retrieve all questions
+        filtered_questions = Question.query.all()
+    
+    if len(filtered_questions) < 5:
+        flash("Not enough questions available for the selected filter.", "warning")
+        return redirect(url_for('dashboard'))
+    
+    # Randomly select 5 questions for the quiz session
+    selected_questions = random.sample(filtered_questions, 5)
+    session['quiz_questions'] = [q.id for q in selected_questions]
+    session['current_question'] = 0
+    session['score'] = 0
+    # Clear existing overall timer session if applicable
+    session.pop('quiz_start_time', None)
+    
+    flash(f"Quiz filtered by exam year '{selected_year}' started!", "info")
+    return redirect(url_for('quiz'))

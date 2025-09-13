@@ -1,3 +1,4 @@
+<!-- home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,6 +94,10 @@
             <p class="lead">Join thousands of students mastering maths today.</p>
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('quiz') }}" class="btn btn-light btn-custom" aria-label="Take a quiz">Take a Quiz</a>
+                <!-- New Button for Exam-Specific Practice -->
+                <a href="{{ url_for('jamb_practice') }}" class="btn btn-outline-light btn-custom ms-2" aria-label="Practice JAMB Questions">
+                    Practice JAMB Questions
+                </a>
             {% else %}
                 <a href="{{ url_for('register') }}" class="btn btn-light btn-custom" aria-label="Sign up now">Sign Up Now</a>
             {% endif %}
