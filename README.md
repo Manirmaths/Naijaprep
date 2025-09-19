@@ -1,15 +1,3 @@
-Here’s the complete text for your README.md file, ready for you to copy and paste. I’ve tailored it with placeholders for your GitHub username and repository name, which you’ll need to replace with your actual values (e.g., manirkhalil/maths-exam-prep). This matches the version we refined earlier, including the MIT License link.
-
-README.md
-text
-
-Collapse
-
-Wrap
-
-Copy
-# Maths Exam Prep
-
 Maths Exam Prep is a web application designed to help users improve their math skills through interactive quizzes. Built with Flask, it offers user authentication, personalized quiz generation based on performance, and a dashboard to track progress. Whether you're a student preparing for exams or just brushing up on math, this app provides a fun and effective learning experience.
 
 ## Features
