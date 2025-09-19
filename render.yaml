@@ -3,9 +3,14 @@ services:
     name: naijaprep
     env: python
     plan: free
+    region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn run:app
     envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: naijaprep-db
+          property: internalConnectionString
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
@@ -13,7 +18,7 @@ services:
       - key: MAIL_SERVER
         value: smtp.gmail.com
       - key: MAIL_PORT
-        value: 587
+        value: "587"
       - key: MAIL_USE_TLS
         value: "True"
       - key: MAIL_USERNAME
@@ -22,13 +27,12 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: naijaprep-db
-          property: connectionString
-    # ✅ runs once after each deploy; chain multiple commands with &&
-    postdeployCommand: "python create_tables.py && python seed_questions.py"
+    # ✅ runs once after each deploy
+    postDeployCommand: "python create_tables.py && python seed_questions.py"
 
 databases:
   - name: naijaprep-db
     plan: free
+    region: oregon
+    databaseName: naijaprep
+    user: naijaprep
