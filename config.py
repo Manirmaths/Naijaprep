@@ -1,20 +1,23 @@
-# config.py (or near your app config)
+# config.py
 import os
 from pathlib import Path
 
 db_url = os.getenv("DATABASE_URL")
 
 if not db_url:
-    # Compute absolute path to ./instance/site.db next to your repo
-    repo_root = Path(__file__).resolve().parent  # adjust if config.py is inside app/
-    # If config.py is in app/, go one level up:
-    if (repo_root / "__init__.py").exists():
+    # Work out project root (go up if config.py is inside app/)
+    repo_root = Path(__file__).resolve().parent
+    if (repo_root / "__init__.py").exists():  # config.py is inside app/
         repo_root = repo_root.parent
 
     sqlite_path = repo_root / "instance" / "site.db"
+
+    # ✅ Ensure the instance/ folder exists before using the DB
+    sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+
     db_url = f"sqlite:///{sqlite_path.as_posix()}"
 
-# normalize old Heroku scheme just in case
+# Normalize Heroku scheme if needed
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 

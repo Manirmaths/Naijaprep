@@ -1,5 +1,13 @@
+# Ignore databases
 *.db
-instance/
+
+# Keep the instance folder but ignore its contents
+instance/*
+!instance/.gitkeep
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Environment variables
 .env
