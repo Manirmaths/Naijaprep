@@ -2,7 +2,7 @@ databases:
   - name: naijaprep-db
     plan: free
     region: oregon
-    # The next two are optional; remove if validator complains
+    # optional; remove if validator complains
     databaseName: naijaprep
     user: naijaprep
 
@@ -13,7 +13,8 @@ services:
     plan: free
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run:app
+    # Run DB init/seed, then launch gunicorn
+    startCommand: bash -c "python create_tables.py && python seed_questions.py && gunicorn run:app"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -35,4 +36,3 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-    postDeployCommand: "python create_tables.py && python seed_questions.py"
