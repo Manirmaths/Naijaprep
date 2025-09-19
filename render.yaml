@@ -26,12 +26,9 @@ services:
         fromDatabase:
           name: naijaprep-db
           property: connectionString
+    # ✅ runs once after each deploy; chain multiple commands with &&
+    postdeployCommand: "python create_tables.py && python seed_questions.py"
 
 databases:
   - name: naijaprep-db
     plan: free
-
-# This runs only once after each deploy
-postdeploy:
-  - python create_tables.py
-  - python seed_questions.py
