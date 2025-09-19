@@ -1,3 +1,11 @@
+databases:
+  - name: naijaprep-db
+    plan: free
+    region: oregon
+    # The next two are optional; remove if validator complains
+    databaseName: naijaprep
+    user: naijaprep
+
 services:
   - type: web
     name: naijaprep
@@ -10,13 +18,13 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: naijaprep-db
-          property: internalConnectionString
+          property: connectionString
       - key: FLASK_ENV
-        value: production
+        value: "production"
       - key: SECRET_KEY
         sync: false
       - key: MAIL_SERVER
-        value: smtp.gmail.com
+        value: "smtp.gmail.com"
       - key: MAIL_PORT
         value: "587"
       - key: MAIL_USE_TLS
@@ -27,12 +35,4 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-    # ✅ runs once after each deploy
     postDeployCommand: "python create_tables.py && python seed_questions.py"
-
-databases:
-  - name: naijaprep-db
-    plan: free
-    region: oregon
-    databaseName: naijaprep
-    user: naijaprep
