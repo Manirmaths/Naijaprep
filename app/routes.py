@@ -1,8 +1,6 @@
-# app/routes.py
 import os
 import time
 import random
-from random import choice
 
 from flask import (
     render_template, request, redirect, url_for, flash, session, jsonify, current_app
@@ -15,12 +13,18 @@ from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 from flask_mail import Message
 from openai import OpenAI
 
 from app import db, bcrypt, mail
 from app.models import User, Question, UserResponse, ReviewQuestion
 
+SUBJECTS = [
+    "Mathematics", "English", "Physics", "Chemistry", "Biology",
+    "Geography", "Economics", "Literature", "Government",
+    "Commerce", "Accounting"
+]
 
 # -----------------------------
 # Forms
@@ -120,10 +124,54 @@ def init_routes(app):
         logout_user()
         return redirect(url_for("home"))
 
+    # ------------------ SUBJECTS ------------------
+    @app.route("/subjects")
+    @login_required
+    def subjects():
+        # Single grouped query -> counts by subject
+        counts = {s: 0 for s in SUBJECTS}
+        rows = (
+            db.session.query(Question.subject, func.count(Question.id))
+            .filter(Question.subject.in_(SUBJECTS))
+            .group_by(Question.subject)
+            .all()
+        )
+        for sub, cnt in rows:
+            counts[sub] = cnt
+        return render_template("subjects.html", subjects=SUBJECTS, subject_counts=counts)
+
+    @app.route("/subjects/<subject>")
+    @login_required
+    def subject_topics(subject):
+        if subject not in SUBJECTS:
+            flash("Unknown subject.", "warning")
+            return redirect(url_for("subjects"))
+
+        # Distinct topics + counts inside the subject
+        rows = (
+            db.session.query(Question.topic, func.count(Question.id))
+            .filter(Question.subject == subject)
+            .group_by(Question.topic)
+            .order_by(Question.topic.asc())
+            .all()
+        )
+        topics = [{"name": t, "count": c} for (t, c) in rows]
+        if not topics:
+            flash(f"No topics found in {subject}.", "warning")
+        return render_template("subject_topics.html", subject=subject, topics=topics)
+
+    # ------------------ QUIZ ------------------
     @app.route("/quiz", methods=["GET", "POST"])
     @login_required
     def quiz():
-        total_time_allowed = 600  # seconds (10 minutes)
+        total_time_allowed = 600  # 10 minutes
+        topic = request.args.get("topic")
+        subject = request.args.get("subject")
+
+        # Require a choice when starting fresh
+        if "quiz_questions" not in session and not topic and not subject:
+            flash("Choose a subject to begin your quiz.", "info")
+            return redirect(url_for("subjects"))
 
         if "quiz_start_time" not in session:
             session["quiz_start_time"] = time.time()
@@ -137,43 +185,25 @@ def init_routes(app):
             return redirect(url_for("results"))
 
         # Initialize questions once
-        topic = request.args.get("topic")
         if "quiz_questions" not in session:
             if topic:
-                all_q = Question.query.filter_by(topic=topic).all()
-                if len(all_q) < 5:
-                    flash(f"Not enough questions in {topic}. Please choose another topic or take a general quiz.", "warning")
-                    return redirect(url_for("dashboard"))
-                selected = random.sample(all_q, 5)
+                pool = Question.query.filter_by(topic=topic).all()
+                src = f"topic '{topic}'"
+            elif subject:
+                pool = Question.query.filter_by(subject=subject).all()
+                src = f"subject '{subject}'"
             else:
-                responses = UserResponse.query.filter_by(user_id=current_user.id).all()
-                topic_stats = {}
-                for r in responses:
-                    t = r.question.topic
-                    topic_stats.setdefault(t, {"correct": 0, "total": 0})
-                    topic_stats[t]["total"] += 1
-                    if r.is_correct:
-                        topic_stats[t]["correct"] += 1
+                pool = Question.query.all()
+                src = "all subjects"
 
-                all_q = Question.query.all()
-                if len(all_q) < 5:
-                    flash("Not enough questions available. Please add more questions.", "warning")
-                    return redirect(url_for("home"))
+            if len(pool) < 5:
+                flash(f"Not enough questions in {src}.", "warning")
+                # If subject was provided, go back to subject page; else to subjects list
+                if subject:
+                    return redirect(url_for("subject_topics", subject=subject))
+                return redirect(url_for("subjects"))
 
-                if topic_stats:
-                    weakest = min(
-                        topic_stats,
-                        key=lambda t: topic_stats[t]["correct"] / max(1, topic_stats[t]["total"])
-                    )
-                    pool = [q for q in all_q if q.topic == weakest]
-                    if len(pool) >= 5:
-                        selected = random.sample(pool, 5)
-                    else:
-                        remaining_pool = [q for q in all_q if q not in pool]
-                        selected = pool + random.sample(remaining_pool, 5 - len(pool))
-                else:
-                    selected = random.sample(all_q, 5)
-
+            selected = random.sample(pool, 5)
             session["quiz_questions"] = [q.id for q in selected]
             session["current_question"] = 0
             session["score"] = 0
@@ -194,18 +224,23 @@ def init_routes(app):
         if form.validate_on_submit():
             selected = form.answer.data
             is_correct = (selected == question.correct_option)
-            resp = UserResponse(
+            db.session.add(UserResponse(
                 user_id=current_user.id,
                 question_id=question.id,
                 selected_option=selected,
                 is_correct=is_correct
-            )
-            db.session.add(resp)
+            ))
             if is_correct:
                 current_user.points += 10
                 session["score"] += 1
             db.session.commit()
             session["current_question"] += 1
+
+            # Preserve filters while paging
+            if topic:
+                return redirect(url_for("quiz", topic=topic))
+            if subject:
+                return redirect(url_for("quiz", subject=subject))
             return redirect(url_for("quiz"))
 
         return render_template(
@@ -217,6 +252,7 @@ def init_routes(app):
             overall_time=int(remaining),
         )
 
+    # ------------------ RESULTS / DASHBOARD ------------------
     @app.route("/results")
     @login_required
     def results():
@@ -228,14 +264,14 @@ def init_routes(app):
         )
         if not responses:
             flash("No quiz results found. Please take the quiz first.", "warning")
-            return redirect(url_for("quiz"))
+            return redirect(url_for("subjects"))
 
         score = sum(1 for r in responses if r.is_correct)
         total = len(responses)
 
         marked_ids = {rq.question_id for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()}
-
         valid = ["A", "B", "C", "D"]
+
         results_data = []
         for r in responses:
             correct = r.question.correct_option
@@ -289,6 +325,7 @@ def init_routes(app):
             exam_years=exam_years,
         )
 
+    # ------------------ ACCOUNT ------------------
     @app.route("/change_password", methods=["GET", "POST"])
     @login_required
     def change_password():
@@ -341,6 +378,7 @@ def init_routes(app):
             return redirect(url_for("login"))
         return render_template("reset_password.html", form=form)
 
+    # ------------------ REVIEW ------------------
     @app.route("/mark_review", methods=["POST"])
     @login_required
     def mark_review():
@@ -435,6 +473,7 @@ def init_routes(app):
             current_app.logger.error(f"Error in unmark_review: {e}")
             return jsonify({"status": "error", "message": "Server error"}), 500
 
+    # ------------------ AI Feedback (optional) ------------------
     @app.route("/explain/<int:question_id>", methods=["POST"])
     @login_required
     def explain(question_id):
@@ -509,6 +548,7 @@ def init_routes(app):
         except Exception as e:
             return f"Error: {e}"
 
+    # ------------------ JAMB / Filters ------------------
     @app.route("/jamb")
     @login_required
     def jamb_practice():

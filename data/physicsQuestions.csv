@@ -1,0 +1,6 @@
+topic,difficulty,question_text,option_a,option_b,option_c,option_d,correct_option,explanation,exam_year
+Kinematics,1,"When a bus is accelerating, it must be","changing its speed","changing its velocity","changing its position","changing its direction",B,"Acceleration is the rate of change of velocity (magnitude and/or direction).",JAMB 2024
+Fluid/friction,1,"The friction due to air mass can be reduced by","streaming","lubricating","propeller","polishing",A,"Air (drag) resistance is reduced by streamlining (called “streaming” in the option).",JAMB 2024
+Electromagnetism,1,"Which of the following operates based on the magnetic effect of electric current?","electric heater","photocell","Dynamo","Cold cathode",C,"A dynamo (generator) relies on electromagnetic induction/magnetic effects.",JAMB 2024
+Electrostatics,1,"When a charged ebonite rod is brought near a charged glass rod, there will be","attraction","repulsion","spark","no force experienced",A,"Glass rod is positively charged; ebonite rod is negatively charged → unlike charges attract.",JAMB 2024
+Measurement/Pressure,1,"Pilots use an aneroid barometer to know the height above sea level because it is","Very accurate","Small and convenient","Heavy and huge","Costly",B,"Aneroid barometers are compact and convenient for altimeters in aircraft.",JAMB 2024

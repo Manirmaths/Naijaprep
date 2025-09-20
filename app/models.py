@@ -19,16 +19,17 @@ class User(db.Model, UserMixin):
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String(255), nullable=False)        # was 100
+    subject = db.Column(db.String(255), nullable=True)       # NEW
+    topic = db.Column(db.String(255), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     question_text = db.Column(db.Text, nullable=False)
     option_a = db.Column(db.Text, nullable=False)
     option_b = db.Column(db.Text, nullable=False)
     option_c = db.Column(db.Text, nullable=False)
     option_d = db.Column(db.Text, nullable=False)
-    correct_option = db.Column(db.String(10), nullable=False) # keep 10
+    correct_option = db.Column(db.String(10), nullable=False)
     explanation = db.Column(db.Text, nullable=True)
-    exam_year = db.Column(db.String(255), nullable=True)      # was 50/100
+    exam_year = db.Column(db.String(255), nullable=True)
     def __repr__(self):
         return f"Question('{self.topic}', '{self.difficulty}')"
 
