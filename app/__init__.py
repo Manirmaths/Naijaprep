@@ -8,35 +8,38 @@ from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 
-# Load .env only for local dev; harmless on Heroku
+# Load .env (harmless in prod, useful locally)
 load_dotenv()
 
+# Create extensions (no app bound yet)
 db = SQLAlchemy()
 csrf = CSRFProtect()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
 mail = Mail()
 
-def create_app():
+
+def create_app() -> Flask:
+    """Application factory."""
     app = Flask(__name__)
-    # pull EVERYTHING from Config
     app.config.from_object("config.Config")
 
-    # init extensions
+    # Bind extensions
     db.init_app(app)
     csrf.init_app(app)
     login_manager.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
 
-    # login view (adjust if you use blueprints)
+    # Flask-Login default login endpoint
     login_manager.login_view = "login"
 
-    # register models so SQLAlchemy sees them
+    # Ensure models are registered
     with app.app_context():
         from app.models import User, Question, UserResponse, ReviewQuestion  # noqa: F401
 
-    # register routes/blueprints
-    from app import routes  # noqa: F401
+    # Register routes on this app instance
+    from app import routes
+    routes.init_routes(app)
 
     return app

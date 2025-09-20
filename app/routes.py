@@ -1,542 +1,547 @@
-#routes.py
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from app import app, db, bcrypt, mail
-from flask_login import login_user, logout_user, login_required, current_user
-from app.models import User, Question, UserResponse, ReviewQuestion
+# app/routes.py
+import os
+import time
+import random
+from random import choice
+
+from flask import (
+    render_template, request, redirect, url_for, flash, session, jsonify, current_app
+)
+from flask_login import (
+    login_user, logout_user, login_required, current_user
+)
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
-from random import choice
-from sqlalchemy.exc import IntegrityError
-import random
 from itsdangerous import URLSafeTimedSerializer
+from sqlalchemy.exc import IntegrityError
 from flask_mail import Message
 from openai import OpenAI
-import os
-import time
 
-# Debug: Print API key (remove in production)
-print("API Key:", os.environ.get('OPENAI_API_KEY'))
+from app import db, bcrypt, mail
+from app.models import User, Question, UserResponse, ReviewQuestion
 
-# Existing Forms
+
+# -----------------------------
+# Forms
+# -----------------------------
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+    username = StringField("Username", validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Sign Up")
+
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Login")
+
 
 class QuizForm(FlaskForm):
-    answer = RadioField('Answer', choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], validators=[DataRequired()])
-    submit = SubmitField('Next')
+    answer = RadioField("Answer", choices=[("A", "A"), ("B", "B"), ("C", "C"), ("D", "D")], validators=[DataRequired()])
+    submit = SubmitField("Next")
 
-# New Forms
+
 class ChangePasswordForm(FlaskForm):
-    current_password = PasswordField('Current Password', validators=[DataRequired()])
-    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
-    confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
-    submit = SubmitField('Change Password')
+    current_password = PasswordField("Current Password", validators=[DataRequired()])
+    new_password = PasswordField("New Password", validators=[DataRequired(), Length(min=6)])
+    confirm_new_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("new_password")])
+    submit = SubmitField("Change Password")
+
 
 class RequestResetForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Request Password Reset")
+
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Reset Password')
+    password = PasswordField("New Password", validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Reset Password")
 
-# Token generation for password reset
-def generate_reset_token(email):
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt='password-reset-salt')
 
-def verify_reset_token(token, expiration=3600):  # 1 hour expiration
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+# -----------------------------
+# Token helpers (use current_app)
+# -----------------------------
+def generate_reset_token(email: str) -> str:
+    serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return serializer.dumps(email, salt="password-reset-salt")
+
+
+def verify_reset_token(token: str, expiration: int = 3600):
+    serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     try:
-        email = serializer.loads(token, salt='password-reset-salt', max_age=expiration)
-    except:
+        return serializer.loads(token, salt="password-reset-salt", max_age=expiration)
+    except Exception:
         return None
-    return email
 
-# Existing Routes
-@app.route('/')
-def home():
-    return render_template('home.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            flash('Account created successfully!', 'success')
-            return redirect(url_for('login'))
-        except IntegrityError:
-            db.session.rollback()
-            flash('Username or email already taken. Please choose a different one.', 'danger')
-    return render_template('register.html', form=form)
+# -----------------------------
+# Route registration entrypoint
+# -----------------------------
+def init_routes(app):
+    @app.route("/")
+    def home():
+        return render_template("home.html")
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    print(f"Request method: {request.method}")  # Debug
-    if form.validate_on_submit():
-        print("Form validated successfully")  # Debug
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)
-            print("User logged in, redirecting to home")  # Debug
-            flash('Login successful!', 'success')
-            return redirect(url_for('home'))
-        else:
-            flash('Login failed. Check your email and password.', 'danger')
-    else:
-        if request.method == 'POST':
-            print("Form validation failed:", form.errors)  # Debug
-    return render_template('login.html', form=form)
+    @app.route("/register", methods=["GET", "POST"])
+    def register():
+        form = RegistrationForm()
+        if form.validate_on_submit():
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+            user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+            try:
+                db.session.add(user)
+                db.session.commit()
+                flash("Account created successfully!", "success")
+                return redirect(url_for("login"))
+            except IntegrityError:
+                db.session.rollback()
+                flash("Username or email already taken. Please choose a different one.", "danger")
+        return render_template("register.html", form=form)
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        form = LoginForm()
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user and bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user)
+                flash("Login successful!", "success")
+                return redirect(url_for("home"))
+            flash("Login failed. Check your email and password.", "danger")
+        return render_template("login.html", form=form)
 
-@app.route('/quiz', methods=['GET', 'POST'])
-@login_required
-def quiz():
-    total_time_allowed = 600  # overall quiz time in seconds (10 minutes)
+    @app.route("/logout")
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for("home"))
 
-    # Set overall quiz start time when quiz begins
-    if 'quiz_start_time' not in session:
-        session['quiz_start_time'] = time.time()
+    @app.route("/quiz", methods=["GET", "POST"])
+    @login_required
+    def quiz():
+        total_time_allowed = 600  # seconds (10 minutes)
 
-    # Calculate time elapsed and remaining overall time
-    elapsed_time = time.time() - session['quiz_start_time']
-    remaining_time = total_time_allowed - elapsed_time
+        if "quiz_start_time" not in session:
+            session["quiz_start_time"] = time.time()
 
-    # If overall time is up, clear the session variables and redirect to results
-    if remaining_time <= 0:
-        flash("Time is up for the quiz!", "warning")
-        session.pop('quiz_questions', None)
-        session.pop('current_question', None)
-        session.pop('score', None)
-        session.pop('quiz_start_time', None)
-        return redirect(url_for('results'))
+        elapsed = time.time() - session["quiz_start_time"]
+        remaining = total_time_allowed - elapsed
+        if remaining <= 0:
+            flash("Time is up for the quiz!", "warning")
+            for key in ("quiz_questions", "current_question", "score", "quiz_start_time"):
+                session.pop(key, None)
+            return redirect(url_for("results"))
 
-    # Existing logic to initialize quiz_questions if not in session.
-    topic = request.args.get('topic')
-    if 'quiz_questions' not in session:
-        if topic:
-            all_questions = Question.query.filter_by(topic=topic).all()
-            if len(all_questions) < 5:
-                flash(f'Not enough questions in {topic}. Please choose another topic or take a general quiz.', 'warning')
-                return redirect(url_for('dashboard'))
-            selected_questions = random.sample(all_questions, 5)
-        else:
-            responses = UserResponse.query.filter_by(user_id=current_user.id).all()
-            topic_stats = {}
-            for r in responses:
-                topic = r.question.topic
-                if topic not in topic_stats:
-                    topic_stats[topic] = {'correct': 0, 'total': 0}
-                topic_stats[topic]['total'] += 1
-                if r.is_correct:
-                    topic_stats[topic]['correct'] += 1
-
-            all_questions = Question.query.all()
-            if len(all_questions) < 5:
-                flash('Not enough questions available. Please add more questions.', 'warning')
-                return redirect(url_for('home'))
-
-            if topic_stats:
-                weakest_topic = min(topic_stats, key=lambda t: topic_stats[t]['correct'] / max(1, topic_stats[t]['total']))
-                candidates = [q for q in all_questions if q.topic == weakest_topic]
-                if len(candidates) >= 5:
-                    selected_questions = random.sample(candidates, 5)
-                else:
-                    remaining = [q for q in all_questions if q not in candidates]
-                    selected_questions = candidates + random.sample(remaining, 5 - len(candidates))
+        # Initialize questions once
+        topic = request.args.get("topic")
+        if "quiz_questions" not in session:
+            if topic:
+                all_q = Question.query.filter_by(topic=topic).all()
+                if len(all_q) < 5:
+                    flash(f"Not enough questions in {topic}. Please choose another topic or take a general quiz.", "warning")
+                    return redirect(url_for("dashboard"))
+                selected = random.sample(all_q, 5)
             else:
-                selected_questions = random.sample(all_questions, 5)
+                responses = UserResponse.query.filter_by(user_id=current_user.id).all()
+                topic_stats = {}
+                for r in responses:
+                    t = r.question.topic
+                    topic_stats.setdefault(t, {"correct": 0, "total": 0})
+                    topic_stats[t]["total"] += 1
+                    if r.is_correct:
+                        topic_stats[t]["correct"] += 1
 
-        session['quiz_questions'] = [q.id for q in selected_questions]
-        session['current_question'] = 0
-        session['score'] = 0
+                all_q = Question.query.all()
+                if len(all_q) < 5:
+                    flash("Not enough questions available. Please add more questions.", "warning")
+                    return redirect(url_for("home"))
 
-    # Check if quiz is complete (this part remains unchanged).
-    current_idx = session['current_question']
-    if current_idx >= len(session['quiz_questions']):
-        score = session['score']
-        total = len(session['quiz_questions'])
-        session.pop('quiz_questions', None)
-        session.pop('current_question', None)
-        session.pop('score', None)
-        session.pop('quiz_start_time', None)  # clear timer session variable
-        flash(f'Quiz completed! Your score: {score}/{total}', 'success')
-        return redirect(url_for('results'))
+                if topic_stats:
+                    weakest = min(
+                        topic_stats,
+                        key=lambda t: topic_stats[t]["correct"] / max(1, topic_stats[t]["total"])
+                    )
+                    pool = [q for q in all_q if q.topic == weakest]
+                    if len(pool) >= 5:
+                        selected = random.sample(pool, 5)
+                    else:
+                        remaining_pool = [q for q in all_q if q not in pool]
+                        selected = pool + random.sample(remaining_pool, 5 - len(pool))
+                else:
+                    selected = random.sample(all_q, 5)
 
-    question = Question.query.get(session['quiz_questions'][current_idx])
-    form = QuizForm()
+            session["quiz_questions"] = [q.id for q in selected]
+            session["current_question"] = 0
+            session["score"] = 0
 
-    if form.validate_on_submit():
-        selected = form.answer.data
-        is_correct = (selected == question.correct_option)
-        response = UserResponse(
-            user_id=current_user.id,
-            question_id=question.id,
-            selected_option=selected,
-            is_correct=is_correct
-        )
-        db.session.add(response)
-        if is_correct:
-            current_user.points += 10
-            session['score'] += 1
-        db.session.commit()
-        session['current_question'] += 1
-        return redirect(url_for('quiz'))
+        # End of quiz?
+        idx = session["current_question"]
+        if idx >= len(session["quiz_questions"]):
+            score = session["score"]
+            total = len(session["quiz_questions"])
+            for key in ("quiz_questions", "current_question", "score", "quiz_start_time"):
+                session.pop(key, None)
+            flash(f"Quiz completed! Your score: {score}/{total}", "success")
+            return redirect(url_for("results"))
 
-    # Pass the remaining overall time (as an integer) to the template.
-    return render_template('quiz.html', 
-                           question=question, 
-                           form=form, 
-                           current=current_idx + 1, 
-                           total=len(session['quiz_questions']),
-                           overall_time=int(remaining_time))
+        question = Question.query.get(session["quiz_questions"][idx])
+        form = QuizForm()
 
-@app.route('/results')
-@login_required
-def results():
-    responses = UserResponse.query.filter_by(user_id=current_user.id).order_by(UserResponse.id.desc()).limit(5).all()
-    if not responses:
-        flash('No quiz results found. Please take the quiz first.', 'warning')
-        return redirect(url_for('quiz'))
-
-    score = sum(1 for r in responses if r.is_correct)
-    total_questions = len(responses)
-
-    marked_question_ids = {rq.question_id for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()}
-
-    results_data = []
-    valid_options = ['A', 'B', 'C', 'D']
-    for r in responses:
-        correct_option = r.question.correct_option
-        if correct_option in valid_options:
-            correct_text = f"{correct_option}. {getattr(r.question, f'option_{correct_option.lower()}')}"
-        else:
-            correct_text = f"{correct_option} (Invalid option)"
-        
-        results_data.append({
-            'question_id': r.question.id,
-            'question_text': r.question.question_text,
-            'selected_option': f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
-            'correct_option': correct_text,
-            'is_correct': r.is_correct,
-            'is_marked': r.question.id in marked_question_ids
-        })
-
-    return render_template('results.html', score=score, total_questions=total_questions, results_data=results_data)
-
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    responses = UserResponse.query.filter_by(user_id=current_user.id).all()
-    topic_stats = {}
-    for r in responses:
-        topic = r.question.topic
-        if topic not in topic_stats:
-            topic_stats[topic] = {'correct': 0, 'total': 0}
-        topic_stats[topic]['total'] += 1
-        if r.is_correct:
-            topic_stats[topic]['correct'] += 1
-
-    for topic in topic_stats:
-        topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
-
-    points = current_user.points
-
-    # Retrieve distinct exam_year values (that are not null)
-    exam_years = db.session.query(Question.exam_year).filter(Question.exam_year.isnot(None)).distinct().all()
-    # exam_years is a list of tuples; extract the actual values
-    exam_years = [year for (year,) in exam_years]
-
-    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
-
-    return render_template('dashboard.html', topic_stats=topic_stats, points=points, review_questions=review_questions, exam_years=exam_years)
-
-# New Routes
-@app.route('/change_password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    form = ChangePasswordForm()
-    if form.validate_on_submit():
-        if bcrypt.check_password_hash(current_user.password, form.current_password.data):
-            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            current_user.password = hashed_password
+        if form.validate_on_submit():
+            selected = form.answer.data
+            is_correct = (selected == question.correct_option)
+            resp = UserResponse(
+                user_id=current_user.id,
+                question_id=question.id,
+                selected_option=selected,
+                is_correct=is_correct
+            )
+            db.session.add(resp)
+            if is_correct:
+                current_user.points += 10
+                session["score"] += 1
             db.session.commit()
-            flash('Your password has been updated!', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Current password is incorrect.', 'danger')
-    return render_template('change_password.html', form=form)
+            session["current_question"] += 1
+            return redirect(url_for("quiz"))
 
-@app.route('/reset_password', methods=['GET', 'POST'])
-def request_reset():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = RequestResetForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = generate_reset_token(user.email)
-            reset_url = url_for('reset_token', token=token, _external=True)
-            msg = Message('Password Reset Request', recipients=[user.email])
-            msg.body = f'To reset your password, visit this link: {reset_url}\nIf you didn’t request this, ignore this email.'
-            mail.send(msg)
-            flash('An email has been sent with instructions to reset your password.', 'info')
-            return redirect(url_for('login'))
-        else:
-            flash('No account found with that email.', 'danger')
-    return render_template('reset_request.html', form=form)
+        return render_template(
+            "quiz.html",
+            question=question,
+            form=form,
+            current=idx + 1,
+            total=len(session["quiz_questions"]),
+            overall_time=int(remaining),
+        )
 
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    email = verify_reset_token(token)
-    if not email:
-        flash('The reset link is invalid or has expired.', 'danger')
-        return redirect(url_for('request_reset'))
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash('No account found with that email.', 'danger')
-        return redirect(url_for('request_reset'))
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password = hashed_password
-        db.session.commit()
-        flash('Your password has been reset! Please log in.', 'success')
-        return redirect(url_for('login'))
-    return render_template('reset_password.html', form=form)
+    @app.route("/results")
+    @login_required
+    def results():
+        responses = (
+            UserResponse.query.filter_by(user_id=current_user.id)
+            .order_by(UserResponse.id.desc())
+            .limit(5)
+            .all()
+        )
+        if not responses:
+            flash("No quiz results found. Please take the quiz first.", "warning")
+            return redirect(url_for("quiz"))
 
-@app.route('/mark_review', methods=['POST'])
-@login_required
-def mark_review():
-    try:
-        question_id = request.form.get('question_id')
-        if not question_id:
-            return jsonify({'status': 'error', 'message': 'No question ID provided'}), 400
-        question_id = int(question_id)
-        question = Question.query.get(question_id)
-        if not question:
-            return jsonify({'status': 'error', 'message': 'Question not found'}), 404
-        existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
-        if not existing:
-            review = ReviewQuestion(user_id=current_user.id, question_id=question_id)
-            db.session.add(review)
+        score = sum(1 for r in responses if r.is_correct)
+        total = len(responses)
+
+        marked_ids = {rq.question_id for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()}
+
+        valid = ["A", "B", "C", "D"]
+        results_data = []
+        for r in responses:
+            correct = r.question.correct_option
+            if correct in valid:
+                correct_text = f"{correct}. {getattr(r.question, f'option_{correct.lower()}')}"
+            else:
+                correct_text = f"{correct} (Invalid option)"
+
+            results_data.append({
+                "question_id": r.question.id,
+                "question_text": r.question.question_text,
+                "selected_option": f"{r.selected_option}. {getattr(r.question, f'option_{r.selected_option.lower()}')}",
+                "correct_option": correct_text,
+                "is_correct": r.is_correct,
+                "is_marked": r.question.id in marked_ids,
+            })
+
+        return render_template(
+            "results.html",
+            score=score,
+            total_questions=total,
+            results_data=results_data
+        )
+
+    @app.route("/dashboard")
+    @login_required
+    def dashboard():
+        responses = UserResponse.query.filter_by(user_id=current_user.id).all()
+        topic_stats = {}
+        for r in responses:
+            t = r.question.topic
+            topic_stats.setdefault(t, {"correct": 0, "total": 0})
+            topic_stats[t]["total"] += 1
+            if r.is_correct:
+                topic_stats[t]["correct"] += 1
+
+        for t in topic_stats:
+            topic_stats[t]["percentage"] = (
+                topic_stats[t]["correct"] / max(1, topic_stats[t]["total"]) * 100
+            )
+
+        points = current_user.points
+        exam_years = [y for (y,) in db.session.query(Question.exam_year).filter(Question.exam_year.isnot(None)).distinct().all()]
+        review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
+
+        return render_template(
+            "dashboard.html",
+            topic_stats=topic_stats,
+            points=points,
+            review_questions=review_questions,
+            exam_years=exam_years,
+        )
+
+    @app.route("/change_password", methods=["GET", "POST"])
+    @login_required
+    def change_password():
+        form = ChangePasswordForm()
+        if form.validate_on_submit():
+            if bcrypt.check_password_hash(current_user.password, form.current_password.data):
+                current_user.password = bcrypt.generate_password_hash(form.new_password.data).decode("utf-8")
+                db.session.commit()
+                flash("Your password has been updated!", "success")
+                return redirect(url_for("dashboard"))
+            flash("Current password is incorrect.", "danger")
+        return render_template("change_password.html", form=form)
+
+    @app.route("/reset_password", methods=["GET", "POST"])
+    def request_reset():
+        if current_user.is_authenticated:
+            return redirect(url_for("home"))
+        form = RequestResetForm()
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user:
+                token = generate_reset_token(user.email)
+                reset_url = url_for("reset_token", token=token, _external=True)
+                msg = Message("Password Reset Request", recipients=[user.email])
+                msg.body = f"To reset your password, visit this link: {reset_url}\nIf you didn’t request this, ignore this email."
+                mail.send(msg)
+                flash("An email has been sent with instructions to reset your password.", "info")
+                return redirect(url_for("login"))
+            flash("No account found with that email.", "danger")
+        return render_template("reset_request.html", form=form)
+
+    @app.route("/reset_password/<token>", methods=["GET", "POST"])
+    def reset_token(token):
+        if current_user.is_authenticated:
+            return redirect(url_for("home"))
+        email = verify_reset_token(token)
+        if not email:
+            flash("The reset link is invalid or has expired.", "danger")
+            return redirect(url_for("request_reset"))
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            flash("No account found with that email.", "danger")
+            return redirect(url_for("request_reset"))
+
+        form = ResetPasswordForm()
+        if form.validate_on_submit():
+            user.password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
             db.session.commit()
-            return jsonify({'status': 'success'})
-        else:
-            return jsonify({'status': 'already_marked'})
-    except ValueError:
-        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400
-    except Exception as e:
-        app.logger.error(f"Error in mark_review: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Server error'}), 500
+            flash("Your password has been reset! Please log in.", "success")
+            return redirect(url_for("login"))
+        return render_template("reset_password.html", form=form)
 
-@app.route('/review')
-@login_required
-def review():
-    review_questions = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
-    questions = [rq.question for rq in review_questions]
-    return render_template('review.html', questions=questions)
+    @app.route("/mark_review", methods=["POST"])
+    @login_required
+    def mark_review():
+        try:
+            qid = request.form.get("question_id")
+            if not qid:
+                return jsonify({"status": "error", "message": "No question ID provided"}), 400
+            qid = int(qid)
+            question = Question.query.get(qid)
+            if not question:
+                return jsonify({"status": "error", "message": "Question not found"}), 404
 
-@app.route('/marked_quiz', methods=['GET', 'POST'])
-@login_required
-def marked_quiz():
-    if 'quiz_questions' not in session:
-        marked_questions = [rq.question for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()]
-        if len(marked_questions) < 5:
-            flash('Not enough marked questions. Please mark at least 5 questions to practice.', 'warning')
-            return redirect(url_for('review'))
-        selected_questions = random.sample(marked_questions, 5)
-        session['quiz_questions'] = [q.id for q in selected_questions]
-        session['current_question'] = 0
-        session['score'] = 0
+            existing = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=qid).first()
+            if not existing:
+                db.session.add(ReviewQuestion(user_id=current_user.id, question_id=qid))
+                db.session.commit()
+                return jsonify({"status": "success"})
+            return jsonify({"status": "already_marked"})
+        except ValueError:
+            return jsonify({"status": "error", "message": "Invalid question ID"}), 400
+        except Exception as e:
+            current_app.logger.error(f"Error in mark_review: {e}")
+            return jsonify({"status": "error", "message": "Server error"}), 500
 
-    current_idx = session['current_question']
-    if current_idx >= len(session['quiz_questions']):
-        score = session['score']
-        total = len(session['quiz_questions'])
-        session.pop('quiz_questions', None)
-        session.pop('current_question', None)
-        session.pop('score', None)
-        flash(f'Marked questions quiz completed! Your score: {score}/{total}', 'success')
-        return redirect(url_for('results'))
+    @app.route("/review")
+    @login_required
+    def review():
+        review_qs = ReviewQuestion.query.filter_by(user_id=current_user.id).all()
+        questions = [rq.question for rq in review_qs]
+        return render_template("review.html", questions=questions)
 
-    question = Question.query.get(session['quiz_questions'][current_idx])
-    form = QuizForm()
+    @app.route("/marked_quiz", methods=["GET", "POST"])
+    @login_required
+    def marked_quiz():
+        if "quiz_questions" not in session:
+            marked = [rq.question for rq in ReviewQuestion.query.filter_by(user_id=current_user.id).all()]
+            if len(marked) < 5:
+                flash("Not enough marked questions. Please mark at least 5 questions to practice.", "warning")
+                return redirect(url_for("review"))
+            selected = random.sample(marked, 5)
+            session["quiz_questions"] = [q.id for q in selected]
+            session["current_question"] = 0
+            session["score"] = 0
 
-    if form.validate_on_submit():
-        selected = form.answer.data
-        is_correct = (selected == question.correct_option)
-        response = UserResponse(
-            user_id=current_user.id,
-            question_id=question.id,
-            selected_option=selected,
-            is_correct=is_correct
-        )
-        db.session.add(response)
-        if is_correct:
-            current_user.points += 10
-            session['score'] += 1
-        db.session.commit()
-        session['current_question'] += 1
-        return redirect(url_for('marked_quiz'))
+        idx = session["current_question"]
+        if idx >= len(session["quiz_questions"]):
+            score = session["score"]
+            total = len(session["quiz_questions"])
+            for key in ("quiz_questions", "current_question", "score"):
+                session.pop(key, None)
+            flash(f"Marked questions quiz completed! Your score: {score}/{total}", "success")
+            return redirect(url_for("results"))
 
-    return render_template('quiz.html', question=question, form=form, current=current_idx + 1, total=len(session['quiz_questions']))
+        question = Question.query.get(session["quiz_questions"][idx])
+        form = QuizForm()
 
-@app.route('/unmark_review', methods=['POST'])
-@login_required
-def unmark_review():
-    try:
-        question_id = request.form.get('question_id')
-        if not question_id:
-            return jsonify({'status': 'error', 'message': 'No question ID provided'}), 400
-        question_id = int(question_id)
-        review = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=question_id).first()
-        if review:
-            db.session.delete(review)
+        if form.validate_on_submit():
+            selected = form.answer.data
+            is_correct = (selected == question.correct_option)
+            db.session.add(UserResponse(
+                user_id=current_user.id,
+                question_id=question.id,
+                selected_option=selected,
+                is_correct=is_correct
+            ))
+            if is_correct:
+                current_user.points += 10
+                session["score"] += 1
             db.session.commit()
-            return jsonify({'status': 'success', 'message': 'Question unmarked'})
+            session["current_question"] += 1
+            return redirect(url_for("marked_quiz"))
+
+        return render_template("quiz.html", question=question, form=form, current=idx + 1, total=len(session["quiz_questions"]))
+
+    @app.route("/unmark_review", methods=["POST"])
+    @login_required
+    def unmark_review():
+        try:
+            qid = request.form.get("question_id")
+            if not qid:
+                return jsonify({"status": "error", "message": "No question ID provided"}), 400
+            qid = int(qid)
+            review = ReviewQuestion.query.filter_by(user_id=current_user.id, question_id=qid).first()
+            if review:
+                db.session.delete(review)
+                db.session.commit()
+                return jsonify({"status": "success", "message": "Question unmarked"})
+            return jsonify({"status": "error", "message": "Question not marked for review"}), 404
+        except ValueError:
+            return jsonify({"status": "error", "message": "Invalid question ID"}), 400
+        except Exception as e:
+            current_app.logger.error(f"Error in unmark_review: {e}")
+            return jsonify({"status": "error", "message": "Server error"}), 500
+
+    @app.route("/explain/<int:question_id>", methods=["POST"])
+    @login_required
+    def explain(question_id):
+        question = Question.query.get_or_404(question_id)
+        current_app.logger.info(f"Fetching explanation for question {question_id}")
+        try:
+            explanation = question.explanation if question.explanation else "No explanation available."
+            return jsonify({"explanation": explanation})
+        except Exception as e:
+            current_app.logger.error(f"Error retrieving explanation: {e}")
+            return jsonify({"explanation": "Sorry, explanation unavailable."}), 500
+
+    @app.route("/ai_feedback", methods=["POST"])
+    @login_required
+    def ai_feedback():
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            current_app.logger.error("OpenAI API key not set")
+            return jsonify({"feedback": "AI feedback unavailable due to configuration error."}), 500
+
+        client = OpenAI(api_key=api_key)
+
+        responses = UserResponse.query.filter_by(user_id=current_user.id).all()
+        topic_stats = {}
+        for r in responses:
+            t = r.question.topic
+            topic_stats.setdefault(t, {"correct": 0, "total": 0})
+            topic_stats[t]["total"] += 1
+            if r.is_correct:
+                topic_stats[t]["correct"] += 1
+
+        for t in topic_stats:
+            s = topic_stats[t]
+            s["percentage"] = (s["correct"] / max(1, s["total"])) * 100
+
+        prompt = (
+            "Based on the following topic statistics, provide concise feedback and study "
+            "recommendations in LaTeX-friendly format (use \\( \\) for equations):\n"
+            + "\n".join(f"- {t}: {s['correct']}/{s['total']} ({s['percentage']:.1f}%)" for t, s in topic_stats.items())
+        )
+
+        try:
+            resp = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful math tutor. Keep feedback concise and use LaTeX where appropriate."},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=200,
+                temperature=0.7,
+            )
+            feedback = resp.choices[0].message.content.strip()
+            return jsonify({"feedback": feedback})
+        except Exception as e:
+            current_app.logger.error(f"OpenAI API error: {e}")
+            return jsonify({"feedback": "Sorry, I couldn't generate feedback right now."}), 500
+
+    @app.route("/test_openai")
+    @login_required
+    def test_openai():
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            return "Error: OPENAI_API_KEY not set."
+        client = OpenAI(api_key=api_key)
+        try:
+            resp = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": "Say hello!"}],
+                max_tokens=10,
+            )
+            return resp.choices[0].message.content
+        except Exception as e:
+            return f"Error: {e}"
+
+    @app.route("/jamb")
+    @login_required
+    def jamb_practice():
+        jamb_q = Question.query.filter(Question.exam_year.ilike("%jamb%")).all()
+        if len(jamb_q) < 5:
+            flash("Not enough JAMB questions available.", "warning")
+            return redirect(url_for("dashboard"))
+        selected = random.sample(jamb_q, 5)
+        session["quiz_questions"] = [q.id for q in selected]
+        session["current_question"] = 0
+        session["score"] = 0
+        session.pop("quiz_start_time", None)
+        flash("JAMB practice quiz started!", "info")
+        return redirect(url_for("quiz"))
+
+    @app.route("/filter")
+    @login_required
+    def filter_questions():
+        selected_year = request.args.get("year")
+        if selected_year:
+            filtered = Question.query.filter(Question.exam_year.ilike(f"%{selected_year}%")).all()
         else:
-            return jsonify({'status': 'error', 'message': 'Question not marked for review'}), 404
-    except ValueError:
-        return jsonify({'status': 'error', 'message': 'Invalid question ID'}), 400
-    except Exception as e:
-        app.logger.error(f"Error in unmark_review: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Server error'}), 500
+            filtered = Question.query.all()
 
-@app.route('/explain/<int:question_id>', methods=['POST'])
-@login_required
-def explain(question_id):
-    question = Question.query.get_or_404(question_id)
-    app.logger.info(f"Fetching explanation for question {question_id}")
-    try:
-        # Use the pre-stored explanation from the database
-        explanation = question.explanation if question.explanation else "No explanation available."
-        return jsonify({'explanation': explanation})
-    except Exception as e:
-        app.logger.error(f"Error retrieving explanation: {str(e)}")
-        return jsonify({'explanation': "Sorry, explanation unavailable."}), 500
+        if len(filtered) < 5:
+            flash("Not enough questions available for the selected filter.", "warning")
+            return redirect(url_for("dashboard"))
 
-@app.route('/ai_feedback', methods=['POST'])
-@login_required
-def ai_feedback():
-    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-    if not client.api_key:
-        app.logger.error("OpenAI API key not set")
-        return jsonify({'feedback': "AI feedback unavailable due to configuration error."}), 500
+        selected = random.sample(filtered, 5)
+        session["quiz_questions"] = [q.id for q in selected]
+        session["current_question"] = 0
+        session["score"] = 0
+        session.pop("quiz_start_time", None)
 
-    responses = UserResponse.query.filter_by(user_id=current_user.id).all()
-    topic_stats = {}
-    for r in responses:
-        topic = r.question.topic
-        if topic not in topic_stats:
-            topic_stats[topic] = {'correct': 0, 'total': 0}
-        topic_stats[topic]['total'] += 1
-        if r.is_correct:
-            topic_stats[topic]['correct'] += 1
-    
-    for topic in topic_stats:
-        topic_stats[topic]['percentage'] = (topic_stats[topic]['correct'] / topic_stats[topic]['total']) * 100
-    
-    prompt = "Based on the following topic statistics, provide concise feedback and study recommendations in LaTeX-friendly format (use \( \) for equations):\n" + \
-             "\n".join(f"- {t}: {s['correct']}/{s['total']} ({s['percentage']:.1f}%)" for t, s in topic_stats.items())
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful math tutor. Keep feedback concise and use LaTeX where appropriate."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=200,
-            temperature=0.7
-        )
-        feedback = response.choices[0].message.content.strip()
-        return jsonify({'feedback': feedback})
-    except Exception as e:
-        app.logger.error(f"OpenAI API error: {str(e)}")
-        return jsonify({'feedback': "Sorry, I couldn't generate feedback right now."}), 500
-
-@app.route('/test_openai')
-@login_required
-def test_openai():
-    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Say hello!"}],
-            max_tokens=10
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error: {str(e)}"
-    
-
-@app.route('/jamb')
-@login_required
-def jamb_practice():
-    # Filter questions with "jamb" in the exam_year (case-insensitive)
-    jamb_questions = Question.query.filter(Question.exam_year.ilike('%jamb%')).all()
-
-    if len(jamb_questions) < 5:
-        flash("Not enough JAMB questions available.", "warning")
-        return redirect(url_for('dashboard'))
-    
-    # Randomly select 5 questions
-    selected_questions = random.sample(jamb_questions, 5)
-    session['quiz_questions'] = [q.id for q in selected_questions]
-    session['current_question'] = 0
-    session['score'] = 0
-    # Reset overall timer if used
-    session.pop('quiz_start_time', None)
-    
-    flash("JAMB practice quiz started!", "info")
-    return redirect(url_for('quiz'))
-
-@app.route('/filter')
-@login_required
-def filter_questions():
-    # Get the selected year from the query parameters
-    selected_year = request.args.get('year')
-    if selected_year:
-        # Filter questions where exam_year contains the selected value (case-insensitive)
-        filtered_questions = Question.query.filter(Question.exam_year.ilike(f"%{selected_year}%")).all()
-    else:
-        # If no year is selected, retrieve all questions
-        filtered_questions = Question.query.all()
-    
-    if len(filtered_questions) < 5:
-        flash("Not enough questions available for the selected filter.", "warning")
-        return redirect(url_for('dashboard'))
-    
-    # Randomly select 5 questions for the quiz session
-    selected_questions = random.sample(filtered_questions, 5)
-    session['quiz_questions'] = [q.id for q in selected_questions]
-    session['current_question'] = 0
-    session['score'] = 0
-    # Clear existing overall timer session if applicable
-    session.pop('quiz_start_time', None)
-    
-    flash(f"Quiz filtered by exam year '{selected_year}' started!", "info")
-    return redirect(url_for('quiz'))
+        flash(f"Quiz filtered by exam year '{selected_year}' started!", "info")
+        return redirect(url_for("quiz"))

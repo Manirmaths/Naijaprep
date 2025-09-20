@@ -47,7 +47,7 @@ git status
 
 # Stage & commit
 git add -A
-git commit -m "Your concise message"
+git commit -m "Deployment update"
 
 # Push to GitHub
 git push origin main
