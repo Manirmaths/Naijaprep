@@ -1,40 +1,42 @@
+# app/__init__.py
+import os
+from dotenv import load_dotenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
-import os
-from dotenv import load_dotenv
 
-# Load environment variables from .env file (for local development)
+# Load .env only for local dev; harmless on Heroku
 load_dotenv()
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db').replace('postgres://', 'postgresql://')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy()
+csrf = CSRFProtect()
+login_manager = LoginManager()
+bcrypt = Bcrypt()
+mail = Mail()
 
-# Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+def create_app():
+    app = Flask(__name__)
+    # pull EVERYTHING from Config
+    app.config.from_object("config.Config")
 
-db = SQLAlchemy(app)
-csrf = CSRFProtect(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-bcrypt = Bcrypt(app)
-mail = Mail(app)
+    # init extensions
+    db.init_app(app)
+    csrf.init_app(app)
+    login_manager.init_app(app)
+    bcrypt.init_app(app)
+    mail.init_app(app)
 
-# Import models to register them with SQLAlchemy
-from app.models import User, Question, UserResponse, ReviewQuestion  # Added ReviewQuestion
+    # login view (adjust if you use blueprints)
+    login_manager.login_view = "login"
 
-# Create tables if they don’t exist
-with app.app_context():
-    db.create_all()
+    # register models so SQLAlchemy sees them
+    with app.app_context():
+        from app.models import User, Question, UserResponse, ReviewQuestion  # noqa: F401
 
-from app import routes
+    # register routes/blueprints
+    from app import routes  # noqa: F401
+
+    return app

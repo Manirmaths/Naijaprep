@@ -1,0 +1,116 @@
+heroku run -a naijaprep-app python create_tables.py
+heroku run -a naijaprep-app python seed_questions.py
+.\venv\Scripts\Activate.ps1
+git push heroku main
+heroku open -a naijaprep-app
+
+
+@'
+from app import app
+from app.models import Question
+with app.app_context():
+    print("Questions in DB:", Question.query.count())
+'@ | Out-File -Encoding utf8 print_count.py
+
+git add print_count.py
+git commit -m "Add print_count script"
+git push heroku main
+heroku run -a naijaprep-app python print_count.py
+
+
+# 1) See what's changed
+git status
+
+# 2) Stage + commit
+git add -A
+git commit -m "Your message here"
+
+# 3) Push to GitHub (origin)
+git push origin main
+
+# 4) Deploy to Heroku (naijaprep-app)
+git push heroku main
+
+# 5) (Optional) Watch logs while it boots
+heroku logs --tail -a naijaprep-app
+
+# 6) (Optional) Open the app
+heroku open -a naijaprep-app
+
+
+Everyday changes (no DB/schema changes)
+
+In your project folder:
+
+# See what changed
+git status
+
+# Stage & commit
+git add -A
+git commit -m "Your concise message"
+
+# Push to GitHub
+git push origin main
+
+# Deploy to Heroku
+git push heroku main
+
+# (optional) watch logs during/after release
+heroku logs --tail -a naijaprep-app
+
+
+That’s it—Heroku will rebuild, restart, and serve the new version at
+https://www.naijaprep.com.ng
+
+If you added/changed dependencies
+# Update the lockfile on your machine
+pip install -r requirements.txt
+
+# If you installed something new locally:
+pip freeze > requirements.txt
+
+git add requirements.txt
+git commit -m "deps: update requirements"
+git push origin main
+git push heroku main
+
+If you changed environment variables (secrets, keys, etc.)
+# Set on Heroku (never commit secrets)
+heroku config:set OPENAI_API_KEY=sk-... -a naijaprep-app
+heroku config:set MAIL_USERNAME=... MAIL_PASSWORD=... -a naijaprep-app
+heroku config:set SECRET_KEY=... -a naijaprep-app
+
+If you changed the database schema
+
+(Recommended: use Flask-Migrate, which you already included.)
+
+# 1) Make a migration locally
+flask db migrate -m "add field X to Question"
+
+# 2) Review migration script if needed, then commit
+git add migrations
+git commit -m "migrations: add field X"
+git push origin main
+git push heroku main
+
+# 3) Apply migration on Heroku
+heroku run -a naijaprep-app flask db upgrade
+
+
+If you need to reseed sample data:
+
+heroku run -a naijaprep-app python seed_questions.py
+
+Quick troubleshooting
+
+App not updating? git remote -v should show:
+
+origin https://github.com/Manirmaths/Naijaprep.git
+
+heroku https://git.heroku.com/naijaprep-app.git
+
+Build failing? Check heroku logs --tail -a naijaprep-app.
+
+Static files or templates not reflecting? Hard refresh the browser (Ctrl+F5) or clear Cloudflare cache (Caching → Configuration → Purge Cache → “Purge Everything”).
+
+Dependency missing? Make sure it’s in requirements.txt and redeploy.
