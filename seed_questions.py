@@ -72,7 +72,13 @@ def sanitize_html(s: Optional[str]) -> str:
     if not s:
         return ""
     # strip=True drops disallowed tags entirely (instead of escaping them)
-    return bleach.clean(s, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES, strip=True)
+    return bleach.clean(
+        s,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRS,
+        strip=True,        # <- styles arg removed
+    )
+
 
 
 def filename_to_subject(csv_path: Path) -> Optional[str]:
