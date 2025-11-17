@@ -1,9 +1,11 @@
+# seed_questions.py
 import csv
 import io
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from sqlalchemy import inspect, text  # ✅ use inspector + text
+from sqlalchemy import inspect
+import bleach  # ← make sure 'bleach' is installed
 
 from app import create_app, db
 from app.models import Question, UserResponse
@@ -24,7 +26,7 @@ REQUIRED_HEADERS = [
     "exam_year",
 ]
 
-# Expected per-subject files (and the subject names we’ll set)
+# Map CSV filenames -> subject value stored in DB
 SUBJECT_STEMS = {
     "mathsQuestions": "Mathematics",
     "englishQuestions": "English",
@@ -39,7 +41,7 @@ SUBJECT_STEMS = {
     "accountingQuestions": "Accounting",
 }
 
-# Try these encodings in order
+# Encodings to try when reading CSVs
 ENCODING_CANDIDATES = (
     "utf-8-sig",
     "utf-8",
@@ -49,6 +51,28 @@ ENCODING_CANDIDATES = (
     "utf-16-le",
     "utf-16-be",
 )
+
+# ---- HTML sanitization allowlist ----
+ALLOWED_TAGS = {
+    # basic text
+    "b", "strong", "i", "em", "u", "br", "p", "span", "div",
+    "sub", "sup", "ul", "ol", "li", "blockquote", "code", "pre",
+    # tables if needed in explanations
+    "table", "thead", "tbody", "tr", "th", "td",
+    # keep images OFF by default; add "img" if you really need it (then also whitelist src)
+}
+ALLOWED_ATTRS = {
+    "*": ["class", "style"],  # keep minimal styling if you must; or drop "style" to be stricter
+}
+ALLOWED_STYLES = [
+    # keep empty for stricter setup; or allow limited inline styles if you trust the source
+]
+
+def sanitize_html(s: Optional[str]) -> str:
+    if not s:
+        return ""
+    # strip=True drops disallowed tags entirely (instead of escaping them)
+    return bleach.clean(s, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES, strip=True)
 
 
 def filename_to_subject(csv_path: Path) -> Optional[str]:
@@ -72,30 +96,19 @@ def ensure_subject_column():
     if "subject" in col_names:
         return
 
-    # Add the column (works for SQLite and most others)
     ddl = "ALTER TABLE question ADD COLUMN subject VARCHAR(255)"
     try:
         with engine.begin() as conn:
-            conn.exec_driver_sql(ddl)  # ✅ SQLA 2.x way
+            conn.exec_driver_sql(ddl)
     except Exception:
         # Best-effort: ignore if already added by a race or different migration path
         pass
 
 
-def norm_choice(x: Optional[str]) -> str:
-    """Coerce answer key to A/B/C/D."""
-    if not x:
-        return "A"
-    s = str(x).strip().upper()
-    if s.startswith("OPTION "):
-        s = s.replace("OPTION ", "", 1).strip()
-    return s[0] if s and s[0] in "ABCD" else "A"
-
-
 def find_csv_files(base_dir: Path) -> List[Path]:
     """
     Resolve CSV paths:
-      - data/*.csv (keep stable alphabetical order)
+      - data/*.csv (alphabetical order)
       - questions3.csv in root (legacy)
       - data/questions3.csv (legacy)
     """
@@ -175,7 +188,7 @@ def main():
         db.session.query(UserResponse).delete()
         db.session.query(Question).delete()
         db.session.commit()
-        print("✅ Database tables created (or already exist).")
+        print("✅ Database cleared. Reseeding…")
 
         grand_inserted = 0
         per_file_counts = []
@@ -192,24 +205,30 @@ def main():
             reader = csv.DictReader(io.StringIO(text_data))
 
             for row in reader:
-                topic = (row.get("topic") or "").strip()
+                topic_raw = (row.get("topic") or "").strip()
                 difficulty = to_int(row.get("difficulty"), default=1)
-                question_text = (row.get("question_text") or "").strip()
-                option_a = (row.get("option_a") or "").strip()
-                option_b = (row.get("option_b") or "").strip()
-                option_c = (row.get("option_c") or "").strip()
-                option_d = (row.get("option_d") or "").strip()
-                correct_option = norm_choice(row.get("correct_option"))
-                explanation = (row.get("explanation") or "").strip()
+
+                # ---- sanitize everything user-facing ----
+                topic = sanitize_html(topic_raw)
+                question_text = sanitize_html(row.get("question_text") or "")
+                option_a = sanitize_html(row.get("option_a") or "")
+                option_b = sanitize_html(row.get("option_b") or "")
+                option_c = sanitize_html(row.get("option_c") or "")
+                option_d = sanitize_html(row.get("option_d") or "")
+                explanation = sanitize_html(row.get("explanation") or "")
+
+                correct_option_raw = row.get("correct_option")
+                correct_option = norm_choice(correct_option_raw)
 
                 exam_year_raw = row.get("exam_year")
                 exam_year = (exam_year_raw or None).strip() if exam_year_raw else None
 
+                # Minimal validity
                 if not question_text or not topic:
                     continue
 
                 q = Question(
-                    subject=csv_subject,  # <- set from filename where applicable
+                    subject=csv_subject,
                     topic=topic,
                     difficulty=difficulty,
                     question_text=question_text,
@@ -237,6 +256,16 @@ def main():
             print(f"- {name}: {cnt} rows (encoding {enc})")
         print(f"= Total inserted this run: {grand_inserted}")
         print(f"= Questions now in DB:     {total_in_db}")
+
+
+def norm_choice(x: Optional[str]) -> str:
+    """Coerce answer key to A/B/C/D."""
+    if not x:
+        return "A"
+    s = str(x).strip().upper()
+    if s.startswith("OPTION "):
+        s = s.replace("OPTION ", "", 1).strip()
+    return s[0] if s and s[0] in "ABCD" else "A"
 
 
 if __name__ == "__main__":

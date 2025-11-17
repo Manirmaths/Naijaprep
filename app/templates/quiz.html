@@ -1,4 +1,4 @@
-<!-- quiz.html -->
+<!-- templates/quiz.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,33 +43,15 @@
       background: linear-gradient(135deg, #007bff, #00d4ff);
       font-weight: 600;
     }
-    .question-text {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-    /* New Exam Metadata Toggle Section */
-    .toggle-container {
-      text-align: right;
-      margin-bottom: 10px;
-    }
-    .toggle-container label {
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: #555;
-    }
-    #exam-info {
-      display: none; 
-      font-size: 0.9rem; 
-      color: #777; 
-      margin-top: 5px;
-    }
-    /* Updated Overall Timer Styles */
+    .question-text { font-size: 1.25rem; font-weight: 600; color: #333; margin-bottom: 10px; line-height: 1.5; }
+    .toggle-container { text-align: right; margin-bottom: 10px; }
+    .toggle-container label { cursor: pointer; font-size: 0.9rem; color: #555; }
+    #exam-info { display: none; font-size: 0.9rem; color: #777; margin-top: 5px; }
+
+    /* Overall timer bubble */
     #overall-timer {
       position: fixed;
-      top: 80px;  /* Positioned 80px from top */
+      top: 80px;
       right: 20px;
       background: rgba(0, 123, 255, 0.9);
       color: #fff;
@@ -80,6 +62,12 @@
       z-index: 1000;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
+
+    /* Per-question timer badge */
+    .timer-badge { font-weight: 700; }
+    .timer-critical { background:#dc3545 !important; }
+    .timer-warn { background:#ffc107 !important; color:#212529 !important; }
+
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -107,13 +95,20 @@
 
   <div class="container">
     <div class="card quiz-card">
-      <h2 class="text-center mb-4">Question {{ current }} of {{ total }}</h2>
-      <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: {{ (current / total * 100) }}%;" 
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Question {{ current }} of {{ total }}</h2>
+        {% if per_q_enabled %}
+          <span id="perq-badge" class="badge bg-success timer-badge">⏳ {{ per_q_remaining }}s</span>
+        {% endif %}
+      </div>
+
+      <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: {{ (current / total * 100) }}%;"
              aria-valuenow="{{ (current / total * 100) }}" aria-valuemin="0" aria-valuemax="100">
           {{ current }} / {{ total }}
         </div>
       </div>
+
       <!-- Toggle for Exam Metadata -->
       <div class="toggle-container">
         <label>
@@ -136,9 +131,11 @@
           {% endfor %}
         {% endif %}
       {% endwith %}
-      <form method="POST" class="mt-4">
+
+      <form id="quiz-form" method="POST" class="mt-4">
         {{ form.hidden_tag() }}
         <p class="question-text">{{ question.question_text | safe }}</p>
+
         <div class="form-check">
           <input type="radio" name="answer" value="A" class="form-check-input" id="option_a" required>
           <label class="form-check-label" for="option_a">A. {{ question.option_a | safe }}</label>
@@ -155,6 +152,7 @@
           <input type="radio" name="answer" value="D" class="form-check-input" id="option_d" required>
           <label class="form-check-label" for="option_d">D. {{ question.option_d | safe }}</label>
         </div>
+
         <button type="submit" class="btn btn-primary mt-3">Next Question</button>
       </form>
     </div>
@@ -164,16 +162,13 @@
   <script>
     // Overall timer functionality (mm:ss format)
     let overallTime = {{ overall_time }};
-    
     function formatTime(seconds) {
       let m = Math.floor(seconds / 60);
       let s = seconds % 60;
       return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
-    
     const overallTimerElement = document.getElementById('overall-timer');
     overallTimerElement.textContent = formatTime(overallTime);
-    
     const overallCountdown = setInterval(() => {
       overallTime--;
       overallTimerElement.textContent = formatTime(overallTime);
@@ -190,6 +185,46 @@
       examInfo.style.display = this.checked ? 'block' : 'none';
     });
   </script>
+
+  {% if per_q_enabled %}
+  <script>
+    (function(){
+      let remaining = {{ per_q_remaining|default(0) }};
+      const badge = document.getElementById('perq-badge');
+      const form = document.getElementById('quiz-form');
+      let submitted = false;
+
+      function tick(){
+        if (submitted) return;
+        remaining -= 1;
+        if (remaining < 0) remaining = 0;
+
+        if (badge){
+          badge.textContent = `⏳ ${remaining}s`;
+          badge.classList.remove('bg-success','timer-warn','timer-critical');
+          if (remaining <= 5) badge.classList.add('timer-critical');
+          else if (remaining <= 15) badge.classList.add('timer-warn');
+          else badge.classList.add('bg-success');
+        }
+
+        if (remaining <= 0){
+          submitted = true;
+          // Auto-submit: mark as timeout, no selection
+          const hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'auto_timeout';
+          hidden.value = '1';
+          form.appendChild(hidden);
+          // Programmatic submit bypasses HTML5 "required" constraints
+          form.submit();
+          return;
+        }
+        setTimeout(tick, 1000);
+      }
+
+      if (remaining > 0) setTimeout(tick, 1000);
+    })();
+  </script>
+  {% endif %}
 </body>
 </html>
-<!-- End of quiz.html -->

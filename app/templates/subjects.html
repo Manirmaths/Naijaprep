@@ -1,3 +1,4 @@
+ <!-- subjects.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +19,7 @@
     .subject-card:hover { transform: translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.12); }
     .subject-name { font-weight:700; font-size:1.15rem; margin-bottom:6px; }
     .badge-count { font-size:.85rem; }
+    .mini-form select { max-width: 110px; }
   </style>
 </head>
 <body>
@@ -44,14 +46,35 @@
   <div class="row g-3">
     {% for s in subjects %}
       <div class="col-6 col-md-4 col-lg-3">
-        <a class="text-decoration-none" href="{{ url_for('subject_topics', subject=s) }}">
-          <div class="subject-card">
+        <div class="subject-card d-flex flex-column justify-content-between">
+          <a class="text-decoration-none mb-2" href="{{ url_for('subject_topics', subject=s) }}">
             <div class="subject-name">{{ s }}</div>
             <span class="badge bg-primary badge-count">
               {{ subject_counts.get(s, 0) }} questions
             </span>
-          </div>
-        </a>
+          </a>
+
+          <!-- Quick start form (GET -> /quiz) -->
+          <form action="{{ url_for('quiz') }}" method="get" class="mini-form mt-2">
+            <input type="hidden" name="subject" value="{{ s }}">
+            <div class="d-flex gap-2 justify-content-center">
+              <select name="n" class="form-select form-select-sm" aria-label="Number of questions">
+                <option value="5" selected>5 Qs</option>
+                <option value="10">10 Qs</option>
+                <option value="20">20 Qs</option>
+              </select>
+              <select name="difficulty" class="form-select form-select-sm" aria-label="Difficulty">
+                <option value="any" selected>Any diff.</option>
+                <option value="1">Diff 1</option>
+                <option value="2">Diff 2</option>
+                <option value="3">Diff 3</option>
+                <option value="4">Diff 4</option>
+                <option value="5">Diff 5</option>
+              </select>
+              <button class="btn btn-sm btn-primary" type="submit">Start</button>
+            </div>
+          </form>
+        </div>
       </div>
     {% endfor %}
   </div>

@@ -1,4 +1,4 @@
-<!-- results.html -->
+<!-- templates/results.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,6 +144,8 @@
             transform: scale(1.05);
             background: linear-gradient(135deg, #0056b3, #00b7eb);
         }
+        /* Added for the new top action buttons */
+        .actions-bar .btn { min-width: 200px; }
     </style>
 </head>
 <body>
@@ -174,6 +176,19 @@
     <div class="container mt-5">
         <h2 class="text-center mb-3 quiz-title">Quiz Results</h2>
         <p class="text-center mb-4"><span class="score-display">Score: {{ score }} / {{ total_questions }}</span></p>
+
+        <!-- NEW: actions bar (adds functionality, nothing removed) -->
+        <div class="actions-bar d-flex justify-content-center gap-2 mb-4">
+            <form action="{{ url_for('retake_wrong') }}" method="post" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-warning">Retake Wrong Only</button>
+            </form>
+            <form action="{{ url_for('export_wrong_csv') }}" method="post" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-secondary">Download Mistakes (CSV)</button>
+            </form>
+        </div>
+
         <table class="table table-striped table-hover table-bordered">
             <thead class="table-dark">
                 <tr>
