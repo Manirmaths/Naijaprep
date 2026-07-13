@@ -1,0 +1,3 @@
+ECO-0047 | https://myschool.ng/storage/classroom/tzZCvA5EI0BAvOS0qdtp1cius4OlVxB3brjAOIqD.png
+Question: "Table I above illustrates the law of" (options: A. diminishing returns B. diminishing marginal productivity C. diminishing marginal utility D. variable proportion; correct: C)
+Description: An image labeled "Table I" showing a production/consumption schedule (units consumed/inputs vs. total and/or marginal utility or output values) used to illustrate the law of diminishing marginal utility. Likely a small data table with two or three columns (e.g., "Units" and "Marginal Utility" or "Total Utility") showing utility values that first rise then fall/decline as more units are consumed, demonstrating the law of diminishing marginal utility referenced in the question stem.

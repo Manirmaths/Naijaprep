@@ -1,0 +1,23 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <rect width="300" height="300" fill="#ffffff"/>
+  <g stroke="#1f2937" stroke-width="1.5">
+    <path d="M150,150 L150,30 A120,120 0 0 1 253.92,90 Z" fill="#93c5fd"/>
+    <path d="M150,150 L253.92,90 A120,120 0 0 1 210,253.92 Z" fill="#fca5a5"/>
+    <path d="M150,150 L210,253.92 A120,120 0 0 1 36.37,188.57 Z" fill="#fcd34d"/>
+    <path d="M150,150 L36.37,188.57 A120,120 0 0 1 90,46.08 Z" fill="#86efac"/>
+    <path d="M150,150 L90,46.08 A120,120 0 0 1 150,30 Z" fill="#c4b5fd"/>
+  </g>
+  <g font-size="14" fill="#1f2937" text-anchor="middle">
+    <text x="187" y="82">16</text>
+    <text x="187" y="98">Doctors</text>
+    <text x="222" y="163">24</text>
+    <text x="222" y="179">Lawyers</text>
+    <text x="123" y="214">27</text>
+    <text x="123" y="230">Teachers</text>
+    <text x="80" y="117">21</text>
+    <text x="80" y="133">Information</text>
+    <text x="80" y="149">Technologists</text>
+    <text x="130" y="71">8</text>
+    <text x="130" y="87">Engineers</text>
+  </g>
+</svg>

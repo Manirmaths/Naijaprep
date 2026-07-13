@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand: deep indigo -> used for primary actions, active nav, links */
+  --color-brand-50: #eef1ff;
+  --color-brand-100: #e0e4ff;
+  --color-brand-200: #c7cdfe;
+  --color-brand-300: #a3aafc;
+  --color-brand-400: #7c7ff8;
+  --color-brand-500: #5b5bf0;
+  --color-brand-600: #4740e0;
+  --color-brand-700: #3b34c0;
+  --color-brand-800: #322d9b;
+  --color-brand-900: #2b2a7a;
+
+  /* Ink: neutral grays used for text/surfaces (slightly warm, not pure gray) */
+  --color-ink-50: #f8f8fb;
+  --color-ink-100: #f0f1f6;
+  --color-ink-200: #e3e4ed;
+  --color-ink-300: #cbcdda;
+  --color-ink-400: #9fa1b5;
+  --color-ink-500: #74768c;
+  --color-ink-600: #565870;
+  --color-ink-700: #3f4058;
+  --color-ink-800: #282942;
+  --color-ink-900: #16172b;
+
+  /* Semantic */
+  --color-success-50: #ecfdf3;
+  --color-success-500: #16a34a;
+  --color-success-600: #15803d;
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #d97706;
+  --color-warning-600: #b45309;
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #dc2626;
+  --color-danger-600: #b91c1c;
+  --color-info-50: #eff6ff;
+  --color-info-500: #2563eb;
+
+  /* Accent for streaks / gamification */
+  --color-flame-500: #f97316;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-card: 0 1px 2px rgba(22, 23, 43, 0.04), 0 4px 16px rgba(22, 23, 43, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(22, 23, 43, 0.06), 0 12px 32px rgba(22, 23, 43, 0.10);
+  --shadow-pop: 0 8px 24px rgba(22, 23, 43, 0.12);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-ink-50);
+  color: var(--color-ink-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-300) transparent;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background-color: var(--color-ink-300); border-radius: 999px; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.25s ease-out; }

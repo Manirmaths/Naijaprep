@@ -1,0 +1,122 @@
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import Avatar from './ui/Avatar';
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: string;
+  adminOnly?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { to: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-gauge-high' },
+  { to: '/subjects', label: 'Subjects', icon: 'fa-solid fa-book-open' },
+  { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
+  { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
+];
+
+export default function AppShell() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  if (!user) return null;
+
+  const items = NAV_ITEMS.filter((i) => !i.adminOnly || user.is_admin);
+
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900 px-5 py-5">
+        <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm shadow-sm">
+          N
+        </span>
+        Naija Prep
+      </Link>
+
+      <nav className="flex-1 px-3 space-y-1">
+        {items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900'
+              }`
+            }
+          >
+            <i className={`${item.icon} w-4 text-center`} />
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="p-3 border-t border-ink-100">
+        <div className="flex items-center gap-3 px-2 py-2">
+          <Avatar name={user.username} size={36} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink-900 truncate">{user.username}</p>
+            <p className="text-xs text-ink-400 truncate">{user.email}</p>
+          </div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="w-full mt-1 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-500 hover:bg-ink-100 hover:text-danger-600 transition-colors"
+        >
+          <i className="fa-solid fa-arrow-right-from-bracket w-4 text-center" />
+          Log out
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex bg-ink-50">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex lg:flex-col w-64 border-r border-ink-100 bg-white flex-shrink-0">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile sidebar overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 flex">
+          <div className="absolute inset-0 bg-ink-900/40" onClick={() => setMobileOpen(false)} />
+          <aside className="relative w-72 bg-white h-full shadow-pop animate-fade-in">{sidebarContent}</aside>
+        </div>
+      )}
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Topbar */}
+        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-ink-100 h-16 flex items-center justify-between px-4 sm:px-6">
+          <button className="lg:hidden p-2 -ml-2 text-ink-700" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <i className="fa-solid fa-bars text-lg" />
+          </button>
+
+          <div className="hidden lg:block" />
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-flame-500/10 text-flame-500 px-3 py-1.5 text-sm font-bold">
+              <i className="fa-solid fa-fire" />
+              {user.current_streak}
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-brand-50 text-brand-700 px-3 py-1.5 text-sm font-bold">
+              <i className="fa-solid fa-star" />
+              {user.points}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 min-w-0">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

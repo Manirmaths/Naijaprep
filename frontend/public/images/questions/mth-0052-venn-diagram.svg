@@ -1,0 +1,25 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#1f2937" stroke-width="1.2"/>
+    </pattern>
+    <mask id="qOnlyMask">
+      <rect x="0" y="0" width="300" height="300" fill="black"/>
+      <circle cx="190" cy="110" r="90" fill="white"/>
+      <circle cx="110" cy="110" r="90" fill="black"/>
+      <circle cx="150" cy="185" r="90" fill="black"/>
+    </mask>
+  </defs>
+  <rect width="300" height="300" fill="#ffffff"/>
+  <rect x="0" y="0" width="300" height="300" fill="url(#hatch)" mask="url(#qOnlyMask)"/>
+  <g fill="none" stroke="#1f2937" stroke-width="2">
+    <circle cx="110" cy="110" r="90"/>
+    <circle cx="190" cy="110" r="90"/>
+    <circle cx="150" cy="185" r="90"/>
+  </g>
+  <g font-size="18" fill="#1f2937">
+    <text x="20" y="60">P</text>
+    <text x="268" y="60">Q</text>
+    <text x="145" y="290">R</text>
+  </g>
+</svg>

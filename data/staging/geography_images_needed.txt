@@ -1,0 +1,33 @@
+
+
+### Geography chunk2 (pages 9-16, GEO-0043 to GEO-0082) ###
+
+[GEO-0073]
+URL: https://myschool.ng/storage/classroom/HICH3gjNAN1aXdsziUw7pgGD3fDbpBBPNTeWb4hz.png
+Question: What is the highest contour line in the mapped area?
+Description: A topographic/contour map extract showing a series of closed contour lines (likely a hill or ridge) with numeric elevation labels; the highest labelled contour ring corresponds to the correct answer of 400 metres. Needed to determine which contour value represents the summit.
+
+[GEO-0074]
+URL: https://myschool.ng/storage/classroom/8KvpOVoOjFrxdsuvzBAhyuAQuVOwC1ePYUvk6aH7.png
+Question: The scale of the map in representative fraction(RF) is
+Description: A map extract (likely the same topographic sheet as GEO-0073) showing a linear/graphical scale bar with distance markings in kilometres or metres, from which the representative fraction 1:50,000 is derived by measuring the bar length against the ground distance shown.
+
+[GEO-0079]
+URL: https://myschool.ng/storage/classroom/nUjMYKSBLMNfBkKQlUmPqQlPdeOcuUA2bUtMMIPj.png
+Question: Which month in the station has the highest rainfall?
+Description: A climate graph (bar chart) showing monthly rainfall totals (mm) for a weather station across the 12 months of the year (Jan-Dec), with bar heights varying by month; the tallest bar corresponds to October, the correct answer.
+
+[GEO-0080]
+URL: https://myschool.ng/storage/classroom/q639VlHDpy5YQ6chohTVjM259DVF8DdygUFGlufp.png
+Question: What is the annual rainfall for station X?
+Description: A climate graph (bar chart) showing monthly rainfall totals (mm) for 'station X' across 12 months; the values sum to the annual total of 1511 mm, the correct answer. Needed to read/sum the individual monthly bar values.
+
+[GEO-0081]
+URL: https://myschool.ng/storage/classroom/p8Nlf37fEwrn8AGT2sUQnl8e4S80s7ApkhQuckqv.png
+Question: Calculate the range of temperature for the station
+Description: A climate graph (line graph) showing monthly mean temperature (°C) for a weather station across 12 months; the difference between the highest and lowest monthly temperature values equals the annual range, 14°C, the correct answer.
+
+[GEO-0082]
+URL: https://myschool.ng/storage/classroom/g7dvnPa01WFXr7m16uPDVpuRt5lPWe7gHAdF52wr.png
+Question: Which of the following statements is true about rainfall in station X?
+Description: A climate graph (bar chart) showing monthly rainfall distribution for 'station X' across 12 months, displaying two separate rainfall peaks (a double maximum pattern) rather than a single peak or uniform distribution -- consistent with the correct answer 'the station has a double maximum rainfall'.

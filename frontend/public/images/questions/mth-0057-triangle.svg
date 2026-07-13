@@ -1,0 +1,23 @@
+<svg viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <rect width="340" height="260" fill="#ffffff"/>
+  <g stroke="#1f2937" stroke-width="2" fill="none">
+    <!-- Y to Z (top, horizontal) -->
+    <line x1="60" y1="50" x2="300" y2="50"/>
+    <!-- X to Y (left, vertical) -->
+    <line x1="60" y1="50" x2="60" y2="220"/>
+    <!-- X to Z (hypotenuse) -->
+    <line x1="60" y1="220" x2="300" y2="50"/>
+    <!-- right-angle mark at Y -->
+    <rect x="60" y="50" width="16" height="16" />
+    <!-- angle arc at X -->
+    <path d="M 60 195 A 25 25 0 0 0 82 210" />
+  </g>
+  <g font-size="17" fill="#1f2937">
+    <text x="38" y="45">Y</text>
+    <text x="305" y="50">Z</text>
+    <text x="38" y="235">X</text>
+    <text x="170" y="42">11 cm</text>
+    <text x="180" y="130">13 cm</text>
+    <text x="68" y="205" font-style="italic">&#952;</text>
+  </g>
+</svg>

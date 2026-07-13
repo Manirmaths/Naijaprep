@@ -1,13 +1,19 @@
-# Ignore databases
-*.db
-
-# Keep the instance folder but ignore its contents
-instance/*
-!instance/.gitkeep
-
-# Python cache
+# Python (backend)
 __pycache__/
 *.pyc
+backend/.venv/
+backend/*.db
+backend/.env
 
-# Environment variables
+# Node (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Editors / OS
+.DS_Store
+.vscode/
+
+# Legacy local venv (pre-migration, kept locally but not tracked)
+.venv/
 .env

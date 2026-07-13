@@ -1,0 +1,71 @@
+ACC-0013 (JAMB Accounting 2025, Q11) - https://myschool.ng/classroom/accounts-principles-of-accounts/75001?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer questions 11 and 12. Receipts and Payments Account: 31st December, 2016. The total income received for the year is
+Options: a) N1,980  b) N1,690  c) N2,640 (correct)  d) N2,180
+Image: https://myschool.ng/storage/classroom/kcofwrg02uh6ocsAfB5Bv4X3wmZirTmI9dttOMrG.png
+Description: A Receipts and Payments Account (T-account/ledger table) for a club/organisation for the year ended 31st December 2016, showing receipt items (subscriptions, donations, etc.) and payment items with monetary figures, used to compute "total income received" (correct answer N2,640) and (in the linked next question) the "surplus for the year". The image contains the source figures needed to make this question self-contained; figures could not be read from alt-text.
+
+ACC-0014 (JAMB Accounting 2025, Q12) - https://myschool.ng/classroom/accounts-principles-of-accounts/75003?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer questions 11 and 12. Receipts and Payments Account: 31st December, 2016. The surplus for the year is
+Options: a) N1,970  b) N1,650 (correct)  c) N1,330  d) N1,890
+Image: https://myschool.ng/storage/classroom/E783MJIN033GeTWVzgqyQHT7SmJe8th882LD0zGO.png
+Description: Same underlying Receipts and Payments Account data set as ACC-0013 (year ended 31 Dec 2016), shown as a different crop/rendering of the ledger image, used here to compute the "surplus for the year" (correct answer N1,650).
+
+ACC-0027 (JAMB Accounting 2025, Q25) - https://myschool.ng/classroom/accounts-principles-of-accounts/75021?exam_type=jamb&exam_year=2025&type=obj
+Question: Receipts and Payments Account of Abalure Youth Club for the year ended 31st December 2018. Subscriptions for 2017 and 2019 received during the year were N180,000 and N150,000, respectively. The surplus for the year 2018 was
+Options: a) N5,235,000 (correct)  b) N7,865,000  c) N5,845,000  d) N7,535,000
+Image: https://myschool.ng/storage/classroom/85rAb72GIJ0L5fnF4VoJiAOHDfIcNy2glkvsuuUB.png
+Description: A Receipts and Payments Account table for "Abalure Youth Club" for the year ended 31 December 2018, listing various receipt and payment line items with monetary figures (in Naira), used to calculate the surplus for the year (correct answer N5,235,000) and (in linked question ACC-0029) the total expenses debited to the Income and Expenditure Account. One user discussion comment disputed the answer as "D" but the site's official Correct Option is A.
+
+ACC-0029 (JAMB Accounting 2025, Q27) - https://myschool.ng/classroom/accounts-principles-of-accounts/75024?exam_type=jamb&exam_year=2025&type=obj
+Question: Receipts and Payments Account of Abalure Youth Club for the year ended 31st December 2018. Subscriptions for 2017 and 2019 received during the year were N180,000 and N150,000 respectively. Total expenses debited to Income and Expenditure Account for 2018 was
+Options: a) N8,095,000 (correct)  b) N4,095,000  c) N4,515,000  d) N1,610,000
+Image: https://myschool.ng/storage/classroom/BNH6ec8I0BRy3WE82xjaWTl5pOelu3fruqTjqL2m.png
+Description: Same "Abalure Youth Club" Receipts and Payments Account scenario as ACC-0027, different image crop, used to compute total expenses debited to the Income and Expenditure Account (correct answer N8,095,000).
+
+ACC-0030 (JAMB Accounting 2025, Q28) - https://myschool.ng/classroom/accounts-principles-of-accounts/75028?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer the question. The following transactions were recorded in the cash book of Ibusah for the month of February 2019. The total income for the month is
+Options: a) N478,300  b) N278,000 (correct)  c) N154,800  d) N180,000
+Image: https://myschool.ng/storage/classroom/4tlJWt8pAU6Ijy9wutqNbjHubEBbEAzIM2F3M9Ag.png
+Description: A cash book (two/three-column) ledger table for "Ibusah" for the month of February 2019, showing dated debit/credit entries with monetary figures, used to calculate "the total income for the month" (correct answer N278,000). Note: the source page rendered the currency symbol as "D" (likely a corrupted Naira sign); normalized to N in the question bank.
+
+ACC-0031 (JAMB Accounting 2025, Q29) - https://myschool.ng/classroom/accounts-principles-of-accounts/75030?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer the question. The following transactions were recorded in the cash book of Ibusah for the month of February 2019. The balance brought down at the end of the month is
+Options: a) N306,900  b) N278,000 (correct)  c) N154,800  d) N478,300
+Image: https://myschool.ng/storage/classroom/tdpGrZXImWMAb9lqz7MK87gp75TgovHnu1Yf18E8.png
+Description: Same "Ibusah" cash book scenario as ACC-0030, different image crop, used to determine the balance brought down at month end (site's official correct answer is B / N278,000). Note: two discussion comments on the source page disputed this answer (one claiming N323,200, another noting a mismatch with the explanation), but the site's stated "Correct Option" (b) was used per sourcing rules.
+
+ACC-0050 (JAMB Accounting 2025, Q48) - https://myschool.ng/classroom/accounts-principles-of-accounts/75120?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following manufacturing account information. The cost of raw materials consumed is
+Options: a) N43,500 (correct)  b) N45,500  c) N45,000  d) N53,000
+Image: https://myschool.ng/storage/classroom/ttO1JqV5h6aLKRTxARNyzQRTK6x3p3CJhLA6RNJp.png
+Description: A manufacturing account data table (opening/closing stock of raw materials, purchases, carriage inwards, etc.) used to compute "cost of raw materials consumed" (correct answer N43,500). This same data set is reused for ACC-0051, ACC-0052 and ACC-0053 (prime cost, factory cost of production, production cost).
+
+ACC-0051 (JAMB Accounting 2025, Q49) - https://myschool.ng/classroom/accounts-principles-of-accounts/75126?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following manufacturing account information. Prime cost is
+Options: a) N53,000  b) N46,300  c) N52,750  d) N49,950 (correct)
+Image: https://myschool.ng/storage/classroom/GpfPiQtI900YDIJyuICaCPpwf2EegceAbt0HeD9z.png
+Description: Same manufacturing account data set as ACC-0050 (different image crop), used to compute prime cost (correct answer N49,950).
+
+ACC-0052 (JAMB Accounting 2025, Q50) - https://myschool.ng/classroom/accounts-principles-of-accounts/75129?exam_type=jamb&exam_year=2025&type=obj
+Question: Factory cost of production
+Options: a) N52,750  b) N53,300  c) N56,300 (correct)  d) N45,500
+Image: https://myschool.ng/storage/classroom/16b2RocX0KMao6ojZdltT3kBGygj5kx5fKcQIKsv.png
+Description: Same manufacturing account data set as ACC-0050/ACC-0051 (different image crop), used to compute factory cost of production (correct answer N56,300).
+
+ACC-0053 (JAMB Accounting 2025, Q51) - https://myschool.ng/classroom/accounts-principles-of-accounts/75136?exam_type=jamb&exam_year=2025&type=obj
+Question: Production cost is
+Options: a) N56,300  b) N53,000  c) N55,800 (correct)  d) N57,300
+Image: https://myschool.ng/storage/classroom/KxaIT5zhLZwqsQLSDLbxC1ERGsnDxo0JKpBuiiV8.png
+Description: Same manufacturing account data set as ACC-0050/ACC-0051/ACC-0052 (different image crop), used to compute production cost (correct answer N55,800).
+
+ACC-0074 (JAMB Accounting 2025, Q72) - https://myschool.ng/classroom/accounts-principles-of-accounts/75180?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer this question. The balance sheet as at 31st December, 2014, will show
+Options: a) current liability of N400  b) current liability of N600  c) current asset of N600  d) current asset of N400 (correct)
+Image: https://myschool.ng/storage/classroom/LaCeWRJYnQBX82aXXlOnTDziya6OnPH7ABRVozWB.png
+Description: An accrual/prepayment scenario (likely rent or a similar expense account) showing amounts paid and amounts owing/prepaid as at 31 December 2014, used to determine the balance sheet treatment (correct answer: current asset of N400, i.e. a prepayment). This same underlying scenario is reused for ACC-0077 (rent chargeable to profit and loss account).
+
+ACC-0077 (JAMB Accounting 2025, Q75) - https://myschool.ng/classroom/accounts-principles-of-accounts/75186?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the following information to answer this question. Rent for 2014 chargeable to the profit and loss account is
+Options: a) N3,400 (correct)  b) N3,000  c) N4,000  d) N2,800
+Image: https://myschool.ng/storage/classroom/v3l2962Se6vSXOAmd5BDAh0Ga05ymYzMVVU46Kof.png
+Description: A rent account/ledger showing amounts paid during 2014 plus accrued/prepaid adjustments, used to compute the rent expense chargeable to the profit and loss account for the year (correct answer N3,400). Likely related to the same scenario as ACC-0074.

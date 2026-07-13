@@ -1,0 +1,40 @@
+BIO-0005 | https://myschool.ng/classroom/biology/74398?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the diagram above to answer the question that follows. The structure labelled I is adapted for
+Image description: A diagram (likely an insect mouthpart or bird beak illustration) with at least one part labelled 'I', shown alongside answer options tearing/sieving/boring/sucking. Discussion comments reference a long, hollow, tubular beak/proboscis used for sucking nectar from flowers (e.g. hummingbird or a nectar-feeding insect), consistent with the correct answer 'sucking'. The exact shape/labels of structure I and any other labelled parts (II, III...) are not recoverable from scraped text - only the image itself would show them.
+
+BIO-0010 | https://myschool.ng/classroom/biology/74403?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the diagram above to answer the questions that follow. The endocrine gland that is located in the part labelled I is
+Image description: A diagram of the human body/brain showing the locations of major endocrine glands, with parts labelled I, II, III, IV (and possibly more). Based on a discussion comment (DrSponsor), the likely labelling is: I = Pituitary gland (base of brain), II = Thyroid gland (neck region), III = Adrenal glands (top of kidneys), IV = Ovaries (female reproductive system, pelvic cavity). Correct answer for part I is 'pituitary'. Exact diagram style (whole-body outline vs. head-only) is not recoverable from scraped text - only the image itself would show it.
+
+BIO-0013 | https://myschool.ng/classroom/biology/74406?exam_type=jamb&exam_year=2025&type=obj
+Question: The type of teeth used for tearing in man is labelled
+Image description: A diagram of the human dental arcade/jaw with four tooth types labelled I, II, III, IV. Based on a discussion comment (chimirans): I = incisor, II = canine, III = premolar, IV = molar. Correct answer is 'II' (canine), the tooth type used for tearing. Exact visual layout of the jaw diagram is not recoverable from scraped text - only the image itself would show it.
+
+BIO-0028 | https://myschool.ng/classroom/biology/74441?exam_type=jamb&exam_year=2025&type=obj
+Question: The part labelled I is the
+Image description: A diagram of an animal cell (discussion comments note the cell's shape indicates it is an animal cell, not a plant cell, since a large central vacuole would be atypical) with at least one part labelled 'I'. Correct answer is 'nucleus' - part I is a dense, oval-shaped structure located near the edge of the cell (per a discussion comment distinguishing it from a central vacuole). Exact cell outline and other labelled organelles are not recoverable from scraped text - only the image itself would show them.
+
+BIO-0055 | https://myschool.ng/classroom/biology/74473?exam_type=jamb&exam_year=2025&type=obj
+Question: The part of the flower that is brightly coloured and attract pollinating agents such as insects is labelled
+Image description: A labelled diagram of a flower's parts, with sections labelled I, II, III, IV. Based on a discussion comment (Tovichan), the answer 'III' corresponds to the corolla (petals) - the brightly coloured part that attracts pollinating insects. Exact positions/shapes of parts I, II, IV (e.g. calyx, stamen, pistil) are not recoverable from scraped text - only the image itself would show them.
+
+BIO-0058 | https://myschool.ng/classroom/biology/74496?exam_type=jamb&exam_year=2025&type=obj
+Question: The part labelled I is the
+Image description: A diagram of a snail (gastropod mollusc) with external body parts labelled, including part 'I'. A user comment notes the image is 'confusing/not clear'. Correct answer for part I is 'shell'. Other likely labelled parts (not confirmed) would include the foot, head/tentacles, and collar, per the answer options (collar, foot, shell, head). Exact diagram layout is not recoverable from scraped text - only the image itself would show it.
+
+BIO-0059 | https://myschool.ng/classroom/biology/74497?exam_type=jamb&exam_year=2025&type=obj
+Question: The function of the organelle labelled II is to
+Image description: A diagram of a cell with organelles labelled, including part 'II'. Correct answer is 'coordinate the activities of the cell', meaning part II is the nucleus. Several users noted the diagram failed to load for them at times. Exact cell outline and positions of other labelled organelles are not recoverable from scraped text - only the image itself would show them.
+
+BIO-0067 | https://myschool.ng/classroom/biology/74505?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the diagram above to answer the questions that follow. The part labelled II is the
+Image description: A diagram (likely of the human digestive system) with parts labelled I, II, III, IV, shown alongside answer options Liver/Pancreas/Lung/Stomach. Correct answer for part II is 'Liver'. Image asset found at https://myschool.ng/storage/classroom/DTcIaSq7iXL1Dsa1aanT8L7rGzDhAX6SLe8ioWnA.png. Exact organ outlines and positions of the other labelled parts (I, III, IV) are not recoverable from scraped text - only the image itself would show them.
+
+BIO-0081 | https://myschool.ng/classroom/biology/74519?exam_type=jamb&exam_year=2025&type=obj
+Question: The part labelled II is the
+Image description: A diagram of the female reproductive system with parts labelled I, II, III, IV, shown alongside answer options cervix/vagina/uterus/ovary. Based on a discussion comment (DistinctWoman): I = ovary, II = uterus, III = cervix, IV = vagina. Correct answer for part II is 'uterus'. Image asset found at https://myschool.ng/storage/classroom/KWpabYKTAxvSiXIcMmdE6VLJ2LnCMUtOHCPiT2kj.png. Exact diagram layout is not recoverable from scraped text - only the image itself would show it.
+
+BIO-0110 | https://myschool.ng/classroom/biology/74648?exam_type=jamb&exam_year=2025&type=obj
+Question: Use the illustration above to answer the question that follows. What is the genotypic ratio of the F\(_2\) generation?
+Image description: An illustration of a monohybrid genetic cross (likely a Punnett-square style diagram showing a parent cross producing an F1 generation, which is then crossed/self-fertilized to produce an F2 generation), shown alongside answer options 2:1:1 / 3:1 / 1:1 / 1:2:1. Correct answer is '1:2:1', the classic monohybrid F2 genotypic ratio. Image asset found at https://myschool.ng/storage/classroom/opWHC0fyVyZoSNe2uWmtLSW76f2VyiS9xKei85cF.png. Exact trait/allele labels shown in the diagram are not recoverable from scraped text - only the image itself would show them.
+

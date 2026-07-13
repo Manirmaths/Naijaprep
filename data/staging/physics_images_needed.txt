@@ -1,0 +1,52 @@
+PHY-0014 | https://myschool.ng/classroom/physics/74358?exam_type=jamb&exam_year=2025&type=obj
+Question: The diagram above shows a magnetic field due to a
+Image description: Diagram shows the magnetic field pattern due to a current-carrying straight conductor: concentric circular field lines centered on the wire (viewed end-on), representing the field around a long straight current-carrying conductor. Options offered were solenoid, circular coil, current-carrying straight conductor (correct), and the earth's meridian.
+
+PHY-0032 | https://myschool.ng/classroom/physics/74377?exam_type=jamb&exam_year=2025&type=obj
+Question: The figure shows a uniform metre rule of weight \(100\text{N}\) balanced by a knife edge at the \(10\text{cm}\) mark and a cord attached at the \(85\text{cm}\) mark. What is the tension in the string?
+Image description: Diagram shows a uniform metre rule (1 m long, weight 100 N acting at its centre, the 50 cm mark) resting on a knife-edge pivot at the 10 cm mark, with a vertical cord/string attached at the 85 cm mark holding the rule in equilibrium. Distances from pivot (10 cm mark): weight (100 N) acts 40 cm away at the 50 cm mark; cord tension acts 75 cm away at the 85 cm mark. Used to calculate tension in the string via moments (answer: 53.33 N).
+
+PHY-0057 | https://myschool.ng/classroom/physics/74489?exam_type=jamb&exam_year=2025&type=obj
+Question: From the above circuit, calculate the impedance (\(\pi = \frac{22}{7}\), \(f = 50\text{Hz}\))
+Image description: Circuit diagram for an AC series circuit (likely R, L, and/or C components) used with pi = 22/7 and frequency f = 50 Hz to calculate impedance. Exact component values (resistance, inductance, capacitance) are not recoverable from the scraped text/markdown - only the diagram image itself would show them. Correct answer given as 163.5 ohm.
+
+PHY-0060 | https://myschool.ng/classroom/physics/74492?exam_type=jamb&exam_year=2025&type=obj
+Question: From the above figure, a uniform metre rule is suspended by two cords from a height. Calculate \(T\).
+Image description: Diagram shows a uniform metre rule suspended horizontally by two vertical cords/strings attached at two different points along its length, hung from a fixed support above. One cord's tension is labelled T (the unknown to be calculated); the other cord's tension and/or the rule's weight and the attachment distances are given directly on the diagram (not stated in the question text). Correct answer: 19.24N.
+
+PHY-0061 | https://myschool.ng/classroom/physics/74493?exam_type=jamb&exam_year=2025&type=obj
+Question: From the diagram above, the sine of the angle of refraction in glass is
+Image description: Ray diagram showing a light ray entering a rectangular glass block from air, with a right-angle triangle constructed against the refracted ray inside the glass. Two side lengths of this triangle are marked on the diagram (not given in the text) which allow the sine of the refraction angle to be computed directly as a ratio. Correct answer: 0.3.
+
+PHY-0065 | https://myschool.ng/classroom/physics/74542?exam_type=jamb&exam_year=2025&type=obj
+Question: The resultant of the forces shown above is
+Image description: Vector diagram showing two or more forces of specific magnitudes acting at labelled angles from a common point, with numeric magnitude and angle values marked on the diagram (not present in the question text), used to compute the resultant force. Correct answer: 5.00N.
+
+PHY-0073 | https://myschool.ng/classroom/physics/74550?exam_type=jamb&exam_year=2025&type=obj
+Question: Using the oscillating simple pendulum above, the maximum kinetic energy is obtained at
+Image description: Diagram of an oscillating simple pendulum swinging between two extreme displacement points, with four labelled positions P, Q, R, S marked along its arc of swing (P and S appear to be the extreme/turning points, Q and R nearer the centre/lowest point). Correct answer: Q (the point where speed, and hence kinetic energy, is maximum — typically the lowest point of the swing).
+
+PHY-0084 | https://myschool.ng/classroom/physics/74561?exam_type=jamb&exam_year=2025&type=obj
+Question: The acceleration of the body given above (upthrust = 10N) is
+Image description: Diagram of a body (block/object) of a given mass immersed in or floating on a fluid, showing the forces acting on it: weight acting downward, upthrust labelled 10N acting upward, and possibly an additional applied force, with the mass value shown on the diagram (not in the question text) needed to apply Newton's second law. Correct answer: 7.5m/s^2.
+
+PHY-0092 | https://myschool.ng/classroom/physics/74569?exam_type=jamb&exam_year=2025&type=obj
+Question: If a positively charged rod is brought close to the cap in the diagram above, the divergence
+Image description: Diagram of a gold-leaf electroscope with a metal cap/plate on top and a thin metal leaf that diverges when charged, illustrating charging/induction effects as a charged rod is brought near the cap. Correct answer: increases (option B).
+
+PHY-0098 | https://myschool.ng/classroom/physics/74658?exam_type=jamb&exam_year=2025&type=obj
+Question: From the above graph, what is the distance covered in the last stage of the motion?
+Image description: A velocity-time (or similar motion) graph divided into multiple stages/segments (e.g. acceleration, constant velocity, deceleration), with time and velocity axis values labelled on the diagram. The "last stage" is a triangular segment; per community-verified working, base = 4s and height = 12m/s giving area (distance) = 1/2 x 4 x 12 = 24m. Correct answer per site: 24m (option B).
+
+PHY-0099 | https://myschool.ng/classroom/physics/74659?exam_type=jamb&exam_year=2025&type=obj
+Question: Assuming E_1, E_2, and E_3 are equal, then the total e.m.f of the arrangement will be given by
+Image description: Circuit diagram showing three cells/batteries with emfs labelled E1, E2, E3 connected together (arrangement — parallel connection implied by the correct answer E = E1 = E2 = E3, which is the standard result for identical cells in parallel). Correct answer: option D, E = E1 = E2 = E3.
+
+PHY-0100 | https://myschool.ng/classroom/physics/74660?exam_type=jamb&exam_year=2025&type=obj
+Question: Given that SQ = 10cm and SR = 6cm, the refractive index of the block of glass shown in the above figure is
+Image description: Ray-tracing diagram of light passing through a rectangular glass block, with points S, Q, R marked on the diagram (S likely the point of incidence on the surface, Q and R defining perpendicular/hypotenuse segments) whose lengths (SQ = 10cm, SR = 6cm) are used to compute the refractive index as SQ/SR = 10/6 = 1.67. Note: several site commenters report the figure/diagram is missing or broken on the live page. Correct answer: 1.67 (option A).
+
+PHY-0103 | https://myschool.ng/classroom/physics/74679?exam_type=jamb&exam_year=2025&type=obj
+Question: The electrical power developed in the resistor above is
+Image description: Circuit diagram showing a resistor along with labelled values for voltage/emf and/or other resistances (not given in the question text), used to calculate the power dissipated in the resistor via P = IV or P = I^2R. Correct answer: 128W (option C).
+

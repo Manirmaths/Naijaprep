@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <rect width="400" height="260" fill="#ffffff"/>
+  <!-- base line Y to Z -->
+  <line x1="60" y1="200" x2="340" y2="200" stroke="#1f2937" stroke-width="2"/>
+  <!-- ray Y to X -->
+  <line x1="60" y1="200" x2="260" y2="40" stroke="#1f2937" stroke-width="2"/>
+  <!-- compass arc from X down to Z, centred at Y -->
+  <path d="M 260 40 A 208 208 0 0 1 320 196" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <!-- small angle arc at Y -->
+  <path d="M 100 200 A 45 45 0 0 1 88 163" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <!-- tick mark near X indicating equal compass radius -->
+  <line x1="253" y1="55" x2="267" y2="47" stroke="#2563eb" stroke-width="2"/>
+  <!-- labels -->
+  <text x="240" y="32" font-size="18" fill="#1f2937">X</text>
+  <text x="34" y="210" font-size="18" fill="#1f2937">Y</text>
+  <text x="330" y="222" font-size="18" fill="#1f2937">Z</text>
+</svg>

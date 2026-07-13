@@ -1,0 +1,58 @@
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Button from './ui/Button';
+
+export default function PublicLayout() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  return (
+    <div className="min-h-screen flex flex-col bg-ink-50">
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-ink-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm shadow-sm">
+                N
+              </span>
+              Naija Prep
+            </Link>
+
+            {!isAuthPage && (
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <Link to="/dashboard">
+                    <Button size="sm">Go to Dashboard</Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/login">
+                      <Button variant="ghost" size="sm">Log in</Button>
+                    </Link>
+                    <Link to="/register">
+                      <Button size="sm">Get Started Free</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        <Outlet />
+      </main>
+
+      <footer className="bg-ink-900 text-ink-400 py-10 mt-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+          <p>&copy; {new Date().getFullYear()} Naija Prep. Built to help Nigerian students succeed in WAEC/JAMB/NECO.</p>
+          <p className="flex items-center gap-1 text-ink-500">
+            Made with <i className="fa-solid fa-heart text-flame-500" /> for Nigerian students
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

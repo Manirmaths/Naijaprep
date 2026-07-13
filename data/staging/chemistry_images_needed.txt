@@ -1,0 +1,35 @@
+CHM-0005 | https://myschool.ng/classroom/chemistry/74085?exam_type=jamb&exam_year=2025&type=obj
+Question: In the table above, the two compounds that will combine in the presence of an acid-catalyzed compound, V is
+Image description: A table listing four labelled organic compounds (I, II, III, IV) - likely structural formulas or names of an alcohol, a carboxylic acid, and two other organic species - referenced by the question as "compound V" formed via acid-catalysis (consistent with an esterification reaction, i.e. Fischer esterification of an alkanol with an alkanoic acid using a strong acid catalyst). The exact structures/names shown in table rows I-IV are not recoverable from the scraped page text (the table is rendered purely as an image) - only the diagram itself would show them. Correct answer given as "I and IV", meaning compounds I and IV are the alcohol/acid pair that condense to form ester V.
+
+CHM-0036 | https://myschool.ng/classroom/chemistry/74130?exam_type=jamb&exam_year=2025&type=obj
+Question: From the graph, it can be inferred that
+Image description: A solubility curve graph plotting solubility (g per 100g water, y-axis) against temperature (x-axis) for three substances labelled X, Y, and Z, each as a separate line/curve. Exact numeric data points and the shapes of the X and Z curves are not recoverable from the scraped text - only the image itself would show them. Correct answer is "solubility of Y increases steadily as temperature increases", implying the Y curve rises in a fairly linear/steady fashion across the temperature range shown, while X and Z curves behave differently (e.g. flat, decreasing, or non-monotonic) based on the wording of the incorrect distractor options.
+
+CHM-0054 | https://myschool.ng/classroom/chemistry/74148?exam_type=jamb&exam_year=2025&type=obj
+Question: The reaction above is
+Image description: A chemical reaction/equation diagram, most likely showing propane (or a similar alkane) reacting with chlorine (Cl2) or HCl under appropriate conditions (e.g. UV light) to form a chloropropane derivative plus HCl or Cl2 as a by-product - inferred from discussion comments referencing "propane", "chloropropane", and electron transfer between propane and chlorine. Exact structural formulas, reaction arrow, and condition labels (e.g. UV light, heat) shown in the image are not recoverable from the scraped text - only the diagram itself would show them. Correct answer is "substitution", consistent with a free-radical halogen substitution reaction on an alkane.
+
+CHM-0066 | https://myschool.ng/classroom/chemistry/74205?exam_type=jamb&exam_year=2025&type=obj
+Question: The IUPAC nomenclature of the compound above is
+Image description: A drawn structural (likely condensed or skeletal) formula of an ester compound, rendered as an image (file SOXaPxz8DE9Ycpy8M6IBI6QeL9bO9SbLdxomqLph.png) rather than text. The exact atom-by-atom layout is not recoverable from scraped text - only the diagram itself would show it. Correct answer is "ethyl propanoate", so the structure shown is the condensed/skeletal formula of ethyl propanoate: CH3CH2-C(=O)-O-CH2CH3.
+
+CHM-0070 | https://myschool.ng/classroom/chemistry/74209?exam_type=jamb&exam_year=2025&type=obj
+Question: The expression above represents
+Image description: A mathematical/gas-law expression or equation rendered as an image (file kc42GvqdISt79g8QkArVnnKSQI4YeeUtjfCjE4DD.png), not recoverable as text from the scrape. Based on discussion comments referencing "n" (moles) and the correct answer "General gas law", the image most likely shows the combined/general gas equation, e.g. PV = nRT or P1V1/T1 = P2V2/T2 (with a mole term "n" included, per a user comment questioning "where is the n coming from").
+
+CHM-0078 | https://myschool.ng/classroom/chemistry/74217?exam_type=jamb&exam_year=2025&type=obj
+Question: Sodium in the above reaction is produced by
+Image description: A diagram (file fHaGhE4qLwF3p2C0pwdQgqPc6ny1TFLUslamOXUK.png) illustrating a reaction/process producing sodium metal, not recoverable as text from the scrape. Correct answer is "Downs process", so the image most likely depicts a Downs cell: electrolysis of molten sodium chloride with a central cylindrical anode (carbon/graphite, producing Cl2 gas) surrounded by an annular steel cathode (producing molten Na), with an iron gauze diaphragm separating the products, and labeled electrodes/half-equations.
+
+CHM-0100 | https://myschool.ng/classroom/chemistry/74289?exam_type=jamb&exam_year=2025&type=obj
+Question: The above structure is
+Image description: A drawn structural formula (file RYzF1W3iJxiuHMNIGLcwcLEgfwkMVo2jGHo7ehcl.png) of an organic nitrogen-containing compound, not recoverable as text from the scrape. Discussion comments reference "R-NH2 = amine" vs "R-CONH2 = amide" and an alkyl "R" group in the drawing. Correct answer is "alkanamide", so the structure shown is most likely a general/specific amide: R-C(=O)-NH2 (an alkyl group attached to a carbonyl-amine, i.e. -CONH2 functional group).
+
+CHM-0102 | https://myschool.ng/classroom/chemistry/74296?exam_type=jamb&exam_year=2025&type=obj
+Question: In the equation above, the expression for the equilibrium constant, kc is
+Image description: A chemical equilibrium equation rendered as an image (file M5MmrjUbwUKQyO8g11iUx9yVUx0qHESCYXUSQSt1.png), not recoverable as text from the scrape. Based on the correct answer's Kc expression, [X2][Y2]^3/[XY3]^2, the reaction shown is most likely the reverse decomposition: 2XY3(g) ⇌ X2(g) + 3Y2(g), with state symbols and the equilibrium arrow shown in the diagram.
+
+CHM-0110 | https://myschool.ng/classroom/chemistry/74881?exam_type=jamb&exam_year=2025&type=obj
+Question: The reaction above illustrated is
+Image description: A reaction/energy diagram (file gWWvArxW5l6sxoKgUaCKK9EmwitMFsbamOA2oRiI.png) illustrating an enthalpy change, not recoverable as text from the scrape. Correct answer is "endothermic", so the image most likely shows an energy profile (reaction coordinate) diagram where the products are at a higher energy level than the reactants, with an upward-pointing ΔH arrow, or a reaction equation with "+ heat"/ΔH = +ve labeled as an absorbed quantity.
