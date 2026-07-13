@@ -28,6 +28,11 @@ def _set_auth_cookie(response: Response, user_id: int) -> None:
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterIn, response: Response, db: Session = Depends(get_db)):
+    if db.query(User).filter(User.username == payload.username).first():
+        raise HTTPException(status_code=400, detail="That username is already taken.")
+    if db.query(User).filter(User.email == payload.email).first():
+        raise HTTPException(status_code=400, detail="An account with this email already exists.")
+
     is_first_user = db.query(User).count() == 0
     user = User(
         username=payload.username,

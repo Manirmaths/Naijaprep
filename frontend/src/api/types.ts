@@ -129,3 +129,17 @@ export interface AdminStats {
   total_users: number;
   subjects: string[];
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  username: string;
+  points: number;
+  current_streak: number;
+  is_you: boolean;
+}
+
+export interface Leaderboard {
+  entries: LeaderboardEntry[];
+  your_rank: number;
+  your_points: number;
+}

@@ -10,6 +10,7 @@ import SubjectTopics from './pages/SubjectTopics';
 import Quiz from './pages/Quiz';
 import Results from './pages/Results';
 import Dashboard from './pages/Dashboard';
+import Leaderboard from './pages/Leaderboard';
 import Review from './pages/Review';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/quiz-attempt/:attemptId" element={<Quiz />} />
         <Route path="/results/:attemptId" element={<Results />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/review" element={<Review />} />
         <Route
           path="/admin"

@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr, Field
 class RegisterIn(BaseModel):
     username: str = Field(min_length=2, max_length=20)
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: str = Field(min_length=8)
 
 
 class LoginIn(BaseModel):
@@ -173,3 +173,18 @@ class AdminStats(BaseModel):
     total_questions: int
     total_users: int
     subjects: list[str]
+
+
+# ---------- Leaderboard ----------
+class LeaderboardEntry(BaseModel):
+    rank: int
+    username: str
+    points: int
+    current_streak: int
+    is_you: bool
+
+
+class LeaderboardOut(BaseModel):
+    entries: list[LeaderboardEntry]
+    your_rank: int
+    your_points: int

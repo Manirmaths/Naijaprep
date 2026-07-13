@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
+import { Input, PasswordInput } from '../components/ui/Input';
 import Card from '../components/ui/Card';
 
 export default function Register() {
@@ -19,6 +19,10 @@ export default function Register() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
     if (password !== confirm) {
       setError('Passwords do not match.');
       return;
@@ -49,8 +53,8 @@ export default function Register() {
         <form onSubmit={onSubmit} className="space-y-4">
           <Input label="Username" required minLength={2} maxLength={20} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="chidera_reads" />
           <Input type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-          <Input type="password" label="Password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
-          <Input type="password" label="Confirm password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" />
+          <PasswordInput label="Password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" />
+          <PasswordInput label="Confirm password" required minLength={8} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" />
           <Button type="submit" fullWidth size="lg" loading={busy}>
             {busy ? 'Creating account…' : 'Sign up'}
           </Button>

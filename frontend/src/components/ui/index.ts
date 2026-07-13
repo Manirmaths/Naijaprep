@@ -1,7 +1,7 @@
 export { default as Button } from './Button';
 export { default as Card } from './Card';
 export { default as Badge, DifficultyBadge, StatusBadge } from './Badge';
-export { Input, Textarea, Select, FieldWrap } from './Input';
+export { Input, Textarea, Select, FieldWrap, PasswordInput } from './Input';
 export { default as Skeleton } from './Skeleton';
 export { default as EmptyState } from './EmptyState';
 export { default as Spinner } from './Spinner';

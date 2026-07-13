@@ -13,6 +13,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-gauge-high' },
   { to: '/subjects', label: 'Subjects', icon: 'fa-solid fa-book-open' },
+  { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
   { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
   { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
 ];

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
+import { Input, PasswordInput } from '../components/ui/Input';
 import Card from '../components/ui/Card';
 
 export default function Login() {
@@ -42,7 +42,7 @@ export default function Login() {
 
         <form onSubmit={onSubmit} className="space-y-4">
           <Input type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-          <Input type="password" label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+          <PasswordInput label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           <Button type="submit" fullWidth size="lg" loading={busy}>
             {busy ? 'Logging in…' : 'Log in'}
           </Button>
