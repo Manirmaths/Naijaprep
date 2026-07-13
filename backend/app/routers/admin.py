@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.auth import require_admin
 from app.database import get_db
-from app.models import Question, Passage, User
-from app.schemas import QuestionIn, QuestionOut, AdminStats, PassageOut
+from app.models import Question, Passage, User, UserResponse, ReviewQuestion, QuizAttempt, Payment
+from app.schemas import QuestionIn, QuestionOut, AdminStats, PassageOut, AdminUserOut
 from app.subjects import SUBJECTS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -139,3 +139,28 @@ def delete_question(question_id: int, db: Session = Depends(get_db), _admin: Use
 @router.get("/passages", response_model=list[PassageOut])
 def list_passages(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     return db.query(Passage).order_by(Passage.id.desc()).all()
+
+
+@router.get("/users", response_model=list[AdminUserOut])
+def list_users(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    return db.query(User).order_by(User.points.desc(), User.id.asc()).all()
+
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="You can't delete your own account from here.")
+
+    target = db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    # Clear dependent rows first -- Postgres enforces the FK constraints,
+    # so a bare delete on "user" would fail while these still reference it.
+    db.query(UserResponse).filter(UserResponse.user_id == user_id).delete()
+    db.query(ReviewQuestion).filter(ReviewQuestion.user_id == user_id).delete()
+    db.query(QuizAttempt).filter(QuizAttempt.user_id == user_id).delete()
+    db.query(Payment).filter(Payment.user_id == user_id).delete()
+    db.delete(target)
+    db.commit()
+    return {"status": "deleted"}

@@ -175,6 +175,21 @@ class AdminStats(BaseModel):
     subjects: list[str]
 
 
+# ---------- Admin: Users ----------
+class AdminUserOut(BaseModel):
+    id: int
+    username: str
+    email: str
+    points: int
+    is_admin: bool
+    current_streak: int
+    longest_streak: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # ---------- Leaderboard ----------
 class LeaderboardEntry(BaseModel):
     rank: int

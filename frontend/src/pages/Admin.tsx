@@ -1,9 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { api, ApiError } from '../api/client';
-import type { AdminQuestion, AdminStats, Difficulty, Passage, QuestionSource, QuestionStatus } from '../api/types';
+import { useAuth } from '../context/AuthContext';
+import type { AdminQuestion, AdminStats, AdminUser, Difficulty, Passage, QuestionSource, QuestionStatus } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import Avatar from '../components/ui/Avatar';
 import { Input, Select, Textarea } from '../components/ui/Input';
 import { DifficultyBadge, StatusBadge } from '../components/ui/Badge';
 import Skeleton from '../components/ui/Skeleton';
@@ -48,18 +50,27 @@ function StatBlock({ value, label }: { value: number | string; label: string }) 
 }
 
 export default function Admin() {
+  const { user: me } = useAuth();
   const queryClient = useQueryClient();
+  const [tab, setTab] = useState<'questions' | 'users'>('questions');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [editing, setEditing] = useState<AdminQuestion | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userError, setUserError] = useState<string | null>(null);
 
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => api.get<AdminStats>('/api/admin/stats') });
   const { data: passages } = useQuery({ queryKey: ['admin-passages'], queryFn: () => api.get<Passage[]>('/api/admin/passages') });
   const { data: questions, isLoading } = useQuery({
     queryKey: ['admin-questions', subjectFilter],
     queryFn: () => api.get<AdminQuestion[]>(`/api/admin/questions${subjectFilter ? `?subject=${encodeURIComponent(subjectFilter)}` : ''}`),
+    enabled: tab === 'questions',
+  });
+  const { data: users, isLoading: usersLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: () => api.get<AdminUser[]>('/api/admin/users'),
+    enabled: tab === 'users',
   });
 
   const openNew = () => { setEditing(null); setForm(emptyForm); setShowForm(true); setError(null); };
@@ -102,14 +113,28 @@ export default function Admin() {
     queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
   };
 
+  const removeUser = async (u: AdminUser) => {
+    setUserError(null);
+    if (!confirm(`Delete user "${u.username}"? This also removes their quiz history and cannot be undone.`)) return;
+    try {
+      await api.delete(`/api/admin/users/${u.id}`);
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    } catch (err) {
+      setUserError(err instanceof ApiError ? err.message : 'Something went wrong.');
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div>
-          <h1 className="font-display font-extrabold text-2xl text-ink-900">Question management</h1>
-          <p className="text-ink-500 text-sm mt-0.5">Bulk content still comes from CSV — use this for quick one-off fixes.</p>
+          <h1 className="font-display font-extrabold text-2xl text-ink-900">Admin</h1>
+          <p className="text-ink-500 text-sm mt-0.5">Manage questions and users.</p>
         </div>
-        <Button onClick={openNew} icon={<i className="fa-solid fa-plus" />}>Add question</Button>
+        {tab === 'questions' && (
+          <Button onClick={openNew} icon={<i className="fa-solid fa-plus" />}>Add question</Button>
+        )}
       </div>
 
       {stats && (
@@ -120,6 +145,94 @@ export default function Admin() {
         </div>
       )}
 
+      <div className="flex gap-1 mb-6 border-b border-ink-100">
+        <button
+          onClick={() => setTab('questions')}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+            tab === 'questions' ? 'border-brand-500 text-brand-700' : 'border-transparent text-ink-500 hover:text-ink-800'
+          }`}
+        >
+          <i className="fa-solid fa-book-open mr-1.5" /> Questions
+        </button>
+        <button
+          onClick={() => setTab('users')}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+            tab === 'users' ? 'border-brand-500 text-brand-700' : 'border-transparent text-ink-500 hover:text-ink-800'
+          }`}
+        >
+          <i className="fa-solid fa-users mr-1.5" /> Users
+        </button>
+      </div>
+
+      {tab === 'users' ? (
+        <>
+          {userError && (
+            <div className="bg-danger-50 text-danger-600 text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
+              <i className="fa-solid fa-circle-exclamation" /> {userError}
+            </div>
+          )}
+
+          {usersLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
+            </div>
+          ) : users && users.length === 0 ? (
+            <EmptyState icon="fa-solid fa-users" title="No users yet" />
+          ) : (
+            <Card padding="none" className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-ink-900 text-white">
+                  <tr>
+                    <th className="p-3 text-left font-semibold">User</th>
+                    <th className="p-3 text-left font-semibold">Points</th>
+                    <th className="p-3 text-left font-semibold">Streak</th>
+                    <th className="p-3 text-left font-semibold">Role</th>
+                    <th className="p-3 text-left font-semibold">Joined</th>
+                    <th className="p-3 text-left font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users?.map((u) => (
+                    <tr key={u.id} className="border-t border-ink-100 hover:bg-ink-50/60">
+                      <td className="p-3">
+                        <div className="flex items-center gap-3">
+                          <Avatar name={u.username} size={32} />
+                          <div>
+                            <div className="font-semibold text-ink-800">
+                              {u.username}
+                              {me?.id === u.id && <span className="ml-1.5 text-xs font-medium text-ink-400">(you)</span>}
+                            </div>
+                            <div className="text-xs text-ink-400">{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3 font-semibold text-ink-800">{u.points}</td>
+                      <td className="p-3 text-ink-600">
+                        <i className="fa-solid fa-fire text-flame-500 mr-1" />
+                        {u.current_streak}d
+                      </td>
+                      <td className="p-3">
+                        {u.is_admin ? <StatusBadge status="active" /> : <span className="text-ink-400 text-xs">Student</span>}
+                      </td>
+                      <td className="p-3 text-ink-500 text-xs">{new Date(u.created_at).toLocaleDateString()}</td>
+                      <td className="p-3 whitespace-nowrap">
+                        <button
+                          onClick={() => removeUser(u)}
+                          disabled={me?.id === u.id}
+                          className="text-danger-500 font-semibold hover:underline disabled:text-ink-300 disabled:no-underline disabled:cursor-not-allowed"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          )}
+        </>
+      ) : (
+        <>
       <div className="mb-4 max-w-xs">
         <Select value={subjectFilter} onChange={(e) => setSubjectFilter(e.target.value)}>
           <option value="">All subjects</option>
@@ -236,6 +349,8 @@ export default function Admin() {
             </tbody>
           </table>
         </Card>
+      )}
+        </>
       )}
     </div>
   );

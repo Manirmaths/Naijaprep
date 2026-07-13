@@ -130,6 +130,17 @@ export interface AdminStats {
   subjects: string[];
 }
 
+export interface AdminUser {
+  id: number;
+  username: string;
+  email: string;
+  points: number;
+  is_admin: boolean;
+  current_streak: number;
+  longest_streak: number;
+  created_at: string;
+}
+
 export interface LeaderboardEntry {
   rank: number;
   username: string;
