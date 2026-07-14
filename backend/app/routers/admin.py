@@ -164,3 +164,18 @@ def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depen
     db.delete(target)
     db.commit()
     return {"status": "deleted"}
+
+
+@router.post("/users/{user_id}/toggle-admin", response_model=AdminUserOut)
+def toggle_admin(user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="You can't change your own admin status from here.")
+
+    target = db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    target.is_admin = not target.is_admin
+    db.commit()
+    db.refresh(target)
+    return target

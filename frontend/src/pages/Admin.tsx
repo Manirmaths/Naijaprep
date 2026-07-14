@@ -125,6 +125,18 @@ export default function Admin() {
     }
   };
 
+  const toggleAdmin = async (u: AdminUser) => {
+    setUserError(null);
+    const verb = u.is_admin ? 'remove admin from' : 'make admin';
+    if (!confirm(`Are you sure you want to ${verb} "${u.username}"?`)) return;
+    try {
+      await api.post(`/api/admin/users/${u.id}/toggle-admin`);
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    } catch (err) {
+      setUserError(err instanceof ApiError ? err.message : 'Something went wrong.');
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
@@ -216,6 +228,13 @@ export default function Admin() {
                       </td>
                       <td className="p-3 text-ink-500 text-xs">{new Date(u.created_at).toLocaleDateString()}</td>
                       <td className="p-3 whitespace-nowrap">
+                        <button
+                          onClick={() => toggleAdmin(u)}
+                          disabled={me?.id === u.id}
+                          className="text-brand-600 font-semibold mr-3 hover:underline disabled:text-ink-300 disabled:no-underline disabled:cursor-not-allowed"
+                        >
+                          {u.is_admin ? 'Remove admin' : 'Make admin'}
+                        </button>
                         <button
                           onClick={() => removeUser(u)}
                           disabled={me?.id === u.id}

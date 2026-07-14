@@ -1,3 +1,7 @@
+.venv\Scripts\Activate.ps1
+
+#data
+python seed_questions.py
 #backend
 cd C:\Users\Dell\Downloads\Naija Prep\backend
 uvicorn app.main:app --reload --port 8000
@@ -5,3 +9,7 @@ uvicorn app.main:app --reload --port 8000
 #frontend
 cd C:\Users\Dell\Downloads\Naija Prep\frontend
 npm run dev
+
+git add -A
+git commit -m "add more seed_questions"
+git push origin main

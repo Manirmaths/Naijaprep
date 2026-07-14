@@ -84,7 +84,9 @@ class Question(Base):
     difficulty: Mapped[str] = mapped_column(String(10), nullable=False, default="medium")
 
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
-    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Text, not String(500): inline SVG data-URIs used for self-contained
+    # diagram questions can run well past 500 characters.
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     option_a: Mapped[str] = mapped_column(Text, nullable=False)
     option_b: Mapped[str] = mapped_column(Text, nullable=False)

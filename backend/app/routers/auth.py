@@ -33,12 +33,15 @@ def register(payload: RegisterIn, response: Response, db: Session = Depends(get_
     if db.query(User).filter(User.email == payload.email).first():
         raise HTTPException(status_code=400, detail="An account with this email already exists.")
 
-    is_first_user = db.query(User).count() == 0
+    # NOTE: admin is never auto-granted on signup (even to the very first
+    # account) -- that was a bootstrap-only convenience and a standing
+    # security hole on a public site. Promote/demote admin from the Users
+    # tab in /admin instead.
     user = User(
         username=payload.username,
         email=payload.email,
         password_hash=hash_password(payload.password),
-        is_admin=is_first_user,
+        is_admin=False,
     )
     db.add(user)
     try:
