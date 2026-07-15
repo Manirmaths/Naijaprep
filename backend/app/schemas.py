@@ -77,6 +77,7 @@ class QuizStartIn(BaseModel):
     topic: Optional[str] = None
     n: int = 5
     difficulty: Optional[str] = None  # easy | medium | hard
+    year: Optional[str] = None
     per_q: Optional[int] = None
 
 

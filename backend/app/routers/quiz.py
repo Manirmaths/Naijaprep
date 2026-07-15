@@ -15,8 +15,19 @@ router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
 RECENT_EXCLUDE_LIMIT = 50
 
+# Practice-quiz pacing: give the student roughly a minute per question, with
+# a floor so short quizzes still get a sane amount of time. (JAMB's own CBT
+# is closer to ~40s/question under exam pressure -- this is deliberately
+# more generous since it's untimed *practice*, not the real thing.)
+SECONDS_PER_QUESTION = 60
+MIN_TIME_LIMIT_SECONDS = 180
 
-def _pick_pool(db: Session, user_id: int, subject: str | None, topic: str | None, difficulty: str | None):
+
+def _time_limit_for(n: int) -> int:
+    return max(MIN_TIME_LIMIT_SECONDS, n * SECONDS_PER_QUESTION)
+
+
+def _pick_pool(db: Session, user_id: int, subject: str | None, topic: str | None, difficulty: str | None, year: str | None = None):
     recent_ids = [
         qid for (qid,) in (
             db.query(UserResponse.question_id)
@@ -33,6 +44,8 @@ def _pick_pool(db: Session, user_id: int, subject: str | None, topic: str | None
             q = q.filter(Question.topic == topic)
         elif subject:
             q = q.filter(Question.subject == subject)
+        if year:
+            q = q.filter(Question.year == year)
         if with_difficulty and difficulty is not None:
             q = q.filter(Question.difficulty == difficulty)
         if recent_ids:
@@ -78,7 +91,7 @@ def _attempt_out(db: Session, attempt: QuizAttempt) -> QuizAttemptOut:
 @router.post("/start", response_model=QuizAttemptOut)
 def start_quiz(payload: QuizStartIn, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     n = max(3, min(payload.n, 50))
-    pool, build = _pick_pool(db, user.id, payload.subject, payload.topic, payload.difficulty)
+    pool, build = _pick_pool(db, user.id, payload.subject, payload.topic, payload.difficulty, payload.year)
 
     if len(pool) < n and payload.difficulty is not None:
         pool = build(with_difficulty=False)
@@ -87,6 +100,8 @@ def start_quiz(payload: QuizStartIn, db: Session = Depends(get_db), user: User =
         label = f"topic '{payload.topic}'" if payload.topic else (
             f"subject '{payload.subject}'" if payload.subject else "all subjects"
         )
+        if payload.year:
+            label += f" for {payload.year}"
         raise HTTPException(status_code=400, detail=f"Not enough questions in {label} for your selection.")
 
     selected = random.sample(pool, n)
@@ -102,7 +117,7 @@ def start_quiz(payload: QuizStartIn, db: Session = Depends(get_db), user: User =
         question_ids=[q.id for q in selected],
         current_index=0,
         score=0,
-        time_limit_seconds=600,
+        time_limit_seconds=_time_limit_for(n),
         per_question_seconds=per_q,
     )
     db.add(attempt)
@@ -204,17 +219,4 @@ def retake_wrong(attempt_id: int, db: Session = Depends(get_db), user: User = De
     if not attempt or attempt.user_id != user.id:
         raise HTTPException(status_code=404, detail="Quiz attempt not found.")
 
-    responses = db.query(UserResponse).filter(UserResponse.attempt_id == attempt_id).all()
-    wrong_ids = [r.question_id for r in responses if not r.is_correct]
-    if len(wrong_ids) < 3:
-        raise HTTPException(status_code=400, detail="Not enough wrong questions to retake (need at least 3).")
-
-    random.shuffle(wrong_ids)
-    new_attempt = QuizAttempt(
-        user_id=user.id, mode="quiz", subject=attempt.subject, topic=attempt.topic,
-        question_ids=wrong_ids, current_index=0, score=0, time_limit_seconds=600,
-    )
-    db.add(new_attempt)
-    db.commit()
-    db.refresh(new_attempt)
-    return _attempt_out(db, new_attempt)
+  

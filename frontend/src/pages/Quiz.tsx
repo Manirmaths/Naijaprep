@@ -28,6 +28,7 @@ export default function Quiz() {
     startedRef.current = true;
 
     const difficulty = params.get('difficulty');
+    const year = params.get('year');
 
     const loadAttempt = resumeAttemptId
       ? api.get<QuizAttempt>(`/api/quiz/${resumeAttemptId}`)
@@ -36,6 +37,7 @@ export default function Quiz() {
           topic: params.get('topic') || undefined,
           n: Number(params.get('n') || 5),
           difficulty: difficulty && difficulty !== 'any' ? difficulty : null,
+          year: year && year !== 'any' ? year : null,
         });
 
     loadAttempt
@@ -186,10 +188,4 @@ export default function Quiz() {
           </Button>
         ) : (
           <Button fullWidth size="lg" onClick={goNext}>
-            {feedback.next.finished ? 'See results' : 'Next question'}
-          </Button>
-        )}
-      </Card>
-    </div>
-  );
-}
+            {feedback.next.finished ? 'See 
