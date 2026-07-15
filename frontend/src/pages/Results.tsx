@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
-import type { QuizResults } from '../api/types';
+import type { QuizResults, AchievementsResponse } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
@@ -18,6 +18,15 @@ export default function Results() {
     queryKey: ['results', attemptId],
     queryFn: () => api.get<QuizResults>(`/api/quiz/${attemptId}/results`),
   });
+
+  // Piggyback on the results page load to check for newly-earned badges --
+  // this endpoint evaluates + persists unlocks, so it's safe to call here.
+  const { data: achievements } = useQuery({
+    queryKey: ['achievements-check', attemptId],
+    queryFn: () => api.get<AchievementsResponse>('/api/achievements'),
+    enabled: !!data,
+  });
+  const newlyUnlocked = achievements?.items.filter((a) => a.newly_unlocked) ?? [];
 
   const toggleMark = async (questionId: number, marked: boolean) => {
     await api.post(`/api/review/${questionId}/${marked ? 'unmark' : 'mark'}`);
@@ -47,6 +56,25 @@ export default function Results() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      {newlyUnlocked.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {newlyUnlocked.map((a) => (
+            <Card key={a.code} padding="md" className="bg-warning-50 border-warning-200 flex items-center gap-3 animate-fade-in">
+              <div className="w-10 h-10 rounded-full bg-warning-500 text-white flex items-center justify-center text-base flex-shrink-0">
+                <i className={a.icon} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-bold text-sm text-ink-900">Achievement unlocked: {a.title}</p>
+                <p className="text-xs text-ink-500">{a.description}</p>
+              </div>
+              <Link to="/achievements" className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex-shrink-0">
+                View all
+              </Link>
+            </Card>
+          ))}
+        </div>
+      )}
+
       <div className="text-center mb-8">
         <h1 className="font-display font-extrabold text-2xl text-ink-900 mb-3">Quiz complete</h1>
         <div

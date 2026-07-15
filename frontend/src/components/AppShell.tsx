@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
   { to: '/blitz', label: 'Blitz', icon: 'fa-solid fa-bolt' },
   { to: '/mock', label: 'Full Mock', icon: 'fa-solid fa-file-signature' },
+  { to: '/achievements', label: 'Achievements', icon: 'fa-solid fa-medal' },
   { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
   { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
 ];
@@ -105,6 +106,15 @@ export default function AppShell() {
           <div className="hidden lg:block" />
 
           <div className="flex items-center gap-3">
+            {user.streak_freezes > 0 && (
+              <div
+                className="flex items-center gap-1.5 rounded-full bg-info-50 text-info-500 px-3 py-1.5 text-sm font-bold"
+                title={`${user.streak_freezes} streak freeze${user.streak_freezes === 1 ? '' : 's'} -- auto-protects a missed day`}
+              >
+                <i className="fa-solid fa-snowflake" />
+                {user.streak_freezes}
+              </div>
+            )}
             <div className="flex items-center gap-1.5 rounded-full bg-flame-500/10 text-flame-500 px-3 py-1.5 text-sm font-bold">
               <i className="fa-solid fa-fire" />
               {user.current_streak}

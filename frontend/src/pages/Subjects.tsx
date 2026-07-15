@@ -24,6 +24,18 @@ const SUBJECT_ICONS: Record<string, string> = {
   Accounting: 'fa-solid fa-calculator',
 };
 
+// Mirrors backend/app/routers/quiz.py's _time_limit_for() so the preview
+// shown here matches the timer the student actually gets.
+const SECONDS_PER_QUESTION = 60;
+const MIN_TIME_LIMIT_SECONDS = 180;
+function timeLimitFor(n: number): number {
+  return Math.max(MIN_TIME_LIMIT_SECONDS, n * SECONDS_PER_QUESTION);
+}
+function fmtMinutes(seconds: number): string {
+  const mins = Math.round(seconds / 60);
+  return `${mins} min${mins === 1 ? '' : 's'}`;
+}
+
 export default function Subjects() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -97,6 +109,9 @@ export default function Subjects() {
                       <option value="hard">Hard</option>
                     </Select>
                   </div>
+                  <p className="text-[11px] text-ink-400 font-medium flex items-center gap-1">
+                    <i className="fa-regular fa-clock" /> You'll get {fmtMinutes(timeLimitFor(Number(choice.n)))} to finish
+                  </p>
                   <Button size="sm" fullWidth onClick={() => startQuiz(s.name)} disabled={s.question_count === 0}>
                     Start quiz
                   </Button>

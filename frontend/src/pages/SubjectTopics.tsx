@@ -58,6 +58,9 @@ export default function SubjectTopics() {
               <option key={y} value={y}>{y}</option>
             ))}
           </Select>
+          {year !== 'any' && (
+            <span className="text-xs text-ink-400">Only {year} past questions will be used</span>
+          )}
         </div>
       )}
 

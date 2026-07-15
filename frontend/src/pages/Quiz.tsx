@@ -10,6 +10,8 @@ import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import MathText from '../components/ui/MathText';
 
+const STREAK_MILESTONES = [3, 5, 10, 15, 20, 25];
+
 export default function Quiz() {
   const [params] = useSearchParams();
   const { attemptId: resumeAttemptId } = useParams();
@@ -21,7 +23,10 @@ export default function Quiz() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [overallSeconds, setOverallSeconds] = useState<number | null>(null);
+  const [correctStreak, setCorrectStreak] = useState(0);
+  const [celebration, setCelebration] = useState<number | null>(null);
   const startedRef = useRef(false);
+  const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -59,6 +64,12 @@ export default function Quiz() {
     return () => clearTimeout(t);
   }, [overallSeconds, feedback, attempt, navigate]);
 
+  useEffect(() => {
+    return () => {
+      if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current);
+    };
+  }, []);
+
   const submitAnswer = async () => {
     if (!attempt?.current_question || !selected) return;
     try {
@@ -67,6 +78,18 @@ export default function Quiz() {
         selected_option: selected,
       });
       setFeedback(result);
+
+      if (result.is_correct) {
+        const next = correctStreak + 1;
+        setCorrectStreak(next);
+        if (STREAK_MILESTONES.includes(next)) {
+          setCelebration(next);
+          if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current);
+          celebrationTimerRef.current = setTimeout(() => setCelebration(null), 1800);
+        }
+      } else {
+        setCorrectStreak(0);
+      }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not submit answer.');
     }
@@ -119,6 +142,13 @@ export default function Quiz() {
         <div className="fixed top-20 right-4 sm:right-8 bg-ink-900 text-white font-mono font-bold px-4 py-2 rounded-full shadow-pop z-20 text-sm">
           <i className="fa-regular fa-clock mr-1.5" />
           {fmtTime(Math.max(0, overallSeconds))}
+        </div>
+      )}
+
+      {celebration !== null && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-flame-500 text-white font-display font-bold px-5 py-2.5 rounded-full shadow-pop z-30 text-sm animate-fade-in">
+          <i className="fa-solid fa-fire mr-1.5" />
+          {celebration} in a row!
         </div>
       )}
 
