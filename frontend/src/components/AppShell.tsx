@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/subjects', label: 'Subjects', icon: 'fa-solid fa-book-open' },
   { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
   { to: '/blitz', label: 'Blitz', icon: 'fa-solid fa-bolt' },
+  { to: '/mock', label: 'Full Mock', icon: 'fa-solid fa-file-signature' },
   { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
   { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
 ];
@@ -116,4 +117,9 @@ export default function AppShell() {
         </header>
 
         <main className="flex-1 min-w-0">
-      
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

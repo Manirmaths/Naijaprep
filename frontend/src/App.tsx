@@ -12,6 +12,7 @@ import Results from './pages/Results';
 import Dashboard from './pages/Dashboard';
 import Leaderboard from './pages/Leaderboard';
 import Blitz from './pages/Blitz';
+import Mock from './pages/Mock';
 import Review from './pages/Review';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
@@ -41,9 +42,17 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/blitz" element={<Blitz />} />
+        <Route path="/mock" element={<Mock />} />
         <Route path="/review" element={<Review />} />
         <Route
           path="/admin"
           element={
             <RequireAuth adminOnly>
               <Admin />
+            </RequireAuth>
+          }
+        />
+      </Route>
+    </Routes>
+  );
+}

@@ -86,6 +86,10 @@ class BlitzStartIn(BaseModel):
     difficulty: Optional[str] = None  # easy | medium | hard
 
 
+class MockStartIn(BaseModel):
+    subjects: list[str]  # exactly 3 candidate-chosen subjects, sat alongside compulsory English
+
+
 class QuizAttemptOut(BaseModel):
     attempt_id: int
     mode: str

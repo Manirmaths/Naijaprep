@@ -105,7 +105,13 @@ export default function Quiz() {
     ['A', q.option_a], ['B', q.option_b], ['C', q.option_c], ['D', q.option_d],
   ];
 
-  const fmtTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const fmtTime = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
@@ -188,4 +194,10 @@ export default function Quiz() {
           </Button>
         ) : (
           <Button fullWidth size="lg" onClick={goNext}>
-            {feedback.next.finished ? 'See 
+            {feedback.next.finished ? 'See results' : 'Next question'}
+          </Button>
+        )}
+      </Card>
+    </div>
+  );
+}
