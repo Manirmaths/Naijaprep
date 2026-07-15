@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import { Select } from '../components/ui/Input';
 import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
+import { useAuth } from '../context/AuthContext';
 
 const SUBJECT_ICONS: Record<string, string> = {
   Mathematics: 'fa-solid fa-square-root-variable',
@@ -25,6 +26,7 @@ const SUBJECT_ICONS: Record<string, string> = {
 
 export default function Subjects() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => api.get<Subject[]>('/api/subjects'),
@@ -71,9 +73,15 @@ export default function Subjects() {
                     <i className={SUBJECT_ICONS[s.name] ?? 'fa-solid fa-book-open'} />
                   </div>
                   <div className="font-display font-bold text-ink-900 group-hover:text-brand-600 transition-colors">{s.name}</div>
-                  <span className="inline-block mt-1.5 text-xs font-semibold text-ink-400">
-                    {s.question_count} question{s.question_count === 1 ? '' : 's'}
-                  </span>
+                  {user?.is_admin ? (
+                    <span className="inline-block mt-1.5 text-xs font-semibold text-ink-400">
+                      {s.question_count} question{s.question_count === 1 ? '' : 's'}
+                    </span>
+                  ) : (
+                    <span className="inline-block mt-1.5 text-xs font-semibold text-ink-400">
+                      Tap to practice
+                    </span>
+                  )}
                 </Link>
                 <div className="mt-auto space-y-2">
                   <div className="flex gap-1.5">
@@ -87,17 +95,4 @@ export default function Subjects() {
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
                       <option value="hard">Hard</option>
-                    </Select>
-                  </div>
-                  <Button size="sm" fullWidth onClick={() => startQuiz(s.name)} disabled={s.question_count === 0}>
-                    Start quiz
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+                

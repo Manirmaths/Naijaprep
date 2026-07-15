@@ -6,9 +6,11 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
+import { useAuth } from '../context/AuthContext';
 
 export default function SubjectTopics() {
   const { subject = '' } = useParams();
+  const { user } = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: ['topics', subject],
     queryFn: () => api.get<Topic[]>(`/api/subjects/${encodeURIComponent(subject)}/topics`),
@@ -54,10 +56,5 @@ export default function SubjectTopics() {
             <Link to={`/quiz?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(t.name)}`} className="font-semibold text-ink-800 hover:text-brand-600 flex-1">
               {t.name}
             </Link>
-            <span className="text-xs font-semibold bg-ink-100 text-ink-500 rounded-full px-2.5 py-1">{t.count} questions</span>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
+            {user?.is_admin && (
+              <span className="text-xs font-semibold bg-ink-100 text-ink-500
