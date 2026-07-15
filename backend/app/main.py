@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import Base, engine
+from app.database import Base, engine, ensure_schema
 from app import models  # noqa: F401 -- ensure models are registered before create_all
 from app.routers import auth, subjects, quiz, dashboard, review, admin, leaderboard, blitz, mock, achievements
 
@@ -20,6 +20,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
+    ensure_schema()
 
 
 app.include_router(auth.router)
