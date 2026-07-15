@@ -9,17 +9,21 @@ CSV, and INSERTS any question_id that isn't in the DB yet. Nothing else
 (id, user_response/quiz_attempt history, which reference Question.id) is
 touched, since question_id is unique and Question.id never changes.
 
-Updates/inserts are batched (default 500 rows/round trip) instead of one
+Updates/inserts are batched (default 200 rows/round trip) instead of one
 statement per row -- over a remote connection (e.g. Neon), one-row-at-a-time
 can take many minutes for 10k+ rows; batching cuts it to a few seconds.
 
+Run with `python -u` (unbuffered) if progress lines aren't showing up as
+they happen -- otherwise stdout can buffer and make it look stuck even
+though it's working.
+
 Usage:
-    python sync_questions_db.py "<DATABASE_URL>"
-    python sync_questions_db.py "<DATABASE_URL>" --dry-run
+    python -u sync_questions_db.py "<DATABASE_URL>"
+    python -u sync_questions_db.py "<DATABASE_URL>" --dry-run
 
 Examples:
-    python sync_questions_db.py "sqlite:///./naijaprep.db"
-    python sync_questions_db.py "postgresql://user:pass@host/dbname?sslmode=require"
+    python -u sync_questions_db.py "sqlite:///./naijaprep.db"
+    python -u sync_questions_db.py "postgresql://user:pass@host/dbname?sslmode=require"
 """
 import csv
 import os
@@ -40,7 +44,11 @@ COLUMNS = [
     "option_d", "correct_option", "explanation", "tags", "source", "status",
 ]
 
-BATCH_SIZE = 500
+BATCH_SIZE = 200
+
+
+def log(msg):
+    print(msg, flush=True)
 
 
 def load_row(row):
@@ -74,18 +82,28 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     dry_run = "--dry-run" in sys.argv
     if len(args) != 1:
-        print('Usage: python sync_questions_db.py "<DATABASE_URL>" [--dry-run]')
+        log('Usage: python sync_questions_db.py "<DATABASE_URL>" [--dry-run]')
         sys.exit(1)
     db_url = args[0]
 
+    t_start = time.time()
+    log("Reading questions.csv...")
     with open(CSV_PATH, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
+    log(f"  {len(rows)} rows read ({time.time() - t_start:.1f}s)")
 
-    engine = create_engine(db_url)
+    log("Connecting to database...")
+    t0 = time.time()
+    engine = create_engine(db_url, connect_args={"connect_timeout": 15} if not db_url.startswith("sqlite") else {})
     is_postgres = engine.dialect.name.startswith("postgres")
 
     with engine.begin() as conn:
+        log(f"  connected ({time.time() - t0:.1f}s)")
+
+        t0 = time.time()
+        log("Fetching existing question_ids...")
         existing_ids = {qid for (qid,) in conn.execute(text('SELECT question_id FROM "question"')).all()}
+        log(f"  {len(existing_ids)} existing ids fetched ({time.time() - t0:.1f}s)")
 
         to_update = []
         to_insert = []
@@ -102,29 +120,35 @@ def main():
             values["question_id"] = qid
             (to_update if qid in existing_ids else to_insert).append(values)
 
-        print(f"Prepared {len(to_update)} updates, {len(to_insert)} inserts, {skipped} skipped.")
+        log(f"Prepared {len(to_update)} updates, {len(to_insert)} inserts, {skipped} skipped.")
 
         if dry_run:
-            print(f"DRY RUN -- Would update: {len(to_update)}")
-            print(f"DRY RUN -- Would insert: {len(to_insert)}")
-            print(f"Skipped (missing required field): {skipped}")
+            log(f"DRY RUN -- Would update: {len(to_update)}")
+            log(f"DRY RUN -- Would insert: {len(to_insert)}")
+            log(f"Skipped (missing required field): {skipped}")
             conn.rollback()
             return
 
-        insert_cols = ["question_id"] + COLUMNS
-        insert_sql = text(
-            f'INSERT INTO "question" ({", ".join(insert_cols)}) '
-            f'VALUES ({", ".join(":" + c for c in insert_cols)})'
-        )
-        for batch in chunked(to_insert, BATCH_SIZE):
-            conn.execute(insert_sql, batch)
+        if to_insert:
+            t0 = time.time()
+            log(f"Inserting {len(to_insert)} new rows...")
+            insert_cols = ["question_id"] + COLUMNS
+            insert_sql = text(
+                f'INSERT INTO "question" ({", ".join(insert_cols)}) '
+                f'VALUES ({", ".join(":" + c for c in insert_cols)})'
+            )
+            for batch in chunked(to_insert, BATCH_SIZE):
+                conn.execute(insert_sql, batch)
+            log(f"  done ({time.time() - t0:.1f}s)")
 
         t0 = time.time()
+        log(f"Updating {len(to_update)} existing rows in batches of {BATCH_SIZE}...")
         if is_postgres:
             # Bulk UPDATE ... FROM (VALUES ...) -- one round trip per batch
             # instead of one per row, which is what made the naive
             # row-by-row version painfully slow over a remote connection.
             value_cols = ["question_id"] + COLUMNS
+            total_batches = (len(to_update) + BATCH_SIZE - 1) // BATCH_SIZE or 1
             for batch_i, batch in enumerate(chunked(to_update, BATCH_SIZE)):
                 values_sql_parts = []
                 params = {}
@@ -142,17 +166,21 @@ def main():
                     f'FROM (VALUES {values_sql}) AS v({", ".join(value_cols)}) '
                     f'WHERE q.question_id = v.question_id'
                 )
+                tb = time.time()
                 conn.execute(sql, params)
                 done = min((batch_i + 1) * BATCH_SIZE, len(to_update))
-                print(f"  updated {done}/{len(to_update)} ({time.time() - t0:.1f}s elapsed)")
+                log(f"  batch {batch_i + 1}/{total_batches}: updated {done}/{len(to_update)} "
+                    f"(this batch {time.time() - tb:.1f}s, total {time.time() - t0:.1f}s)")
         else:
             set_clause = ", ".join(f"{c} = :{c}" for c in COLUMNS)
             update_sql = text(f'UPDATE "question" SET {set_clause} WHERE question_id = :question_id')
             conn.execute(update_sql, to_update)
+        log(f"  update phase done ({time.time() - t0:.1f}s)")
 
-    print(f"Updated: {len(to_update)}")
-    print(f"Inserted: {len(to_insert)}")
-    print(f"Skipped (missing required field): {skipped}")
+    log(f"Updated: {len(to_update)}")
+    log(f"Inserted: {len(to_insert)}")
+    log(f"Skipped (missing required field): {skipped}")
+    log(f"Total time: {time.time() - t_start:.1f}s")
 
 
 if __name__ == "__main__":
