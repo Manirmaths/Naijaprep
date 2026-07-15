@@ -1,0 +1,33 @@
+{
+  "name": "naijaprep-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Naija Prep desktop app (Windows) -- a shell that loads the live site.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.naijaprep.desktop",
+    "productName": "Naija Prep",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

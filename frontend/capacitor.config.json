@@ -1,0 +1,9 @@
+{
+  "appId": "com.naijaprep.app",
+  "appName": "Naija Prep",
+  "webDir": "dist",
+  "server": {
+    "url": "https://naijaprep.com.ng",
+    "cleartext": false
+  }
+}

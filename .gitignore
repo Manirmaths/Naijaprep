@@ -10,6 +10,18 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 
+# Android (Capacitor)
+frontend/android/local.properties
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/.idea/
+frontend/android/capacitor-cordova-android-plugins/build/
+
+# Desktop (Electron)
+desktop/node_modules/
+desktop/release/
+
 # Editors / OS
 .DS_Store
 .vscode/
