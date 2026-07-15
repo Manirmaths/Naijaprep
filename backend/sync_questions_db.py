@@ -9,6 +9,10 @@ CSV, and INSERTS any question_id that isn't in the DB yet. Nothing else
 (id, user_response/quiz_attempt history, which reference Question.id) is
 touched, since question_id is unique and Question.id never changes.
 
+Updates/inserts are batched (default 500 rows/round trip) instead of one
+statement per row -- over a remote connection (e.g. Neon), one-row-at-a-time
+can take many minutes for 10k+ rows; batching cuts it to a few seconds.
+
 Usage:
     python sync_questions_db.py "<DATABASE_URL>"
     python sync_questions_db.py "<DATABASE_URL>" --dry-run
@@ -20,6 +24,7 @@ Examples:
 import csv
 import os
 import sys
+import time
 
 from sqlalchemy import create_engine, text
 
@@ -34,6 +39,8 @@ COLUMNS = [
     "question_text", "image_url", "option_a", "option_b", "option_c",
     "option_d", "correct_option", "explanation", "tags", "source", "status",
 ]
+
+BATCH_SIZE = 500
 
 
 def load_row(row):
@@ -58,6 +65,11 @@ def load_row(row):
     }
 
 
+def chunked(seq, n):
+    for i in range(0, len(seq), n):
+        yield seq[i:i + n]
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     dry_run = "--dry-run" in sys.argv
@@ -70,19 +82,13 @@ def main():
         rows = list(csv.DictReader(f))
 
     engine = create_engine(db_url)
+    is_postgres = engine.dialect.name.startswith("postgres")
+
     with engine.begin() as conn:
         existing_ids = {qid for (qid,) in conn.execute(text('SELECT question_id FROM "question"')).all()}
 
-        set_clause = ", ".join(f"{c} = :{c}" for c in COLUMNS)
-        update_sql = text(f'UPDATE "question" SET {set_clause} WHERE question_id = :question_id')
-        insert_cols = ["question_id"] + COLUMNS
-        insert_sql = text(
-            f'INSERT INTO "question" ({", ".join(insert_cols)}) '
-            f'VALUES ({", ".join(":" + c for c in insert_cols)})'
-        )
-
-        updated = 0
-        inserted = 0
+        to_update = []
+        to_insert = []
         skipped = 0
         for row in rows:
             qid = (row.get("question_id") or "").strip()
@@ -94,29 +100,58 @@ def main():
                 skipped += 1
                 continue
             values["question_id"] = qid
+            (to_update if qid in existing_ids else to_insert).append(values)
 
-            if dry_run:
-                if qid in existing_ids:
-                    updated += 1
-                else:
-                    inserted += 1
-                continue
-
-            if qid in existing_ids:
-                result = conn.execute(update_sql, values)
-                if result.rowcount:
-                    updated += result.rowcount
-            else:
-                conn.execute(insert_sql, values)
-                existing_ids.add(qid)
-                inserted += 1
+        print(f"Prepared {len(to_update)} updates, {len(to_insert)} inserts, {skipped} skipped.")
 
         if dry_run:
+            print(f"DRY RUN -- Would update: {len(to_update)}")
+            print(f"DRY RUN -- Would insert: {len(to_insert)}")
+            print(f"Skipped (missing required field): {skipped}")
             conn.rollback()
+            return
 
-    mode = "DRY RUN -- " if dry_run else ""
-    print(f"{mode}Would update: {updated}" if dry_run else f"Updated: {updated}")
-    print(f"{mode}Would insert: {inserted}" if dry_run else f"Inserted: {inserted}")
+        insert_cols = ["question_id"] + COLUMNS
+        insert_sql = text(
+            f'INSERT INTO "question" ({", ".join(insert_cols)}) '
+            f'VALUES ({", ".join(":" + c for c in insert_cols)})'
+        )
+        for batch in chunked(to_insert, BATCH_SIZE):
+            conn.execute(insert_sql, batch)
+
+        t0 = time.time()
+        if is_postgres:
+            # Bulk UPDATE ... FROM (VALUES ...) -- one round trip per batch
+            # instead of one per row, which is what made the naive
+            # row-by-row version painfully slow over a remote connection.
+            value_cols = ["question_id"] + COLUMNS
+            for batch_i, batch in enumerate(chunked(to_update, BATCH_SIZE)):
+                values_sql_parts = []
+                params = {}
+                for i, row in enumerate(batch):
+                    placeholders = []
+                    for c in value_cols:
+                        key = f"{c}_{i}"
+                        params[key] = row[c]
+                        placeholders.append(f":{key}")
+                    values_sql_parts.append(f"({', '.join(placeholders)})")
+                values_sql = ", ".join(values_sql_parts)
+                set_clause = ", ".join(f"{c} = v.{c}" for c in COLUMNS)
+                sql = text(
+                    f'UPDATE "question" AS q SET {set_clause} '
+                    f'FROM (VALUES {values_sql}) AS v({", ".join(value_cols)}) '
+                    f'WHERE q.question_id = v.question_id'
+                )
+                conn.execute(sql, params)
+                done = min((batch_i + 1) * BATCH_SIZE, len(to_update))
+                print(f"  updated {done}/{len(to_update)} ({time.time() - t0:.1f}s elapsed)")
+        else:
+            set_clause = ", ".join(f"{c} = :{c}" for c in COLUMNS)
+            update_sql = text(f'UPDATE "question" SET {set_clause} WHERE question_id = :question_id')
+            conn.execute(update_sql, to_update)
+
+    print(f"Updated: {len(to_update)}")
+    print(f"Inserted: {len(to_insert)}")
     print(f"Skipped (missing required field): {skipped}")
 
 
