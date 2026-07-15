@@ -131,15 +131,21 @@ def main():
 
         if to_insert:
             t0 = time.time()
-            log(f"Inserting {len(to_insert)} new rows...")
+            log(f"Inserting {len(to_insert)} new rows in batches of {BATCH_SIZE}...")
             insert_cols = ["question_id"] + COLUMNS
             insert_sql = text(
                 f'INSERT INTO "question" ({", ".join(insert_cols)}) '
                 f'VALUES ({", ".join(":" + c for c in insert_cols)})'
             )
-            for batch in chunked(to_insert, BATCH_SIZE):
+            total_insert_batches = (len(to_insert) + BATCH_SIZE - 1) // BATCH_SIZE or 1
+            for batch_i, batch in enumerate(chunked(to_insert, BATCH_SIZE)):
+                tb = time.time()
                 conn.execute(insert_sql, batch)
-            log(f"  done ({time.time() - t0:.1f}s)")
+                done = min((batch_i + 1) * BATCH_SIZE, len(to_insert))
+                log(f"  insert batch {batch_i + 1}/{total_insert_batches}: "
+                    f"{done}/{len(to_insert)} (this batch {time.time() - tb:.1f}s, "
+                    f"total {time.time() - t0:.1f}s)")
+            log(f"  insert phase done ({time.time() - t0:.1f}s)")
 
         t0 = time.time()
         log(f"Updating {len(to_update)} existing rows in batches of {BATCH_SIZE}...")
