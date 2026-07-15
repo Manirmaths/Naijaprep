@@ -42,7 +42,14 @@ export default function Login() {
 
         <form onSubmit={onSubmit} className="space-y-4">
           <Input type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-          <PasswordInput label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+          <div>
+            <PasswordInput label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <div className="text-right mt-1.5">
+              <Link to="/forgot-password" className="text-xs font-semibold text-brand-600 hover:text-brand-700">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
           <Button type="submit" fullWidth size="lg" loading={busy}>
             {busy ? 'Logging in…' : 'Log in'}
           </Button>

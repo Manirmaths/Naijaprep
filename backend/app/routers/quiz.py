@@ -219,4 +219,18 @@ def retake_wrong(attempt_id: int, db: Session = Depends(get_db), user: User = De
     if not attempt or attempt.user_id != user.id:
         raise HTTPException(status_code=404, detail="Quiz attempt not found.")
 
-  
+    responses = db.query(UserResponse).filter(UserResponse.attempt_id == attempt_id).all()
+    wrong_ids = [r.question_id for r in responses if not r.is_correct]
+    if len(wrong_ids) < 3:
+        raise HTTPException(status_code=400, detail="Not enough wrong questions to retake (need at least 3).")
+
+    random.shuffle(wrong_ids)
+    new_attempt = QuizAttempt(
+        user_id=user.id, mode="quiz", subject=attempt.subject, topic=attempt.topic,
+        question_ids=wrong_ids, current_index=0, score=0,
+        time_limit_seconds=_time_limit_for(len(wrong_ids)),
+    )
+    db.add(new_attempt)
+    db.commit()
+    db.refresh(new_attempt)
+    return _attempt_out(db, new_attempt)

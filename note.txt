@@ -13,3 +13,9 @@ npm run dev
 git add -A
 git commit -m "add more seed_questions"
 git push origin main
+
+cd "Downloads/Naija Prep"
+git push origin main
+
+cd "Downloads/Naija Prep/backend"
+python sync_questions_db.py "postgresql://neondb_owner:npg_I6zc1jJdiEyM@ep-rapid-bar-aberfahw-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"

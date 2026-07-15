@@ -16,6 +16,15 @@ class LoginIn(BaseModel):
     password: str
 
 
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordIn(BaseModel):
+    token: str
+    password: str = Field(min_length=8)
+
+
 class UserOut(BaseModel):
     id: int
     username: str
@@ -25,6 +34,8 @@ class UserOut(BaseModel):
     is_premium: bool
     current_streak: int
     longest_streak: int
+    streak_freezes: int
+    daily_goal: int
     has_taken_diagnostic: bool
 
     class Config:
@@ -143,10 +154,34 @@ class DashboardOut(BaseModel):
     points: int
     current_streak: int
     longest_streak: int
+    streak_freezes: int
+    daily_goal: int
+    points_today: int
+    goal_met: bool
     has_taken_diagnostic: bool
     topic_stats: list[TopicStat]
     review_count: int
     exam_years: list[str]
+
+
+class DailyGoalIn(BaseModel):
+    daily_goal: int = Field(ge=10, le=200)
+
+
+# ---------- Achievements ----------
+class AchievementOut(BaseModel):
+    code: str
+    title: str
+    description: str
+    icon: str
+    earned: bool
+    earned_at: Optional[datetime] = None
+    newly_unlocked: bool = False
+
+
+class AchievementsOut(BaseModel):
+    items: list[AchievementOut]
+    newly_unlocked: list[str]
 
 
 # ---------- Admin ----------

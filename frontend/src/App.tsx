@@ -5,6 +5,8 @@ import RequireAuth from './components/RequireAuth';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Subjects from './pages/Subjects';
 import SubjectTopics from './pages/SubjectTopics';
 import Quiz from './pages/Quiz';
@@ -13,6 +15,7 @@ import Dashboard from './pages/Dashboard';
 import Leaderboard from './pages/Leaderboard';
 import Blitz from './pages/Blitz';
 import Mock from './pages/Mock';
+import Achievements from './pages/Achievements';
 import Review from './pages/Review';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
@@ -24,6 +27,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 
@@ -43,6 +48,7 @@ export default function App() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/blitz" element={<Blitz />} />
         <Route path="/mock" element={<Mock />} />
+        <Route path="/achievements" element={<Achievements />} />
         <Route path="/review" element={<Review />} />
         <Route
           path="/admin"

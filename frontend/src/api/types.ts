@@ -7,6 +7,8 @@ export interface User {
   is_premium: boolean;
   current_streak: number;
   longest_streak: number;
+  streak_freezes: number;
+  daily_goal: number;
   has_taken_diagnostic: boolean;
 }
 
@@ -95,10 +97,29 @@ export interface Dashboard {
   points: number;
   current_streak: number;
   longest_streak: number;
+  streak_freezes: number;
+  daily_goal: number;
+  points_today: number;
+  goal_met: boolean;
   has_taken_diagnostic: boolean;
   topic_stats: TopicStat[];
   review_count: number;
   exam_years: string[];
+}
+
+export interface Achievement {
+  code: string;
+  title: string;
+  description: string;
+  icon: string;
+  earned: boolean;
+  earned_at: string | null;
+  newly_unlocked: boolean;
+}
+
+export interface AchievementsResponse {
+  items: Achievement[];
+  newly_unlocked: string[];
 }
 
 export interface AdminQuestion {

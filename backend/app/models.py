@@ -21,6 +21,17 @@ class User(Base):
     longest_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_practice_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
+    # Duolingo-style streak freeze: consumable inventory that auto-protects a
+    # single missed day (see record_practice()). Earned every 7-day streak
+    # milestone, capped so it can't be hoarded indefinitely.
+    streak_freezes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    STREAK_FREEZE_CAP = 3
+
+    # Duolingo-style daily XP goal. Stored as a points target (points are the
+    # app's existing XP-equivalent, +10 per correct answer) rather than a
+    # question count, since that's what's already tracked per-user.
+    daily_goal: Mapped[int] = mapped_column(Integer, default=50, nullable=False)
+
     has_taken_diagnostic: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Dormant premium/subscription plumbing -- not enforced anywhere right now.
@@ -40,13 +51,22 @@ class User(Base):
         today = date.today()
         if self.last_practice_date == today:
             return
-        if self.last_practice_date and (today - self.last_practice_date).days == 1:
+        gap = (today - self.last_practice_date).days if self.last_practice_date else None
+        if gap == 1:
+            self.current_streak = (self.current_streak or 0) + 1
+        elif gap == 2 and (self.streak_freezes or 0) > 0:
+            # Missed exactly one day -- spend a streak freeze to keep it alive,
+            # same as Duolingo's streak freeze/repair. A gap of 2+ days beyond
+            # this isn't covered; the streak resets like normal.
+            self.streak_freezes -= 1
             self.current_streak = (self.current_streak or 0) + 1
         else:
             self.current_streak = 1
         self.last_practice_date = today
         if self.current_streak > (self.longest_streak or 0):
             self.longest_streak = self.current_streak
+        if self.current_streak > 0 and self.current_streak % 7 == 0:
+            self.streak_freezes = min((self.streak_freezes or 0) + 1, self.STREAK_FREEZE_CAP)
 
 
 class Passage(Base):
@@ -150,7 +170,7 @@ class QuizAttempt(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    mode: Mapped[str] = mapped_column(String(20), nullable=False)  # quiz | cbt | diagnostic | marked | daily
+    mode: Mapped[str] = mapped_column(String(20), nullable=False)  # quiz | cbt | diagnostic | marked | daily | blitz | mock
     subject: Mapped[str | None] = mapped_column(String(255), nullable=True)
     topic: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
@@ -181,3 +201,39 @@ class Payment(Base):
     status: Mapped[str] = mapped_column(String(20), default="pending")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class PasswordResetToken(Base):
+    """
+    Single-use password reset token. We store a SHA-256 hash of the token,
+    never the raw value, so a DB leak alone can't be used to reset accounts.
+    The raw token only ever exists in the emailed link and in-memory for the
+    duration of the request that creates/consumes it.
+    """
+    __tablename__ = "password_reset_token"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship()
+
+
+class UserAchievement(Base):
+    """
+    Records that a user has unlocked a given achievement code (see
+    app/achievements.py for the registry of codes + unlock criteria).
+    Persisted (rather than recomputed on the fly every time) so earned_at is
+    stable and we can tell a caller which ones were *just* unlocked.
+    """
+    __tablename__ = "user_achievement"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    code: Mapped[str] = mapped_column(String(50), nullable=False)
+    earned_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship()

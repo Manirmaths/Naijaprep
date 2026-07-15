@@ -16,5 +16,16 @@ class Settings:
     PAYSTACK_PUBLIC_KEY: str = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
     IS_PRODUCTION: bool = os.environ.get("ENV", "development") == "production"
 
+    # Transactional email (password reset) via Resend's HTTP API. Left unset
+    # in dev/until configured -- app/email.py falls back to logging the
+    # reset link instead of failing, so forgot-password still works locally.
+    RESEND_API_KEY: str = os.environ.get("RESEND_API_KEY", "")
+    RESEND_FROM_EMAIL: str = os.environ.get("RESEND_FROM_EMAIL", "Naija Prep <noreply@naijaprep.com.ng>")
+    # Base URL used to build the reset-password link sent by email.
+    PUBLIC_APP_URL: str = os.environ.get(
+        "PUBLIC_APP_URL",
+        FRONTEND_ORIGINS[0] if FRONTEND_ORIGINS else "http://localhost:5173",
+    )
+
 
 settings = Settings()

@@ -95,4 +95,17 @@ export default function Subjects() {
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
                       <option value="hard">Hard</option>
-                
+                    </Select>
+                  </div>
+                  <Button size="sm" fullWidth onClick={() => startQuiz(s.name)} disabled={s.question_count === 0}>
+                    Start quiz
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

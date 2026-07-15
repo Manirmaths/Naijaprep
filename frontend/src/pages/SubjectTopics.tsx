@@ -63,4 +63,33 @@ export default function SubjectTopics() {
 
       {isLoading && (
         <div className="space-y-2">
-   
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-14" />
+          ))}
+        </div>
+      )}
+
+      {error && <EmptyState icon="fa-solid fa-triangle-exclamation" title="Couldn't load topics" description="Please refresh the page to try again." />}
+
+      {data && data.length === 0 && (
+        <EmptyState icon="fa-solid fa-book-open" title="No topics yet" description="Questions for this subject haven't been added yet." />
+      )}
+
+      <div className="space-y-2">
+        {data?.map((t) => (
+          <Card key={t.name} padding="sm" interactive className="flex items-center justify-between">
+            <Link
+              to={`/quiz?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(t.name)}${yearSuffix}`}
+              className="font-semibold text-ink-800 hover:text-brand-600 flex-1"
+            >
+              {t.name}
+            </Link>
+            {user?.is_admin && (
+              <span className="text-xs font-semibold bg-ink-100 text-ink-500 rounded-full px-2.5 py-1">{t.count} questions</span>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
