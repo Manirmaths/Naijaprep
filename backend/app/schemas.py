@@ -81,6 +81,11 @@ class QuizStartIn(BaseModel):
     per_q: Optional[int] = None
 
 
+class BlitzStartIn(BaseModel):
+    subject: str
+    difficulty: Optional[str] = None  # easy | medium | hard
+
+
 class QuizAttemptOut(BaseModel):
     attempt_id: int
     mode: str

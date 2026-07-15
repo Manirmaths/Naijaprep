@@ -34,3 +34,17 @@ def list_topics(subject: str, db: Session = Depends(get_db), _user: User = Depen
         .all()
     )
     return [TopicOut(name=t, count=c) for (t, c) in rows]
+
+
+@router.get("/{subject}/years", response_model=list[str])
+def list_years(subject: str, db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
+    if subject not in SUBJECTS:
+        raise HTTPException(status_code=404, detail="Unknown subject.")
+    rows = (
+        db.query(Question.year)
+        .filter(Question.subject == subject, Question.status == "active", Question.year.isnot(None), Question.year != "")
+        .distinct()
+        .all()
+    )
+    years = sorted({y for (y,) in rows}, reverse=True)
+    return years
