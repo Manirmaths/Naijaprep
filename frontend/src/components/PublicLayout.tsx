@@ -48,9 +48,12 @@ export default function PublicLayout() {
       <footer className="bg-ink-900 text-ink-400 py-10 mt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <p>&copy; {new Date().getFullYear()} Naija Prep. Built to help Nigerian students succeed in WAEC/JAMB/NECO.</p>
-          <p className="flex items-center gap-1 text-ink-500">
-            Made with <i className="fa-solid fa-heart text-flame-500" /> for Nigerian students
-          </p>
+          <div className="flex items-center gap-4">
+            <Link to="/privacy" className="hover:text-ink-200 transition-colors">Privacy Policy</Link>
+            <p className="flex items-center gap-1 text-ink-500">
+              Made with <i className="fa-solid fa-heart text-flame-500" /> for Nigerian students
+            </p>
+          </div>
         </div>
       </footer>
     </div>
