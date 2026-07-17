@@ -22,3 +22,15 @@ createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+// Registers the hand-rolled service worker (public/sw.js) for offline app
+// shell caching + push notification display. Registered after load so it
+// never competes with the initial page render for bandwidth/CPU.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Non-fatal -- the app works fully without a service worker, this
+      // just means no offline shell / no push notifications.
+    });
+  });
+}

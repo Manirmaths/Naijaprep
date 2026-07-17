@@ -291,3 +291,23 @@ class TutorQuery(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     question_id: Mapped[int] = mapped_column(ForeignKey("question.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+
+
+class PushSubscription(Base):
+    """
+    A browser's Web Push subscription (from PushManager.subscribe()), one row
+    per device/browser a user has opted into notifications on. endpoint is
+    unique per subscription -- re-subscribing the same browser upserts rather
+    than duplicating. See app/push.py for sending and
+    routers/notifications.py for the subscribe/unsubscribe/send endpoints.
+    """
+    __tablename__ = "push_subscription"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    endpoint: Mapped[str] = mapped_column(String(500), unique=True, nullable=False)
+    p256dh: Mapped[str] = mapped_column(String(255), nullable=False)
+    auth: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship()

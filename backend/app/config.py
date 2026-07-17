@@ -36,5 +36,17 @@ class Settings:
     # Per-user, per-day cap on AI tutor requests -- bounds OpenAI cost.
     TUTOR_DAILY_LIMIT: int = int(os.environ.get("TUTOR_DAILY_LIMIT", "30"))
 
+    # Web Push (PWA notifications). Generate a pair with:
+    #   python -c "from py_vapid import Vapid; from cryptography.hazmat.primitives.asymmetric import ec; from cryptography.hazmat.primitives import serialization; import base64; v=Vapid(); v.generate_keys(); b64=lambda d: base64.urlsafe_b64encode(d).rstrip(b'=').decode(); print(b64(v.private_key.private_numbers().private_value.to_bytes(32,'big'))); print(b64(v.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)))"
+    # Left unset in dev/until configured -- app/push.py no-ops instead of
+    # failing, same fallback pattern as RESEND_API_KEY/OPENAI_API_KEY above.
+    VAPID_PRIVATE_KEY: str = os.environ.get("VAPID_PRIVATE_KEY", "")
+    VAPID_PUBLIC_KEY: str = os.environ.get("VAPID_PUBLIC_KEY", "")
+    VAPID_CLAIM_EMAIL: str = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:manirkhalil@gmail.com")
+    # Shared secret an external cron (e.g. cron-job.org) must pass to trigger
+    # /api/notifications/send-reminders -- this endpoint isn't behind normal
+    # user auth since it's meant to be hit by a scheduler, not a browser.
+    NOTIFICATIONS_CRON_SECRET: str = os.environ.get("NOTIFICATIONS_CRON_SECRET", "")
+
 
 settings = Settings()

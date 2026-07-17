@@ -1,7 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Avatar from './ui/Avatar';
+import { disablePush, enablePush, getPushState, type PushSupport } from '../lib/push';
 
 interface NavItem {
   to: string;
@@ -25,6 +26,29 @@ export default function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pushState, setPushState] = useState<PushSupport>('unsupported');
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    getPushState().then(setPushState);
+  }, []);
+
+  const togglePush = async () => {
+    if (pushBusy) return;
+    setPushBusy(true);
+    try {
+      if (pushState === 'subscribed') {
+        await disablePush();
+        setPushState('unsubscribed');
+      } else {
+        const ok = await enablePush();
+        setPushState(ok ? 'subscribed' : 'unsubscribed');
+        if (!ok) alert("Couldn't enable reminders -- notifications may be blocked in your browser settings.");
+      }
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -106,6 +130,18 @@ export default function AppShell() {
           <div className="hidden lg:block" />
 
           <div className="flex items-center gap-3">
+            {pushState !== 'unsupported' && (
+              <button
+                onClick={togglePush}
+                disabled={pushBusy}
+                title={pushState === 'subscribed' ? 'Daily reminders on -- tap to turn off' : 'Get a reminder if you miss practicing'}
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
+                  pushState === 'subscribed' ? 'bg-brand-50 text-brand-600' : 'bg-ink-100 text-ink-400 hover:text-ink-600'
+                }`}
+              >
+                <i className={pushState === 'subscribed' ? 'fa-solid fa-bell' : 'fa-regular fa-bell'} />
+              </button>
+            )}
             {user.streak_freezes > 0 && (
               <div
                 className="flex items-center gap-1.5 rounded-full bg-info-50 text-info-500 px-3 py-1.5 text-sm font-bold"

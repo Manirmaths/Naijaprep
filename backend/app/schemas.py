@@ -210,6 +210,33 @@ class TutorAskOut(BaseModel):
     queries_remaining_today: int
 
 
+# ---------- Push notifications ----------
+class PushSubscriptionKeys(BaseModel):
+    p256dh: str
+    auth: str
+
+
+class PushSubscribeIn(BaseModel):
+    endpoint: str
+    keys: PushSubscriptionKeys
+
+
+class PushUnsubscribeIn(BaseModel):
+    endpoint: str
+
+
+class VapidPublicKeyOut(BaseModel):
+    public_key: str
+    configured: bool
+
+
+class SendRemindersOut(BaseModel):
+    eligible_users: int
+    sent: int
+    expired_removed: int
+    failed: int
+
+
 # ---------- Admin ----------
 class SuggestTagsIn(BaseModel):
     question_text: str

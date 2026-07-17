@@ -6,21 +6,29 @@ export default function PublicLayout() {
   const { user } = useAuth();
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isHome = location.pathname === '/';
 
   return (
     <div className="min-h-screen flex flex-col bg-ink-50">
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-ink-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900">
+            <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900 flex-shrink-0">
               <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm shadow-sm">
                 N
               </span>
               Naija Prep
             </Link>
 
+            {isHome && (
+              <nav className="hidden sm:flex items-center gap-6">
+                <a href="#features" className="text-sm font-semibold text-ink-500 hover:text-ink-900 transition-colors">Features</a>
+                <a href="#how-it-works" className="text-sm font-semibold text-ink-500 hover:text-ink-900 transition-colors">How it works</a>
+              </nav>
+            )}
+
             {!isAuthPage && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {user ? (
                   <Link to="/dashboard">
                     <Button size="sm">Go to Dashboard</Button>

@@ -96,7 +96,9 @@ export default function Subjects() {
                   )}
                 </Link>
                 <div className="mt-auto space-y-2">
-                  <div className="flex gap-1.5">
+                  {/* Stacked below sm: two side-by-side selects get too cramped
+                      to tap accurately on a phone-width 2-column grid. */}
+                  <div className="flex flex-col sm:flex-row gap-1.5">
                     <Select value={choice.n} onChange={(e) => setChoice(s.name, { n: e.target.value })} className="!py-1.5 !px-2 !text-xs">
                       <option value="5">5 Qs</option>
                       <option value="10">10 Qs</option>
@@ -112,7 +114,7 @@ export default function Subjects() {
                   <p className="text-[11px] text-ink-400 font-medium flex items-center gap-1">
                     <i className="fa-regular fa-clock" /> You'll get {fmtMinutes(timeLimitFor(Number(choice.n)))} to finish
                   </p>
-                  <Button size="sm" fullWidth onClick={() => startQuiz(s.name)} disabled={s.question_count === 0}>
+                  <Button size="md" fullWidth onClick={() => startQuiz(s.name)} disabled={s.question_count === 0}>
                     Start quiz
                   </Button>
                 </div>
