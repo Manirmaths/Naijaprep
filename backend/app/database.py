@@ -1,7 +1,11 @@
+import logging
+
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 from app.config import settings
+
+logger = logging.getLogger("naijaprep.database")
 
 connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
@@ -49,3 +53,49 @@ def ensure_schema() -> None:
         with engine.begin() as conn:
             for name, ddl in missing:
                 conn.execute(text(f'ALTER TABLE "{table}" ADD COLUMN {name} {ddl}'))
+
+
+def normalize_emails() -> None:
+    """
+    One-time-safe, idempotent cleanup for accounts created before
+    schemas.py started lowercasing email on write (RegisterIn/LoginIn/
+    ForgotPasswordIn). Without this, an account created as "John@x.com"
+    could never log in with "john@x.com" -- exact string match on a column
+    that's case-sensitive by default in both SQLite and Postgres. Safe to
+    run on every startup: already-lowercase rows are a no-op.
+    """
+    from app.models import User  # local import -- avoids a circular import at module load time
+
+    db = SessionLocal()
+    try:
+        users = db.query(User).all()
+
+        # Precompute how many existing rows would collide on the same
+        # lowercased value *before* mutating anything, so we don't lowercase
+        # one row into a collision with a not-yet-processed row.
+        target_counts: dict[str, int] = {}
+        for u in users:
+            if u.email:
+                target_counts[u.email.strip().lower()] = target_counts.get(u.email.strip().lower(), 0) + 1
+
+        changed = False
+        for u in users:
+            if not u.email:
+                continue
+            lowered = u.email.strip().lower()
+            if lowered == u.email:
+                continue
+            if target_counts.get(lowered, 0) > 1:
+                logger.warning(
+                    "Skipping email-case normalization for user id=%s (%r) -- would collide "
+                    "with another existing account after lowercasing. Resolve manually.",
+                    u.id, u.email,
+                )
+                continue
+            u.email = lowered
+            changed = True
+
+        if changed:
+            db.commit()
+    finally:
+        db.close()

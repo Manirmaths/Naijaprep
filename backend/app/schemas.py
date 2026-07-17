@@ -1,7 +1,17 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+
+def _normalize_email(v: str) -> str:
+    # Emails are looked up case-insensitively everywhere (login, register
+    # dupe-check, forgot-password) -- normalizing at the schema boundary
+    # means every router just compares plain strings without needing to
+    # remember to .lower() at each call site. See also
+    # database.normalize_emails() for the one-time cleanup of any accounts
+    # that were stored with mixed case before this existed.
+    return v.strip().lower()
 
 
 # ---------- Auth ----------
@@ -10,14 +20,29 @@ class RegisterIn(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
 
+    @field_validator("email")
+    @classmethod
+    def _lower_email(cls, v: str) -> str:
+        return _normalize_email(v)
+
 
 class LoginIn(BaseModel):
     email: EmailStr
     password: str
 
+    @field_validator("email")
+    @classmethod
+    def _lower_email(cls, v: str) -> str:
+        return _normalize_email(v)
+
 
 class ForgotPasswordIn(BaseModel):
     email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def _lower_email(cls, v: str) -> str:
+        return _normalize_email(v)
 
 
 class ResetPasswordIn(BaseModel):
