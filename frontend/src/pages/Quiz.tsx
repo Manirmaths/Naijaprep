@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import type { QuizAttempt, AnswerResult } from '../api/types';
 import Card from '../components/ui/Card';
@@ -16,6 +16,7 @@ export default function Quiz() {
   const [params] = useSearchParams();
   const { attemptId: resumeAttemptId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [attempt, setAttempt] = useState<QuizAttempt | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -25,12 +26,31 @@ export default function Quiz() {
   const [overallSeconds, setOverallSeconds] = useState<number | null>(null);
   const [correctStreak, setCorrectStreak] = useState(0);
   const [celebration, setCelebration] = useState<number | null>(null);
-  const startedRef = useRef(false);
+  // Tracks the react-router navigation "key" we last loaded an attempt for.
+  // location.key is unique per navigation event (even to the same path/query),
+  // so this reliably (a) skips React 18 Strict Mode's double-invoke of this
+  // effect on the *same* navigation, while (b) still reloading when the user
+  // navigates to a *different* attempt (e.g. Retake wrong, Smart Review,
+  // Blitz/Mock) without a full page reload -- previously a plain boolean latch
+  // here permanently blocked reloading after the first attempt, leaving the
+  // page showing a stale attempt whose question_id no longer matched what the
+  // URL/attempt_id implied, surfacing as "This isn't the current question for
+  // this attempt."
+  const startedKeyRef = useRef<string | null>(null);
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
+    if (startedKeyRef.current === location.key) return;
+    startedKeyRef.current = location.key;
+
+    setLoading(true);
+    setError(null);
+    setAttempt(null);
+    setSelected(null);
+    setFeedback(null);
+    setOverallSeconds(null);
+    setCorrectStreak(0);
+    setCelebration(null);
 
     const difficulty = params.get('difficulty');
     const year = params.get('year');
@@ -52,7 +72,8 @@ export default function Quiz() {
       })
       .catch((e) => setError(e instanceof ApiError ? e.message : 'Could not start quiz.'))
       .finally(() => setLoading(false));
-  }, [params, resumeAttemptId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
 
   useEffect(() => {
     if (overallSeconds === null || feedback) return;
