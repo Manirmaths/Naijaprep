@@ -26,6 +26,7 @@ export default function Quiz() {
   const [overallSeconds, setOverallSeconds] = useState<number | null>(null);
   const [correctStreak, setCorrectStreak] = useState(0);
   const [celebration, setCelebration] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   // Tracks the react-router navigation "key" we last loaded an attempt for.
   // location.key is unique per navigation event (even to the same path/query),
   // so this reliably (a) skips React 18 Strict Mode's double-invoke of this
@@ -92,7 +93,13 @@ export default function Quiz() {
   }, []);
 
   const submitAnswer = async () => {
-    if (!attempt?.current_question || !selected) return;
+    // Guards against a double-tap/double-click firing two submissions before
+    // the first response comes back (much more likely on a slow connection):
+    // the first would succeed and advance the attempt, so the second would
+    // hit the backend with a question_id that's no longer current and get
+    // rejected with "This isn't the current question for this attempt."
+    if (!attempt?.current_question || !selected || submitting) return;
+    setSubmitting(true);
     try {
       const result = await api.post<AnswerResult>(`/api/quiz/${attempt.attempt_id}/answer`, {
         question_id: attempt.current_question.id,
@@ -113,6 +120,8 @@ export default function Quiz() {
       }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not submit answer.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -240,8 +249,8 @@ export default function Quiz() {
         )}
 
         {!feedback ? (
-          <Button fullWidth size="lg" onClick={submitAnswer} disabled={!selected}>
-            Submit answer
+          <Button fullWidth size="lg" onClick={submitAnswer} disabled={!selected || submitting}>
+            {submitting ? 'Submitting…' : 'Submit answer'}
           </Button>
         ) : (
           <Button fullWidth size="lg" onClick={goNext}>
