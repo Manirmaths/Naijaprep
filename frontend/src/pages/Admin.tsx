@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import type { AdminQuestion, AdminStats, AdminUser, Difficulty, Passage, QuestionSource, QuestionStatus } from '../api/types';
+import type { AdminQuestion, AdminStats, AdminUser, Difficulty, Passage, QuestionSource, QuestionStatus, SuggestTagsResponse } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Avatar from '../components/ui/Avatar';
@@ -59,6 +59,8 @@ export default function Admin() {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userError, setUserError] = useState<string | null>(null);
+  const [suggestingTags, setSuggestingTags] = useState(false);
+  const [tagSuggestNote, setTagSuggestNote] = useState<string | null>(null);
 
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => api.get<AdminStats>('/api/admin/stats') });
   const { data: passages } = useQuery({ queryKey: ['admin-passages'], queryFn: () => api.get<Passage[]>('/api/admin/passages') });
@@ -86,6 +88,35 @@ export default function Admin() {
     });
     setShowForm(true);
     setError(null);
+  };
+
+  const suggestTags = async () => {
+    if (suggestingTags) return;
+    if (!form.question_text || !form.option_a || !form.option_b || !form.option_c || !form.option_d) {
+      setTagSuggestNote('Fill in the question text and all four options first.');
+      return;
+    }
+    setSuggestingTags(true);
+    setTagSuggestNote(null);
+    try {
+      const res = await api.post<SuggestTagsResponse>('/api/admin/suggest-tags', {
+        question_text: form.question_text,
+        option_a: form.option_a, option_b: form.option_b, option_c: form.option_c, option_d: form.option_d,
+        correct_option: form.correct_option,
+      });
+      setForm((f) => ({
+        ...f,
+        subject: res.subject ?? f.subject,
+        topic: res.topic ?? f.topic,
+        subtopic: res.subtopic ?? f.subtopic,
+        difficulty: res.difficulty ?? f.difficulty,
+      }));
+      setTagSuggestNote(res.note ?? 'Suggested — review before saving.');
+    } catch (err) {
+      setTagSuggestNote(err instanceof ApiError ? err.message : 'Could not get AI suggestions.');
+    } finally {
+      setSuggestingTags(false);
+    }
   };
 
   const submit = async (e: FormEvent) => {
@@ -316,6 +347,14 @@ export default function Admin() {
                 <option value="active">Active</option>
                 <option value="draft">Draft</option>
               </Select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" size="sm" onClick={suggestTags} disabled={suggestingTags}>
+                <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                {suggestingTags ? 'Suggesting…' : 'Suggest tags with AI'}
+              </Button>
+              {tagSuggestNote && <p className="text-xs text-ink-500">{tagSuggestNote}</p>}
             </div>
 
             <Textarea label="Explanation" rows={2} value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} />

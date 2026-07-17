@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.ai import suggest_tags
 from app.auth import require_admin
 from app.database import get_db
 from app.models import Question, Passage, User, UserResponse, ReviewQuestion, QuizAttempt, Payment
-from app.schemas import QuestionIn, QuestionOut, AdminStats, PassageOut, AdminUserOut
+from app.schemas import QuestionIn, QuestionOut, AdminStats, PassageOut, AdminUserOut, SuggestTagsIn, SuggestTagsOut
 from app.subjects import SUBJECTS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -134,6 +135,27 @@ def delete_question(question_id: int, db: Session = Depends(get_db), _admin: Use
     db.delete(q)
     db.commit()
     return {"status": "deleted"}
+
+
+@router.post("/suggest-tags", response_model=SuggestTagsOut)
+def suggest_tags_endpoint(payload: SuggestTagsIn, _admin: User = Depends(require_admin)):
+    """
+    AI-assisted tagging: suggests subject/topic/subtopic/difficulty for a new
+    question via OpenAI (see app/ai.py). Suggestions only -- the admin form
+    fills them in as editable fields, nothing is saved until the admin
+    reviews and submits normally. Falls back to nulls + an explanatory note
+    if OPENAI_API_KEY isn't configured.
+    """
+    result = suggest_tags(
+        question_text=payload.question_text,
+        options={
+            "A": payload.option_a, "B": payload.option_b,
+            "C": payload.option_c, "D": payload.option_d,
+        },
+        correct_option=payload.correct_option,
+        subjects=SUBJECTS,
+    )
+    return SuggestTagsOut(**result)
 
 
 @router.get("/passages", response_model=list[PassageOut])

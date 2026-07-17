@@ -93,6 +93,14 @@ export interface TopicStat {
   percentage: number;
 }
 
+export interface ScoreEstimate {
+  available: boolean;
+  projected_low: number | null;
+  projected_high: number | null;
+  based_on_answers: number;
+  message: string | null;
+}
+
 export interface Dashboard {
   points: number;
   current_streak: number;
@@ -105,6 +113,22 @@ export interface Dashboard {
   topic_stats: TopicStat[];
   review_count: number;
   exam_years: string[];
+  recommended_topics: TopicStat[];
+  due_for_review_count: number;
+  score_estimate: ScoreEstimate;
+}
+
+export interface TutorAskResponse {
+  reply: string;
+  queries_remaining_today: number;
+}
+
+export interface SuggestTagsResponse {
+  subject: string | null;
+  topic: string | null;
+  subtopic: string | null;
+  difficulty: Difficulty | null;
+  note: string | null;
 }
 
 export interface Achievement {

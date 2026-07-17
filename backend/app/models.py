@@ -1,6 +1,6 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
-from sqlalchemy import String, Integer, Text, Boolean, DateTime, Date, ForeignKey, JSON
+from sqlalchemy import String, Integer, Text, Boolean, DateTime, Date, ForeignKey, JSON, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -237,3 +237,57 @@ class UserAchievement(Base):
     earned_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user: Mapped["User"] = relationship()
+
+
+class QuestionMastery(Base):
+    """
+    Per-user, per-question spaced-repetition state (Leitner-box style).
+    Box 1 = never seen or just missed (reviewed again soonest); each correct
+    answer promotes to the next box (reviewed less often); any wrong answer
+    drops straight back to box 1. Updated on every quiz answer (see
+    routers/quiz.py answer_quiz) and read by the Smart Review mode
+    (routers/smart_review.py) to prioritize whatever's actually due.
+    """
+    __tablename__ = "question_mastery"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    question_id: Mapped[int] = mapped_column(ForeignKey("question.id"), nullable=False)
+
+    box: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    times_seen: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    times_correct: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    next_review_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "question_id", name="uq_question_mastery_user_question"),
+    )
+
+    MAX_BOX = 5
+    BOX_INTERVAL_DAYS = {1: 1, 2: 2, 3: 4, 4: 8, 5: 16}
+
+    def record_answer(self, is_correct: bool) -> None:
+        now = datetime.utcnow()
+        self.times_seen = (self.times_seen or 0) + 1
+        if is_correct:
+            self.times_correct = (self.times_correct or 0) + 1
+            self.box = min((self.box or 1) + 1, self.MAX_BOX)
+        else:
+            self.box = 1
+        self.last_seen_at = now
+        self.next_review_at = now + timedelta(days=self.BOX_INTERVAL_DAYS[self.box])
+
+
+class TutorQuery(Base):
+    """
+    Log of AI-tutor requests. Not shown to users -- exists purely so
+    routers/tutor.py can enforce a per-user daily cap and keep OpenAI cost
+    bounded even if a key is misused or a bug causes runaway requests.
+    """
+    __tablename__ = "tutor_query"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    question_id: Mapped[int] = mapped_column(ForeignKey("question.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)

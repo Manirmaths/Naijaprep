@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { api } from '../api/client';
+import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import type { Dashboard as DashboardData } from '../api/types';
+import type { Dashboard as DashboardData, QuizAttempt } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import ProgressBar from '../components/ui/ProgressBar';
@@ -69,8 +69,10 @@ function DailyGoalRing({ pointsToday, dailyGoal, goalMet }: { pointsToday: numbe
 
 export default function Dashboard() {
   const { user, refresh } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [savingGoal, setSavingGoal] = useState(false);
+  const [startingReview, setStartingReview] = useState(false);
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.get<DashboardData>('/api/dashboard'),
@@ -84,6 +86,18 @@ export default function Dashboard() {
       await Promise.all([queryClient.invalidateQueries({ queryKey: ['dashboard'] }), refresh()]);
     } finally {
       setSavingGoal(false);
+    }
+  };
+
+  const startSmartReview = async () => {
+    if (startingReview) return;
+    setStartingReview(true);
+    try {
+      const attempt = await api.post<QuizAttempt>('/api/smart-review/start');
+      navigate(`/quiz-attempt/${attempt.attempt_id}`);
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : 'Could not start Smart Review.');
+      setStartingReview(false);
     }
   };
 
@@ -138,6 +152,63 @@ export default function Dashboard() {
         <StatCard icon="fa-solid fa-fire" label="Current streak" value={`${data.current_streak}d`} tone="bg-flame-500/10 text-flame-500" />
         <StatCard icon="fa-solid fa-trophy" label="Longest streak" value={`${data.longest_streak}d`} tone="bg-warning-50 text-warning-600" />
         <StatCard icon="fa-solid fa-bookmark" label="Marked questions" value={data.review_count} tone="bg-info-50 text-info-500" />
+      </div>
+
+      {data.due_for_review_count > 0 && (
+        <Card padding="md" className="bg-info-50 border-info-100 mb-6 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-info-700 font-medium">
+            <i className="fa-solid fa-clock-rotate-left mr-1.5" />
+            {data.due_for_review_count} question{data.due_for_review_count === 1 ? '' : 's'} due for review — Smart Review focuses on what you're about to forget.
+          </p>
+          <Button size="sm" onClick={startSmartReview} disabled={startingReview}>
+            {startingReview ? 'Starting…' : 'Start Smart Review'}
+          </Button>
+        </Card>
+      )}
+
+      <div className="grid sm:grid-cols-2 gap-4 mb-6">
+        <Card padding="lg">
+          <h2 className="font-display font-bold text-sm text-ink-900 mb-2">
+            <i className="fa-solid fa-gauge-high text-brand-500 mr-1.5" />
+            Projected JAMB score
+          </h2>
+          {data.score_estimate.available ? (
+            <>
+              <p className="font-display font-extrabold text-2xl text-ink-900">
+                {data.score_estimate.projected_low}–{data.score_estimate.projected_high}
+                <span className="text-sm font-semibold text-ink-400"> / 400</span>
+              </p>
+              <p className="text-xs text-ink-500 mt-1.5">
+                Estimated from your practice accuracy across {data.score_estimate.based_on_answers} answered questions — not an official JAMB score.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-ink-500">{data.score_estimate.message}</p>
+          )}
+        </Card>
+
+        <Card padding="lg">
+          <h2 className="font-display font-bold text-sm text-ink-900 mb-2">
+            <i className="fa-solid fa-crosshairs text-flame-500 mr-1.5" />
+            Focus on this
+          </h2>
+          {data.recommended_topics.length > 0 ? (
+            <div className="space-y-2">
+              {data.recommended_topics.map((t) => (
+                <Link
+                  key={t.topic}
+                  to={`/quiz?topic=${encodeURIComponent(t.topic)}`}
+                  className="flex items-center justify-between text-sm rounded-lg px-2.5 py-2 -mx-2.5 hover:bg-ink-50 transition-colors"
+                >
+                  <span className="font-semibold text-ink-700">{t.topic}</span>
+                  <span className="text-xs text-danger-500 font-semibold">{t.percentage}%</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ink-500">Practice a few topics and we'll flag the weakest ones here.</p>
+          )}
+        </Card>
       </div>
 
       {!data.has_taken_diagnostic && (

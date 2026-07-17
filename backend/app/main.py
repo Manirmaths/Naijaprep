@@ -4,7 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import Base, engine, ensure_schema
 from app import models  # noqa: F401 -- ensure models are registered before create_all
-from app.routers import auth, subjects, quiz, dashboard, review, admin, leaderboard, blitz, mock, achievements
+from app.routers import (
+    auth, subjects, quiz, dashboard, review, admin, leaderboard, blitz, mock, achievements,
+    smart_review, tutor,
+)
 
 app = FastAPI(title="Naija Prep API", version="2.0.0")
 
@@ -33,6 +36,8 @@ app.include_router(leaderboard.router)
 app.include_router(blitz.router)
 app.include_router(mock.router)
 app.include_router(achievements.router)
+app.include_router(smart_review.router)
+app.include_router(tutor.router)
 
 
 @app.get("/api/health")

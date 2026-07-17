@@ -101,6 +101,10 @@ class MockStartIn(BaseModel):
     subjects: list[str]  # exactly 3 candidate-chosen subjects, sat alongside compulsory English
 
 
+class SmartReviewStartIn(BaseModel):
+    n: Optional[int] = None
+
+
 class QuizAttemptOut(BaseModel):
     attempt_id: int
     mode: str
@@ -150,6 +154,14 @@ class TopicStat(BaseModel):
     percentage: float
 
 
+class ScoreEstimate(BaseModel):
+    available: bool
+    projected_low: Optional[int] = None
+    projected_high: Optional[int] = None
+    based_on_answers: int
+    message: Optional[str] = None
+
+
 class DashboardOut(BaseModel):
     points: int
     current_streak: int
@@ -162,6 +174,9 @@ class DashboardOut(BaseModel):
     topic_stats: list[TopicStat]
     review_count: int
     exam_years: list[str]
+    recommended_topics: list[TopicStat] = []
+    due_for_review_count: int = 0
+    score_estimate: ScoreEstimate
 
 
 class DailyGoalIn(BaseModel):
@@ -184,7 +199,36 @@ class AchievementsOut(BaseModel):
     newly_unlocked: list[str]
 
 
+# ---------- AI tutor ----------
+class TutorAskIn(BaseModel):
+    question_id: int
+    message: str = Field(min_length=1, max_length=500)
+
+
+class TutorAskOut(BaseModel):
+    reply: str
+    queries_remaining_today: int
+
+
 # ---------- Admin ----------
+class SuggestTagsIn(BaseModel):
+    question_text: str
+    option_a: str
+    option_b: str
+    option_c: str
+    option_d: str
+    correct_option: str
+
+
+class SuggestTagsOut(BaseModel):
+    subject: Optional[str] = None
+    topic: Optional[str] = None
+    subtopic: Optional[str] = None
+    difficulty: Optional[str] = None
+    note: Optional[str] = None
+
+
+
 class QuestionIn(BaseModel):
     question_id: str = Field(min_length=1, max_length=50)
     subject: str

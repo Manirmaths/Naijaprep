@@ -1,13 +1,77 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api } from '../api/client';
-import type { QuizResults, AchievementsResponse } from '../api/types';
+import { useState } from 'react';
+import { api, ApiError } from '../api/client';
+import type { QuizResults, AchievementsResponse, TutorAskResponse } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import MathText from '../components/ui/MathText';
+
+function TutorChat({ questionId }: { questionId: number }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reply, setReply] = useState<string | null>(null);
+
+  const ask = async () => {
+    if (!message.trim() || sending) return;
+    setSending(true);
+    setError(null);
+    try {
+      const res = await api.post<TutorAskResponse>('/api/tutor/ask', {
+        question_id: questionId,
+        message: message.trim(),
+      });
+      setReply(res.reply);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Could not reach the AI tutor.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
+      >
+        <i className="fa-solid fa-wand-magic-sparkles" />
+        Ask AI tutor
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-ink-100">
+      <p className="text-xs font-semibold text-ink-500 mb-2">
+        <i className="fa-solid fa-wand-magic-sparkles text-brand-500 mr-1" />
+        AI tutor
+      </p>
+      {reply ? (
+        <p className="text-sm text-ink-700 leading-relaxed bg-ink-50 rounded-lg p-3">{reply}</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && ask()}
+            placeholder="e.g. explain this using a simpler example"
+            className="flex-1 min-w-[180px] text-sm rounded-lg border border-ink-200 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-200"
+          />
+          <Button size="sm" onClick={ask} disabled={sending || !message.trim()}>
+            {sending ? 'Asking…' : 'Ask'}
+          </Button>
+        </div>
+      )}
+      {error && <p className="text-xs text-danger-500 mt-1.5">{error}</p>}
+    </div>
+  );
+}
 
 export default function Results() {
   const { attemptId = '' } = useParams();
@@ -110,13 +174,16 @@ export default function Results() {
               {!item.is_correct && <Badge tone="success">Correct: {item.correct_option}</Badge>}
             </div>
             {item.explanation && <p className="text-sm text-ink-500 mb-3 leading-relaxed"><MathText text={item.explanation} /></p>}
-            <button
-              onClick={() => toggleMark(item.question_id, item.is_marked)}
-              className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
-            >
-              <i className={item.is_marked ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'} />
-              {item.is_marked ? 'Unmark' : 'Mark for review'}
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => toggleMark(item.question_id, item.is_marked)}
+                className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
+              >
+                <i className={item.is_marked ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'} />
+                {item.is_marked ? 'Unmark' : 'Mark for review'}
+              </button>
+            </div>
+            {!item.is_correct && <TutorChat questionId={item.question_id} />}
           </Card>
         ))}
       </div>

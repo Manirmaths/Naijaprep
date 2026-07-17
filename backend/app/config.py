@@ -27,5 +27,14 @@ class Settings:
         FRONTEND_ORIGINS[0] if FRONTEND_ORIGINS else "http://localhost:5173",
     )
 
+    # AI tutor ("explain this differently") + admin auto-tagging, via
+    # OpenAI's API. Left unset in dev/until configured -- app/ai.py falls
+    # back to a friendly "not set up yet" response instead of failing, same
+    # pattern as RESEND_API_KEY above.
+    OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    # Per-user, per-day cap on AI tutor requests -- bounds OpenAI cost.
+    TUTOR_DAILY_LIMIT: int = int(os.environ.get("TUTOR_DAILY_LIMIT", "30"))
+
 
 settings = Settings()

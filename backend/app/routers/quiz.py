@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models import Question, QuizAttempt, UserResponse, ReviewQuestion, User
+from app.models import Question, QuizAttempt, UserResponse, ReviewQuestion, User, QuestionMastery
 from app.schemas import (
     QuizStartIn, QuizAttemptOut, QuestionPublic, AnswerIn, AnswerOut, ResultsOut, ResultItem,
 )
@@ -161,6 +161,16 @@ def answer_quiz(attempt_id: int, payload: AnswerIn, db: Session = Depends(get_db
         user.points += 10
         attempt.score += 1
     user.record_practice()
+
+    mastery = (
+        db.query(QuestionMastery)
+        .filter(QuestionMastery.user_id == user.id, QuestionMastery.question_id == question.id)
+        .first()
+    )
+    if mastery is None:
+        mastery = QuestionMastery(user_id=user.id, question_id=question.id)
+        db.add(mastery)
+    mastery.record_answer(is_correct)
 
     attempt.current_index += 1
     if attempt.current_index >= len(attempt.question_ids):
