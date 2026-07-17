@@ -6,7 +6,7 @@ from app.database import Base, engine, ensure_schema, normalize_emails
 from app import models  # noqa: F401 -- ensure models are registered before create_all
 from app.routers import (
     auth, subjects, quiz, dashboard, review, admin, leaderboard, blitz, mock, achievements,
-    smart_review, tutor, notifications,
+    smart_review, tutor, notifications, study_planner, flashcards, public,
 )
 
 app = FastAPI(title="Naija Prep API", version="2.0.0")
@@ -40,6 +40,9 @@ app.include_router(achievements.router)
 app.include_router(smart_review.router)
 app.include_router(tutor.router)
 app.include_router(notifications.router)
+app.include_router(study_planner.router)
+app.include_router(flashcards.router)
+app.include_router(public.router)
 
 
 @app.get("/api/health")

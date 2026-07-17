@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../api/client';
+import type { PublicQuestion, TopStudents } from '../api/types';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import Spinner from '../components/ui/Spinner';
+import MathText from '../components/ui/MathText';
 
 const FEATURES = [
   {
@@ -68,6 +74,131 @@ const SUBJECTS = [
   'Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Geography',
   'Economics', 'Literature', 'Government', 'Commerce', 'Accounting',
 ];
+
+const OPTION_KEYS = ['A', 'B', 'C', 'D'] as const;
+
+function QuestionOfTheDayCard() {
+  const [picked, setPicked] = useState<string | null>(null);
+  const { data, isLoading } = useQuery({
+    queryKey: ['public-qotd'],
+    queryFn: () => api.get<PublicQuestion>('/api/public/question-of-the-day'),
+  });
+
+  if (isLoading || !data) {
+    return (
+      <Card padding="lg">
+        <Spinner className="w-6 h-6" />
+      </Card>
+    );
+  }
+
+  const options: Record<string, string> = {
+    A: data.option_a,
+    B: data.option_b,
+    C: data.option_c,
+    D: data.option_d,
+  };
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm">
+          <i className="fa-solid fa-star" />
+        </span>
+        <h3 className="font-display font-bold text-ink-900">Question of the day</h3>
+      </div>
+      {data.subject && (
+        <span className="inline-block text-xs bg-ink-100 text-ink-500 rounded-full px-2.5 py-1 font-semibold mb-3">
+          {data.subject} · {data.topic}
+        </span>
+      )}
+      <MathText text={data.question_text} className="text-sm font-semibold text-ink-900 leading-relaxed block mb-4" />
+      <div className="space-y-2">
+        {OPTION_KEYS.map((key) => {
+          const isCorrect = picked !== null && key === data.correct_option;
+          const isWrongPick = picked === key && key !== data.correct_option;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setPicked(key)}
+              disabled={picked !== null}
+              className={`w-full text-left text-sm rounded-xl border px-3.5 py-2.5 transition-colors ${
+                isCorrect
+                  ? 'border-success-400 bg-success-50 text-success-700'
+                  : isWrongPick
+                  ? 'border-danger-400 bg-danger-50 text-danger-700'
+                  : 'border-ink-200 hover:border-brand-300 hover:bg-brand-50/50 disabled:hover:border-ink-200 disabled:hover:bg-transparent'
+              }`}
+            >
+              <span className="font-bold mr-2">{key}.</span>
+              {options[key]}
+            </button>
+          );
+        })}
+      </div>
+      {picked && data.explanation && (
+        <p className="text-xs text-ink-500 mt-4 leading-relaxed">
+          <i className="fa-solid fa-circle-info mr-1" />
+          {data.explanation}
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function TopStudentsCard() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['public-top-students'],
+    queryFn: () => api.get<TopStudents>('/api/public/top-students'),
+  });
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="w-8 h-8 rounded-lg bg-warning-50 text-warning-600 flex items-center justify-center text-sm">
+          <i className="fa-solid fa-trophy" />
+        </span>
+        <h3 className="font-display font-bold text-ink-900">Top students</h3>
+      </div>
+      {isLoading || !data ? (
+        <Spinner className="w-6 h-6" />
+      ) : data.entries.length === 0 ? (
+        <p className="text-sm text-ink-500">No students on the board yet — be the first!</p>
+      ) : (
+        <div className="space-y-1">
+          {data.entries.map((e) => (
+            <div key={e.rank} className="flex items-center justify-between rounded-xl px-2.5 py-2">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    e.rank === 1
+                      ? 'bg-warning-500 text-white'
+                      : e.rank === 2
+                      ? 'bg-ink-300 text-white'
+                      : e.rank === 3
+                      ? 'bg-flame-500/80 text-white'
+                      : 'bg-ink-100 text-ink-500'
+                  }`}
+                >
+                  {e.rank}
+                </span>
+                <span className="text-sm font-semibold text-ink-800">{e.username}</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-semibold text-ink-400">
+                <span>
+                  <i className="fa-solid fa-fire text-flame-500 mr-1" />
+                  {e.current_streak}
+                </span>
+                <span className="text-ink-700">{e.points} pts</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 export default function Home() {
   const { user } = useAuth();
@@ -160,6 +291,18 @@ export default function Home() {
             </div>
           </div>
         </Card>
+      </section>
+
+      {/* Public widgets */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+        <div className="max-w-xl mb-8">
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-ink-900">See it in action</h2>
+          <p className="text-ink-500 mt-2">A free sample question, and who's leading the pack right now.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <QuestionOfTheDayCard />
+          <TopStudentsCard />
+        </div>
       </section>
 
       {/* Final CTA */}

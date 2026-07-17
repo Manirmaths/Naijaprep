@@ -36,6 +36,14 @@ _PENDING_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("streak_freezes", "INTEGER NOT NULL DEFAULT 0"),
         ("daily_goal", "INTEGER NOT NULL DEFAULT 50"),
     ],
+    "quiz_attempt": [
+        # Plain TEXT, not a native JSON/JSONB column type -- SQLAlchemy's
+        # JSON column type serializes/deserializes at the Python boundary
+        # regardless of the underlying column's declared SQL type, and TEXT
+        # is the one default clause that's valid on both SQLite and Postgres
+        # without dialect-specific casting syntax.
+        ("marked_question_ids", "TEXT NOT NULL DEFAULT '[]'"),
+    ],
 }
 
 

@@ -93,6 +93,14 @@ export interface TopicStat {
   percentage: number;
 }
 
+export interface PracticeDay {
+  date: string;
+  label: string;
+  practiced: boolean;
+  is_today: boolean;
+  is_future: boolean;
+}
+
 export interface ScoreEstimate {
   available: boolean;
   projected_low: number | null;
@@ -116,11 +124,34 @@ export interface Dashboard {
   recommended_topics: TopicStat[];
   due_for_review_count: number;
   score_estimate: ScoreEstimate;
+  practice_days: PracticeDay[];
 }
 
 export interface TutorAskResponse {
   reply: string;
   queries_remaining_today: number;
+}
+
+export interface MockNavItem {
+  index: number;
+  question_id: number;
+  answered: boolean;
+  marked: boolean;
+}
+
+export interface MockNav {
+  items: MockNavItem[];
+  finished: boolean;
+  time_limit_seconds: number | null;
+  started_at: string;
+}
+
+export interface MockQuestion {
+  index: number;
+  total: number;
+  question: QuestionPublic;
+  selected_option: string | null;
+  marked: boolean;
 }
 
 export interface SuggestTagsResponse {
@@ -198,4 +229,59 @@ export interface Leaderboard {
   entries: LeaderboardEntry[];
   your_rank: number;
   your_points: number;
+}
+
+export interface StudyPlanTask {
+  date: string;
+  subject: string;
+  topic: string | null;
+  question_count: number;
+}
+
+export interface StudyPlan {
+  configured: boolean;
+  exam_date: string | null;
+  subjects: string[];
+  days_until_exam: number | null;
+  today: StudyPlanTask | null;
+  week: StudyPlanTask[];
+}
+
+export interface Flashcard {
+  id: number;
+  question_text: string;
+  image_url: string | null;
+  answer_text: string;
+  explanation: string | null;
+  subject: string | null;
+  topic: string;
+}
+
+export interface FlashcardsResponse {
+  items: Flashcard[];
+}
+
+export interface PublicQuestion {
+  date: string;
+  subject: string | null;
+  topic: string;
+  question_text: string;
+  image_url: string | null;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: string;
+  explanation: string | null;
+}
+
+export interface TopStudentEntry {
+  rank: number;
+  username: string;
+  points: number;
+  current_streak: number;
+}
+
+export interface TopStudents {
+  entries: TopStudentEntry[];
 }

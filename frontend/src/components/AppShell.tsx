@@ -17,6 +17,8 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
   { to: '/blitz', label: 'Blitz', icon: 'fa-solid fa-bolt' },
   { to: '/mock', label: 'Full Mock', icon: 'fa-solid fa-file-signature' },
+  { to: '/study-planner', label: 'Study Planner', icon: 'fa-solid fa-calendar-days' },
+  { to: '/flashcards', label: 'Flashcards', icon: 'fa-solid fa-layer-group' },
   { to: '/achievements', label: 'Achievements', icon: 'fa-solid fa-medal' },
   { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
   { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },

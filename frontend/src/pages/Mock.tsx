@@ -50,7 +50,7 @@ export default function Mock() {
     setError(null);
     try {
       const attempt = await api.post<QuizAttempt>('/api/mock/start', { subjects: selected });
-      navigate(`/quiz-attempt/${attempt.attempt_id}`);
+      navigate(`/mock-attempt/${attempt.attempt_id}`);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not start the mock exam.');
       setStarting(false);

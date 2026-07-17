@@ -193,29 +193,39 @@ def quiz_results(attempt_id: int, db: Session = Depends(get_db), user: User = De
     if not attempt or attempt.user_id != user.id:
         raise HTTPException(status_code=404, detail="Quiz attempt not found.")
 
-    responses = (
-        db.query(UserResponse)
-        .filter(UserResponse.attempt_id == attempt_id)
-        .order_by(UserResponse.id.asc())
-        .all()
-    )
+    # Iterate attempt.question_ids (the true set of questions in this
+    # attempt), not just logged UserResponse rows -- a question left
+    # unanswered (timeout, or skipped in the Mock exam's free-navigation
+    # flow) has no response row at all, and computing total from responses
+    # alone would silently shrink the denominator (e.g. "178/179" instead of
+    # the correct "178/180"). Unanswered questions are reported with an
+    # empty selected_option and is_correct=False, same semantics as an
+    # explicit blank answer elsewhere in this file.
+    responses_by_qid = {
+        r.question_id: r
+        for r in db.query(UserResponse).filter(UserResponse.attempt_id == attempt_id).all()
+    }
     marked_ids = {
         rq.question_id for rq in db.query(ReviewQuestion).filter(ReviewQuestion.user_id == user.id).all()
     }
 
     items = []
     correct_count = 0
-    for r in responses:
-        q = r.question
-        if r.is_correct:
+    for qid in attempt.question_ids:
+        q = db.get(Question, qid)
+        if not q:
+            continue
+        r = responses_by_qid.get(qid)
+        is_correct = bool(r and r.is_correct)
+        if is_correct:
             correct_count += 1
         items.append(ResultItem(
             question_id=q.id,
             question_text=q.question_text,
             image_url=q.image_url,
-            selected_option=r.selected_option,
+            selected_option=r.selected_option if r else "",
             correct_option=q.correct_option,
-            is_correct=r.is_correct,
+            is_correct=is_correct,
             is_marked=q.id in marked_ids,
             explanation=q.explanation,
         ))

@@ -147,6 +147,36 @@ export default function Dashboard() {
         </div>
       </Card>
 
+      <Card padding="lg" className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display font-bold text-sm text-ink-900">
+            <i className="fa-solid fa-calendar-week text-brand-500 mr-1.5" />
+            This week
+          </h2>
+          <span className="text-xs text-ink-400 font-medium">{data.current_streak}-day streak</span>
+        </div>
+        <div className="grid grid-cols-7 gap-1.5">
+          {data.practice_days.map((d) => (
+            <div key={d.date} className="flex flex-col items-center gap-1">
+              <span className={`text-[11px] font-semibold ${d.is_today ? 'text-brand-600' : 'text-ink-400'}`}>{d.label}</span>
+              <div
+                className={`w-full aspect-square rounded-lg flex items-center justify-center text-xs ${
+                  d.practiced
+                    ? 'bg-success-500 text-white'
+                    : d.is_future
+                    ? 'bg-ink-50 text-ink-300'
+                    : d.is_today
+                    ? 'bg-brand-50 text-brand-600 ring-2 ring-brand-300'
+                    : 'bg-ink-100 text-ink-400'
+                }`}
+              >
+                {d.practiced ? <i className="fa-solid fa-check" /> : d.is_today ? <i className="fa-regular fa-circle" /> : ''}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard icon="fa-solid fa-star" label="Total points" value={data.points} tone="bg-brand-50 text-brand-600" />
         <StatCard icon="fa-solid fa-fire" label="Current streak" value={`${data.current_streak}d`} tone="bg-flame-500/10 text-flame-500" />

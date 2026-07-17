@@ -1,14 +1,17 @@
 import random
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models import QuizAttempt, User
-from app.schemas import MockStartIn, QuizAttemptOut
+from app.models import Question, QuestionMastery, QuizAttempt, User, UserResponse
+from app.schemas import (
+    MockAnswerIn, MockNavItem, MockNavOut, MockQuestionOut, MockStartIn, QuizAttemptOut, ResultsOut,
+)
 from app.subjects import SUBJECTS
-from app.routers.quiz import _pick_pool, _attempt_out
+from app.routers.quiz import _pick_pool, _attempt_out, _question_public, quiz_results
 
 router = APIRouter(prefix="/api/mock", tags=["mock"])
 
@@ -57,3 +60,155 @@ def start_mock(payload: MockStartIn, db: Session = Depends(get_db), user: User =
     db.commit()
     db.refresh(attempt)
     return _attempt_out(db, attempt)
+
+
+# ---------------------------------------------------------------------------
+# Free-navigation exam flow: unlike quiz/blitz/smart_review's linear
+# one-question-at-a-time endpoints (routers/quiz.py), a real JAMB CBT lets
+# candidates jump between any question, mark ones for review, and only finds
+# out their score after submitting the whole exam -- no instant per-question
+# feedback. These endpoints are Mock-only (checked via _get_mock_attempt)
+# and address questions by their position in the attempt (0-indexed) rather
+# than requiring strict in-order answering.
+# ---------------------------------------------------------------------------
+
+def _get_mock_attempt(db: Session, attempt_id: int, user: User) -> QuizAttempt:
+    attempt = db.get(QuizAttempt, attempt_id)
+    if not attempt or attempt.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Mock exam attempt not found.")
+    if attempt.mode != "mock":
+        raise HTTPException(status_code=400, detail="This isn't a mock exam attempt.")
+    return attempt
+
+
+@router.get("/{attempt_id}/nav", response_model=MockNavOut)
+def mock_nav(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    attempt = _get_mock_attempt(db, attempt_id, user)
+    answered_ids = {
+        qid for (qid,) in db.query(UserResponse.question_id).filter(UserResponse.attempt_id == attempt_id).all()
+    }
+    marked = set(attempt.marked_question_ids or [])
+    items = [
+        MockNavItem(index=i, question_id=qid, answered=qid in answered_ids, marked=qid in marked)
+        for i, qid in enumerate(attempt.question_ids)
+    ]
+    return MockNavOut(
+        items=items, finished=attempt.finished_at is not None,
+        time_limit_seconds=attempt.time_limit_seconds, started_at=attempt.started_at,
+    )
+
+
+@router.get("/{attempt_id}/question/{index}", response_model=MockQuestionOut)
+def mock_question(attempt_id: int, index: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    attempt = _get_mock_attempt(db, attempt_id, user)
+    if index < 0 or index >= len(attempt.question_ids):
+        raise HTTPException(status_code=404, detail="No such question in this attempt.")
+    qid = attempt.question_ids[index]
+    question = db.get(Question, qid)
+    response = (
+        db.query(UserResponse)
+        .filter(UserResponse.attempt_id == attempt_id, UserResponse.question_id == qid)
+        .first()
+    )
+    return MockQuestionOut(
+        index=index, total=len(attempt.question_ids), question=_question_public(question),
+        selected_option=response.selected_option if response else None,
+        marked=qid in (attempt.marked_question_ids or []),
+    )
+
+
+@router.put("/{attempt_id}/answer/{index}", status_code=204)
+def mock_save_answer(
+    attempt_id: int, index: int, payload: MockAnswerIn,
+    db: Session = Depends(get_db), user: User = Depends(get_current_user),
+):
+    attempt = _get_mock_attempt(db, attempt_id, user)
+    if attempt.finished_at:
+        raise HTTPException(status_code=400, detail="This exam has already been submitted.")
+    if index < 0 or index >= len(attempt.question_ids):
+        raise HTTPException(status_code=404, detail="No such question in this attempt.")
+
+    qid = attempt.question_ids[index]
+    question = db.get(Question, qid)
+    selected = (payload.selected_option or "").strip().upper()[:1]
+
+    response = (
+        db.query(UserResponse)
+        .filter(UserResponse.attempt_id == attempt_id, UserResponse.question_id == qid)
+        .first()
+    )
+    if not selected:
+        # Clearing a previously-saved answer.
+        if response:
+            db.delete(response)
+            db.commit()
+        return
+
+    is_correct = selected == question.correct_option
+    if response:
+        response.selected_option = selected
+        response.is_correct = is_correct
+    else:
+        db.add(UserResponse(
+            user_id=user.id, question_id=qid, attempt_id=attempt_id,
+            selected_option=selected, is_correct=is_correct,
+        ))
+    # No points/streak/mastery credit here -- deliberately deferred to
+    # mock_submit() so re-answering the same question before submitting
+    # doesn't double-count, matching how a real exam only scores your final
+    # answer once you submit.
+    db.commit()
+
+
+@router.put("/{attempt_id}/mark/{index}", status_code=204)
+def mock_toggle_mark(attempt_id: int, index: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    attempt = _get_mock_attempt(db, attempt_id, user)
+    if attempt.finished_at:
+        raise HTTPException(status_code=400, detail="This exam has already been submitted.")
+    if index < 0 or index >= len(attempt.question_ids):
+        raise HTTPException(status_code=404, detail="No such question in this attempt.")
+
+    qid = attempt.question_ids[index]
+    marked = set(attempt.marked_question_ids or [])
+    if qid in marked:
+        marked.discard(qid)
+    else:
+        marked.add(qid)
+    attempt.marked_question_ids = list(marked)
+    db.commit()
+
+
+@router.post("/{attempt_id}/submit", response_model=ResultsOut)
+def mock_submit(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    attempt = _get_mock_attempt(db, attempt_id, user)
+    if attempt.finished_at:
+        raise HTTPException(status_code=400, detail="This exam has already been submitted.")
+
+    responses = {
+        r.question_id: r
+        for r in db.query(UserResponse).filter(UserResponse.attempt_id == attempt_id).all()
+    }
+    correct_count = 0
+    for qid in attempt.question_ids:
+        r = responses.get(qid)
+        is_correct = bool(r and r.is_correct)
+        if is_correct:
+            correct_count += 1
+            user.points += 10
+
+        mastery = (
+            db.query(QuestionMastery)
+            .filter(QuestionMastery.user_id == user.id, QuestionMastery.question_id == qid)
+            .first()
+        )
+        if mastery is None:
+            mastery = QuestionMastery(user_id=user.id, question_id=qid)
+            db.add(mastery)
+        mastery.record_answer(is_correct)
+
+    attempt.score = correct_count
+    attempt.finished_at = datetime.utcnow()
+    user.record_practice()
+    db.commit()
+
+    return quiz_results(attempt_id, db, user)

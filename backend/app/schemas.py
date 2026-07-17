@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -130,6 +130,33 @@ class SmartReviewStartIn(BaseModel):
     n: Optional[int] = None
 
 
+# ---------- Mock exam free navigation ----------
+class MockAnswerIn(BaseModel):
+    selected_option: Optional[str] = None  # None/empty = clear this answer
+
+
+class MockNavItem(BaseModel):
+    index: int
+    question_id: int
+    answered: bool
+    marked: bool
+
+
+class MockNavOut(BaseModel):
+    items: list[MockNavItem]
+    finished: bool
+    time_limit_seconds: Optional[int]
+    started_at: datetime
+
+
+class MockQuestionOut(BaseModel):
+    index: int
+    total: int
+    question: QuestionPublic
+    selected_option: Optional[str] = None
+    marked: bool
+
+
 class QuizAttemptOut(BaseModel):
     attempt_id: int
     mode: str
@@ -179,6 +206,14 @@ class TopicStat(BaseModel):
     percentage: float
 
 
+class PracticeDay(BaseModel):
+    date: str  # ISO date
+    label: str  # single-letter day label, e.g. "M"
+    practiced: bool
+    is_today: bool
+    is_future: bool
+
+
 class ScoreEstimate(BaseModel):
     available: bool
     projected_low: Optional[int] = None
@@ -202,6 +237,7 @@ class DashboardOut(BaseModel):
     recommended_topics: list[TopicStat] = []
     due_for_review_count: int = 0
     score_estimate: ScoreEstimate
+    practice_days: list[PracticeDay] = []
 
 
 class DailyGoalIn(BaseModel):
@@ -222,6 +258,69 @@ class AchievementOut(BaseModel):
 class AchievementsOut(BaseModel):
     items: list[AchievementOut]
     newly_unlocked: list[str]
+
+
+# ---------- Study planner ----------
+class StudyPlanIn(BaseModel):
+    exam_date: Optional[date] = None
+    subjects: list[str]
+
+
+class StudyPlanTask(BaseModel):
+    date: str
+    subject: str
+    topic: Optional[str] = None
+    question_count: int
+
+
+class StudyPlanOut(BaseModel):
+    configured: bool
+    exam_date: Optional[str] = None
+    subjects: list[str] = []
+    days_until_exam: Optional[int] = None
+    today: Optional[StudyPlanTask] = None
+    week: list[StudyPlanTask] = []
+
+
+# ---------- Flashcards ----------
+class FlashcardOut(BaseModel):
+    id: int
+    question_text: str
+    image_url: Optional[str] = None
+    answer_text: str
+    explanation: Optional[str] = None
+    subject: Optional[str] = None
+    topic: str
+
+
+class FlashcardsOut(BaseModel):
+    items: list[FlashcardOut]
+
+
+# ---------- Public homepage widgets ----------
+class PublicQuestionOut(BaseModel):
+    date: str  # ISO date this question is "for" -- stable all day, no auth/state needed
+    subject: Optional[str] = None
+    topic: str
+    question_text: str
+    image_url: Optional[str] = None
+    option_a: str
+    option_b: str
+    option_c: str
+    option_d: str
+    correct_option: str
+    explanation: Optional[str] = None
+
+
+class TopStudentEntry(BaseModel):
+    rank: int
+    username: str
+    points: int
+    current_streak: int
+
+
+class TopStudentsOut(BaseModel):
+    entries: list[TopStudentEntry]
 
 
 # ---------- AI tutor ----------

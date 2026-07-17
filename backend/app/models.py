@@ -183,6 +183,11 @@ class QuizAttempt(Base):
     time_limit_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
     per_question_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # Question IDs the student has flagged "mark for review" -- only used by
+    # the free-navigation Mock exam flow (routers/mock.py); quiz/blitz/
+    # smart_review's linear one-question-at-a-time flow doesn't touch this.
+    marked_question_ids: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -309,5 +314,23 @@ class PushSubscription(Base):
     p256dh: Mapped[str] = mapped_column(String(255), nullable=False)
     auth: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship()
+
+
+class StudyPlan(Base):
+    """
+    One row per user: their exam date + chosen subjects. Day-by-day tasks
+    (routers/study_planner.py) are computed on the fly from this plus their
+    existing practice history -- not stored, so they always reflect current
+    weak topics rather than going stale.
+    """
+    __tablename__ = "study_plan"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True, nullable=False)
+    exam_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    subjects: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user: Mapped["User"] = relationship()

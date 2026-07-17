@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_user
 from app.database import get_db
 from app.models import UserResponse, ReviewQuestion, Question, User, QuestionMastery
-from app.schemas import DashboardOut, TopicStat, DailyGoalIn, UserOut, ScoreEstimate
+from app.schemas import DashboardOut, TopicStat, DailyGoalIn, UserOut, ScoreEstimate, PracticeDay
+
+DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -107,6 +109,22 @@ def get_dashboard(db: Session = Depends(get_db), user: User = Depends(get_curren
             ),
         )
 
+    # Weekly streak calendar: fixed Monday-Sunday of the *current* week
+    # (not a rolling 7-day window), matching a normal calendar-week view.
+    today = datetime.utcnow().date()
+    monday = today - timedelta(days=today.weekday())
+    practiced_dates = {r.timestamp.date() for r in responses if r.timestamp}
+    practice_days = [
+        PracticeDay(
+            date=(monday + timedelta(days=i)).isoformat(),
+            label=DAY_LABELS[i],
+            practiced=(monday + timedelta(days=i)) in practiced_dates,
+            is_today=(monday + timedelta(days=i)) == today,
+            is_future=(monday + timedelta(days=i)) > today,
+        )
+        for i in range(7)
+    ]
+
     return DashboardOut(
         points=user.points,
         current_streak=user.current_streak,
@@ -122,6 +140,7 @@ def get_dashboard(db: Session = Depends(get_db), user: User = Depends(get_curren
         recommended_topics=recommended_topics,
         due_for_review_count=due_for_review_count,
         score_estimate=score_estimate,
+        practice_days=practice_days,
     )
 
 
