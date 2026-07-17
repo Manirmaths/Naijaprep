@@ -36,7 +36,7 @@ def get_dashboard(db: Session = Depends(get_db), user: User = Depends(get_curren
     subject_stats: dict[str, dict] = {}
     for r in responses:
         t = r.question.topic
-        s = stats.setdefault(t, {"correct": 0, "total": 0})
+        s = stats.setdefault(t, {"correct": 0, "total": 0, "subject": r.question.subject})
         s["total"] += 1
         if r.is_correct:
             s["correct"] += 1
@@ -49,7 +49,7 @@ def get_dashboard(db: Session = Depends(get_db), user: User = Depends(get_curren
                 ss["correct"] += 1
 
     topic_stats = [
-        TopicStat(topic=t, correct=s["correct"], total=s["total"],
+        TopicStat(topic=t, subject=s["subject"], correct=s["correct"], total=s["total"],
                    percentage=round(s["correct"] / max(1, s["total"]) * 100, 1))
         for t, s in stats.items()
     ]

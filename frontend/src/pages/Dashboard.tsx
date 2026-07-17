@@ -223,16 +223,24 @@ export default function Dashboard() {
             Focus on this
           </h2>
           {data.recommended_topics.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {data.recommended_topics.map((t) => (
-                <Link
-                  key={t.topic}
-                  to={`/quiz?topic=${encodeURIComponent(t.topic)}`}
-                  className="flex items-center justify-between text-sm rounded-lg px-2.5 py-2 -mx-2.5 hover:bg-ink-50 transition-colors"
-                >
-                  <span className="font-semibold text-ink-700">{t.topic}</span>
-                  <span className="text-xs text-danger-500 font-semibold">{t.percentage}%</span>
-                </Link>
+                <div key={t.topic} className="flex items-center justify-between text-sm rounded-lg px-2.5 py-2 -mx-2.5 hover:bg-ink-50 transition-colors">
+                  <Link
+                    to={t.subject ? `/subjects/${encodeURIComponent(t.subject)}/topics/${encodeURIComponent(t.topic)}` : `/quiz?topic=${encodeURIComponent(t.topic)}`}
+                    className="font-semibold text-ink-700 hover:text-brand-600 flex-1 min-w-0 truncate"
+                  >
+                    {t.topic}
+                  </Link>
+                  <span className="text-xs text-danger-500 font-semibold ml-2 flex-shrink-0">{t.percentage}%</span>
+                  <Link
+                    to={`/quiz?topic=${encodeURIComponent(t.topic)}`}
+                    title="Practice now"
+                    className="ml-3 w-6 h-6 rounded-full bg-ink-100 text-ink-400 hover:bg-brand-100 hover:text-brand-600 flex items-center justify-center flex-shrink-0 transition-colors"
+                  >
+                    <i className="fa-solid fa-play text-[10px]" />
+                  </Link>
+                </div>
               ))}
             </div>
           ) : (

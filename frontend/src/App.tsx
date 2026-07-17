@@ -19,6 +19,8 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const Subjects = lazy(() => import('./pages/Subjects'));
 const SubjectTopics = lazy(() => import('./pages/SubjectTopics'));
+const TopicHub = lazy(() => import('./pages/TopicHub'));
+const LearnHub = lazy(() => import('./pages/LearnHub'));
 const Quiz = lazy(() => import('./pages/Quiz'));
 const Results = lazy(() => import('./pages/Results'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -64,6 +66,8 @@ export default function App() {
         >
           <Route path="/subjects" element={<Subjects />} />
           <Route path="/subjects/:subject" element={<SubjectTopics />} />
+          <Route path="/subjects/:subject/topics/:topic" element={<TopicHub />} />
+          <Route path="/learn" element={<LearnHub />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz-attempt/:attemptId" element={<Quiz />} />
           <Route path="/results/:attemptId" element={<Results />} />

@@ -201,6 +201,7 @@ class ResultsOut(BaseModel):
 # ---------- Dashboard ----------
 class TopicStat(BaseModel):
     topic: str
+    subject: Optional[str] = None
     correct: int
     total: int
     percentage: float
@@ -295,6 +296,76 @@ class FlashcardOut(BaseModel):
 
 class FlashcardsOut(BaseModel):
     items: list[FlashcardOut]
+
+
+# ---------- Lesson notes ----------
+class GlossaryTerm(BaseModel):
+    term: str
+    definition: str
+
+
+class LessonNoteOut(BaseModel):
+    id: int
+    subject: str
+    topic: str
+    title: str
+    summary: Optional[str] = None
+    glossary: list[GlossaryTerm] = []
+    content_md: str
+    related_topics: list[str] = []
+    status: str
+    helpful_count: int
+    unhelpful_count: int
+    updated_at: datetime
+    is_read: bool = False
+    my_feedback: Optional[bool] = None  # this user's current vote, if any
+
+
+class NoteStatusItem(BaseModel):
+    subject: str
+    topic: str
+    note_id: Optional[int] = None
+    status: str  # "missing" | "draft" | "active"
+    question_count: int
+
+
+class NoteGenerateIn(BaseModel):
+    subject: str
+    topic: str
+    force: bool = False  # regenerate even if a note already exists and isn't a draft
+
+
+class NoteUpdateIn(BaseModel):
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    glossary: Optional[list[GlossaryTerm]] = None
+    content_md: Optional[str] = None
+    related_topics: Optional[list[str]] = None
+    status: Optional[str] = None  # draft | active
+
+
+class NoteFeedbackIn(BaseModel):
+    is_helpful: bool
+
+
+class NoteTutorAskIn(BaseModel):
+    message: str = Field(min_length=1, max_length=500)
+
+
+class NoteTutorAskOut(BaseModel):
+    reply: str
+    queries_remaining_today: int
+
+
+class LearnSubjectProgress(BaseModel):
+    subject: str
+    total_topics: int
+    read_topics: int
+    percentage: float
+
+
+class LearnHubOut(BaseModel):
+    subjects: list[LearnSubjectProgress]
 
 
 # ---------- Public homepage widgets ----------

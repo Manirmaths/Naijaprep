@@ -88,6 +88,7 @@ export interface QuizResults {
 
 export interface TopicStat {
   topic: string;
+  subject: string | null;
   correct: number;
   total: number;
   percentage: number;
@@ -284,4 +285,50 @@ export interface TopStudentEntry {
 
 export interface TopStudents {
   entries: TopStudentEntry[];
+}
+
+export interface GlossaryTerm {
+  term: string;
+  definition: string;
+}
+
+export interface LessonNote {
+  id: number;
+  subject: string;
+  topic: string;
+  title: string;
+  summary: string | null;
+  glossary: GlossaryTerm[];
+  content_md: string;
+  related_topics: string[];
+  status: string;
+  helpful_count: number;
+  unhelpful_count: number;
+  updated_at: string;
+  is_read: boolean;
+  my_feedback: boolean | null;
+}
+
+export interface NoteStatusItem {
+  subject: string;
+  topic: string;
+  note_id: number | null;
+  status: 'missing' | 'draft' | 'active';
+  question_count: number;
+}
+
+export interface NoteTutorResponse {
+  reply: string;
+  queries_remaining_today: number;
+}
+
+export interface LearnSubjectProgress {
+  subject: string;
+  total_topics: number;
+  read_topics: number;
+  percentage: number;
+}
+
+export interface LearnHub {
+  subjects: LearnSubjectProgress[];
 }

@@ -334,3 +334,87 @@ class StudyPlan(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user: Mapped["User"] = relationship()
+
+
+class LessonNote(Base):
+    """
+    One lesson note per (subject, topic) -- a blog-style teaching page a
+    student can read before attempting that topic's questions. AI-drafted
+    (routers/admin.py's generate endpoint, app/ai.py's generate_lesson_note)
+    grounded in real sample questions from the bank, then reviewed/edited by
+    an admin before status flips from "draft" to "active" -- same
+    draft/active gate as Question.status, since this is exam-prep content
+    where an unreviewed AI mistake actively misleads a student.
+    """
+    __tablename__ = "lesson_note"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subject: Mapped[str] = mapped_column(String(255), nullable=False)
+    topic: Mapped[str] = mapped_column(String(255), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # [{"term": ..., "definition": ...}, ...]
+    glossary: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    # Body text using a small constrained syntax the frontend renders: "## "
+    # headings, "**bold**", "- " bullets, numbered examples, and \( ... \)
+    # inline math (same delimiter the rest of the app already uses for KaTeX).
+    content_md: Mapped[str] = mapped_column(Text, nullable=False)
+    # Plain topic-name strings, same subject -- "study this next".
+    related_topics: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, default="draft")  # draft | active
+    helpful_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    unhelpful_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("subject", "topic", name="uq_lesson_note_subject_topic"),
+    )
+
+
+class NoteProgress(Base):
+    """One row per (user, note) once a student has read/finished a note -- powers the Learn hub's per-subject % complete."""
+    __tablename__ = "note_progress"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    note_id: Mapped[int] = mapped_column(ForeignKey("lesson_note.id"), nullable=False)
+    read_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "note_id", name="uq_note_progress_user_note"),
+    )
+
+
+class NoteFeedback(Base):
+    """One row per (user, note): the student's current helpful/unhelpful vote. Upserted, not appended -- a re-vote overwrites, adjusting LessonNote's denormalized counters."""
+    __tablename__ = "note_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    note_id: Mapped[int] = mapped_column(ForeignKey("lesson_note.id"), nullable=False)
+    is_helpful: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "note_id", name="uq_note_feedback_user_note"),
+    )
+
+
+class NoteTutorQuery(Base):
+    """
+    Log of AI-tutor requests asked from a lesson note (as opposed to
+    TutorQuery, which is scoped to a specific answered question). Kept as
+    its own table rather than repurposing TutorQuery, since question_id
+    there is NOT NULL and altering an existing column's nullability isn't a
+    safe cross-dialect ALTER -- see database.py's _PENDING_COLUMNS comment.
+    Counted together with TutorQuery under one shared daily cap in
+    routers/notes.py so the two entry points can't be used to double a
+    student's real daily AI budget.
+    """
+    __tablename__ = "note_tutor_query"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    subject: Mapped[str] = mapped_column(String(255), nullable=False)
+    topic: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)

@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.ai import suggest_tags
+from app.ai import generate_lesson_note, suggest_tags
 from app.auth import require_admin
 from app.database import get_db
-from app.models import Question, Passage, User, UserResponse, ReviewQuestion, QuizAttempt, Payment
-from app.schemas import QuestionIn, QuestionOut, AdminStats, PassageOut, AdminUserOut, SuggestTagsIn, SuggestTagsOut
+from app.models import LessonNote, Question, Passage, User, UserResponse, ReviewQuestion, QuizAttempt, Payment
+from app.schemas import (
+    QuestionIn, QuestionOut, AdminStats, PassageOut, AdminUserOut, SuggestTagsIn, SuggestTagsOut,
+    LessonNoteOut, NoteGenerateIn, NoteStatusItem, NoteUpdateIn,
+)
 from app.subjects import SUBJECTS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -201,3 +205,121 @@ def toggle_admin(user_id: int, db: Session = Depends(get_db), admin: User = Depe
     db.commit()
     db.refresh(target)
     return target
+
+
+# ---------- Lesson notes ----------
+SAMPLE_QUESTIONS_PER_NOTE = 5
+
+
+def _admin_note_out(note: LessonNote) -> LessonNoteOut:
+    return LessonNoteOut(
+        id=note.id, subject=note.subject, topic=note.topic, title=note.title, summary=note.summary,
+        glossary=note.glossary, content_md=note.content_md, related_topics=note.related_topics,
+        status=note.status, helpful_count=note.helpful_count, unhelpful_count=note.unhelpful_count,
+        updated_at=note.updated_at, is_read=False, my_feedback=None,
+    )
+
+
+@router.get("/notes/status", response_model=list[NoteStatusItem])
+def notes_status(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    topic_rows = (
+        db.query(Question.subject, Question.topic, func.count(Question.id))
+        .filter(Question.subject.in_(SUBJECTS))
+        .group_by(Question.subject, Question.topic)
+        .all()
+    )
+    notes_by_key = {(n.subject, n.topic): n for n in db.query(LessonNote).all()}
+
+    items = []
+    for subj, topic, count in topic_rows:
+        note = notes_by_key.get((subj, topic))
+        items.append(NoteStatusItem(
+            subject=subj, topic=topic, note_id=note.id if note else None,
+            status=note.status if note else "missing", question_count=count,
+        ))
+    items.sort(key=lambda i: (SUBJECTS.index(i.subject) if i.subject in SUBJECTS else 99, i.topic))
+    return items
+
+
+@router.get("/notes/{subject}/{topic}", response_model=LessonNoteOut)
+def admin_get_note(subject: str, topic: str, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    note = db.query(LessonNote).filter(LessonNote.subject == subject, LessonNote.topic == topic).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="No note exists yet for this topic -- generate one first.")
+    return _admin_note_out(note)
+
+
+@router.post("/notes/generate", response_model=LessonNoteOut)
+def generate_note(payload: NoteGenerateIn, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    if payload.subject not in SUBJECTS:
+        raise HTTPException(status_code=404, detail="Unknown subject.")
+
+    existing = (
+        db.query(LessonNote)
+        .filter(LessonNote.subject == payload.subject, LessonNote.topic == payload.topic)
+        .first()
+    )
+    if existing and existing.status == "active" and not payload.force:
+        raise HTTPException(
+            status_code=400,
+            detail="This note is already published. Pass force=true to regenerate and overwrite it.",
+        )
+
+    # Ground generation in a handful of real questions from this topic --
+    # prefer ones with an explanation already written, since those tend to
+    # be the most complete/reviewed rows in the bank.
+    pool = (
+        db.query(Question)
+        .filter(Question.subject == payload.subject, Question.topic == payload.topic)
+        .order_by(Question.explanation.isnot(None).desc(), func.random())
+        .limit(SAMPLE_QUESTIONS_PER_NOTE)
+        .all()
+    )
+    sample_questions = [{"question_text": q.question_text, "subtopic": q.subtopic} for q in pool]
+
+    result = generate_lesson_note(subject=payload.subject, topic=payload.topic, sample_questions=sample_questions)
+
+    if existing:
+        existing.title = result["title"]
+        existing.summary = result["summary"]
+        existing.glossary = result["glossary"]
+        existing.content_md = result["content_md"]
+        existing.related_topics = result["related_topics"]
+        existing.status = "draft"
+        note = existing
+    else:
+        note = LessonNote(
+            subject=payload.subject, topic=payload.topic, title=result["title"], summary=result["summary"],
+            glossary=result["glossary"], content_md=result["content_md"], related_topics=result["related_topics"],
+            status="draft",
+        )
+        db.add(note)
+    db.commit()
+    db.refresh(note)
+    return _admin_note_out(note)
+
+
+@router.put("/notes/{note_id}", response_model=LessonNoteOut)
+def update_note(note_id: int, payload: NoteUpdateIn, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    note = db.get(LessonNote, note_id)
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found.")
+
+    if payload.title is not None:
+        note.title = payload.title.strip() or note.title
+    if payload.summary is not None:
+        note.summary = payload.summary.strip() or None
+    if payload.glossary is not None:
+        note.glossary = [g.model_dump() for g in payload.glossary]
+    if payload.content_md is not None:
+        note.content_md = payload.content_md
+    if payload.related_topics is not None:
+        note.related_topics = payload.related_topics
+    if payload.status is not None:
+        if payload.status not in ("draft", "active"):
+            raise HTTPException(status_code=400, detail="status must be 'draft' or 'active'.")
+        note.status = payload.status
+
+    db.commit()
+    db.refresh(note)
+    return _admin_note_out(note)

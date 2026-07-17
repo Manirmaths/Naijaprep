@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { api } from '../api/client';
-import type { Subject } from '../api/types';
+import type { Subject, Topic } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Select } from '../components/ui/Input';
@@ -46,6 +46,20 @@ export default function Subjects() {
 
   const [choices, setChoices] = useState<Record<string, { n: string; difficulty: string }>>({});
 
+  // Topics are what actually let a student judge "does this subject cover
+  // what I need" -- previously they were invisible until you clicked into a
+  // subject. Fetching each subject's topic list here (small, ~10 names) so
+  // a preview strip of chips can render right on the card.
+  const CHIP_PREVIEW_COUNT = 6;
+  const topicQueries = useQueries({
+    queries: (data ?? []).map((s) => ({
+      queryKey: ['topics', s.name],
+      queryFn: () => api.get<Topic[]>(`/api/subjects/${encodeURIComponent(s.name)}/topics`),
+      enabled: !!data,
+      staleTime: 5 * 60 * 1000,
+    })),
+  });
+
   const getChoice = (name: string) => choices[name] || { n: '5', difficulty: 'any' };
   const setChoice = (name: string, patch: Partial<{ n: string; difficulty: string }>) =>
     setChoices((c) => ({ ...c, [name]: { ...getChoice(name), ...patch } }));
@@ -76,8 +90,9 @@ export default function Subjects() {
 
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data.map((s) => {
+          {data.map((s, i) => {
             const choice = getChoice(s.name);
+            const topics = topicQueries[i]?.data;
             return (
               <Card key={s.name} padding="sm" className="flex flex-col">
                 <Link to={`/subjects/${encodeURIComponent(s.name)}`} className="mb-4 group">
@@ -95,6 +110,29 @@ export default function Subjects() {
                     </span>
                   )}
                 </Link>
+
+                {topics && topics.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {topics.slice(0, CHIP_PREVIEW_COUNT).map((t) => (
+                      <Link
+                        key={t.name}
+                        to={`/subjects/${encodeURIComponent(s.name)}/topics/${encodeURIComponent(t.name)}`}
+                        className="text-[11px] font-semibold text-ink-500 bg-ink-100 hover:bg-brand-100 hover:text-brand-700 rounded-full px-2 py-1 transition-colors"
+                      >
+                        {t.name}
+                      </Link>
+                    ))}
+                    {topics.length > CHIP_PREVIEW_COUNT && (
+                      <Link
+                        to={`/subjects/${encodeURIComponent(s.name)}`}
+                        className="text-[11px] font-semibold text-ink-400 px-2 py-1"
+                      >
+                        +{topics.length - CHIP_PREVIEW_COUNT} more
+                      </Link>
+                    )}
+                  </div>
+                )}
+
                 <div className="mt-auto space-y-2">
                   {/* Stacked below sm: two side-by-side selects get too cramped
                       to tap accurately on a phone-width 2-column grid. */}

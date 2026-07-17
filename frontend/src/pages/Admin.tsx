@@ -2,12 +2,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import type { AdminQuestion, AdminStats, AdminUser, Difficulty, Passage, QuestionSource, QuestionStatus, SuggestTagsResponse } from '../api/types';
+import type {
+  AdminQuestion, AdminStats, AdminUser, Difficulty, GlossaryTerm, LessonNote, NoteStatusItem,
+  Passage, QuestionSource, QuestionStatus, SuggestTagsResponse,
+} from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Avatar from '../components/ui/Avatar';
 import { Input, Select, Textarea } from '../components/ui/Input';
-import { DifficultyBadge, StatusBadge } from '../components/ui/Badge';
+import Badge, { DifficultyBadge, StatusBadge } from '../components/ui/Badge';
 import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
 
@@ -49,10 +52,23 @@ function StatBlock({ value, label }: { value: number | string; label: string }) 
   );
 }
 
+interface NoteFormState {
+  title: string;
+  summary: string;
+  glossary: GlossaryTerm[];
+  content_md: string;
+  related_topics: string; // comma-separated in the UI, split on save
+  status: 'draft' | 'active';
+}
+
+const emptyNoteForm: NoteFormState = {
+  title: '', summary: '', glossary: [], content_md: '', related_topics: '', status: 'draft',
+};
+
 export default function Admin() {
   const { user: me } = useAuth();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<'questions' | 'users'>('questions');
+  const [tab, setTab] = useState<'questions' | 'users' | 'notes'>('questions');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [editing, setEditing] = useState<AdminQuestion | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -61,6 +77,14 @@ export default function Admin() {
   const [userError, setUserError] = useState<string | null>(null);
   const [suggestingTags, setSuggestingTags] = useState(false);
   const [tagSuggestNote, setTagSuggestNote] = useState<string | null>(null);
+
+  const [noteSubjectFilter, setNoteSubjectFilter] = useState('');
+  const [noteError, setNoteError] = useState<string | null>(null);
+  const [generatingKey, setGeneratingKey] = useState<string | null>(null);
+  const [editingNoteItem, setEditingNoteItem] = useState<NoteStatusItem | null>(null);
+  const [noteForm, setNoteForm] = useState<NoteFormState>(emptyNoteForm);
+  const [showNoteForm, setShowNoteForm] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
 
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => api.get<AdminStats>('/api/admin/stats') });
   const { data: passages } = useQuery({ queryKey: ['admin-passages'], queryFn: () => api.get<Passage[]>('/api/admin/passages') });
@@ -73,6 +97,11 @@ export default function Admin() {
     queryKey: ['admin-users'],
     queryFn: () => api.get<AdminUser[]>('/api/admin/users'),
     enabled: tab === 'users',
+  });
+  const { data: notesStatus, isLoading: notesLoading } = useQuery({
+    queryKey: ['admin-notes-status'],
+    queryFn: () => api.get<NoteStatusItem[]>('/api/admin/notes/status'),
+    enabled: tab === 'notes',
   });
 
   const openNew = () => { setEditing(null); setForm(emptyForm); setShowForm(true); setError(null); };
@@ -168,6 +197,74 @@ export default function Admin() {
     }
   };
 
+  const noteKey = (item: NoteStatusItem) => `${item.subject}::${item.topic}`;
+
+  const openNoteFromNote = (item: NoteStatusItem, note: LessonNote) => {
+    setEditingNoteItem(item);
+    setNoteForm({
+      title: note.title, summary: note.summary || '', glossary: note.glossary,
+      content_md: note.content_md, related_topics: note.related_topics.join(', '), status: note.status as 'draft' | 'active',
+    });
+    setShowNoteForm(true);
+    setNoteError(null);
+  };
+
+  const generateNote = async (item: NoteStatusItem, force: boolean) => {
+    setGeneratingKey(noteKey(item));
+    setNoteError(null);
+    try {
+      const note = await api.post<LessonNote>('/api/admin/notes/generate', {
+        subject: item.subject, topic: item.topic, force,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-notes-status'] });
+      openNoteFromNote(item, note);
+    } catch (err) {
+      setNoteError(err instanceof ApiError ? err.message : 'Could not generate this note.');
+    } finally {
+      setGeneratingKey(null);
+    }
+  };
+
+  const openNoteEditor = async (item: NoteStatusItem) => {
+    setNoteError(null);
+    try {
+      const note = await api.get<LessonNote>(`/api/admin/notes/${encodeURIComponent(item.subject)}/${encodeURIComponent(item.topic)}`);
+      openNoteFromNote(item, note);
+    } catch (err) {
+      setNoteError(err instanceof ApiError ? err.message : 'Could not load this note.');
+    }
+  };
+
+  const updateGlossaryRow = (i: number, patch: Partial<GlossaryTerm>) => {
+    setNoteForm((f) => ({ ...f, glossary: f.glossary.map((g, j) => (j === i ? { ...g, ...patch } : g)) }));
+  };
+  const addGlossaryRow = () => setNoteForm((f) => ({ ...f, glossary: [...f.glossary, { term: '', definition: '' }] }));
+  const removeGlossaryRow = (i: number) => setNoteForm((f) => ({ ...f, glossary: f.glossary.filter((_, j) => j !== i) }));
+
+  const saveNote = async (statusOverride?: 'draft' | 'active') => {
+    if (!editingNoteItem?.note_id || savingNote) return;
+    setSavingNote(true);
+    setNoteError(null);
+    try {
+      await api.put(`/api/admin/notes/${editingNoteItem.note_id}`, {
+        title: noteForm.title,
+        summary: noteForm.summary || null,
+        glossary: noteForm.glossary.filter((g) => g.term.trim() && g.definition.trim()),
+        content_md: noteForm.content_md,
+        related_topics: noteForm.related_topics.split(',').map((t) => t.trim()).filter(Boolean),
+        status: statusOverride ?? noteForm.status,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-notes-status'] });
+      setShowNoteForm(false);
+    } catch (err) {
+      setNoteError(err instanceof ApiError ? err.message : 'Could not save this note.');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const filteredNotesStatus = notesStatus?.filter((n) => !noteSubjectFilter || n.subject === noteSubjectFilter);
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
@@ -204,6 +301,14 @@ export default function Admin() {
           }`}
         >
           <i className="fa-solid fa-users mr-1.5" /> Users
+        </button>
+        <button
+          onClick={() => setTab('notes')}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+            tab === 'notes' ? 'border-brand-500 text-brand-700' : 'border-transparent text-ink-500 hover:text-ink-800'
+          }`}
+        >
+          <i className="fa-solid fa-book-open mr-1.5" /> Lesson notes
         </button>
       </div>
 
@@ -273,6 +378,137 @@ export default function Admin() {
                         >
                           Delete
                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          )}
+        </>
+      ) : tab === 'notes' ? (
+        <>
+          {noteError && (
+            <div className="bg-danger-50 text-danger-600 text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
+              <i className="fa-solid fa-circle-exclamation" /> {noteError}
+            </div>
+          )}
+
+          {showNoteForm && editingNoteItem && (
+            <Card padding="lg" className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-display font-bold text-lg text-ink-900">{editingNoteItem.subject} — {editingNoteItem.topic}</h2>
+                  <p className="text-xs text-ink-400 mt-0.5">Review AI-drafted content before publishing. Nothing here is visible to students until status is Active.</p>
+                </div>
+                <button type="button" onClick={() => setShowNoteForm(false)} className="text-ink-400 hover:text-ink-700">
+                  <i className="fa-solid fa-xmark text-lg" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <Input label="Title" value={noteForm.title} onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })} />
+                <Textarea label="Summary" rows={2} value={noteForm.summary} onChange={(e) => setNoteForm({ ...noteForm, summary: e.target.value })} />
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-semibold text-ink-800">Glossary</span>
+                    <button type="button" onClick={addGlossaryRow} className="text-xs font-semibold text-brand-600 hover:text-brand-700">
+                      <i className="fa-solid fa-plus mr-1" /> Add term
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {noteForm.glossary.map((g, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <Input placeholder="Term" value={g.term} onChange={(e) => updateGlossaryRow(i, { term: e.target.value })} className="!w-40 flex-shrink-0" />
+                        <Input placeholder="Definition" value={g.definition} onChange={(e) => updateGlossaryRow(i, { definition: e.target.value })} className="flex-1" />
+                        <button type="button" onClick={() => removeGlossaryRow(i)} className="text-danger-500 hover:text-danger-600 p-2.5" aria-label="Remove term">
+                          <i className="fa-solid fa-trash text-xs" />
+                        </button>
+                      </div>
+                    ))}
+                    {noteForm.glossary.length === 0 && <p className="text-xs text-ink-400">No glossary terms yet.</p>}
+                  </div>
+                </div>
+
+                <Textarea
+                  label="Note content"
+                  hint="## headings, - bullets, **bold**, \( ... \) for math, and 'Example N:' lines for worked examples."
+                  rows={16}
+                  value={noteForm.content_md}
+                  onChange={(e) => setNoteForm({ ...noteForm, content_md: e.target.value })}
+                  className="font-mono text-xs"
+                />
+
+                <Input
+                  label="Related topics"
+                  hint="Comma-separated topic names, same subject."
+                  value={noteForm.related_topics}
+                  onChange={(e) => setNoteForm({ ...noteForm, related_topics: e.target.value })}
+                />
+
+                <div className="flex items-center gap-3 pt-2">
+                  <Button onClick={() => saveNote('draft')} variant="outline" disabled={savingNote}>
+                    {savingNote ? 'Saving…' : 'Save as draft'}
+                  </Button>
+                  <Button onClick={() => saveNote('active')} disabled={savingNote}>
+                    {savingNote ? 'Saving…' : 'Save & publish'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <div className="mb-4 max-w-xs">
+            <Select value={noteSubjectFilter} onChange={(e) => setNoteSubjectFilter(e.target.value)}>
+              <option value="">All subjects</option>
+              {stats?.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+            </Select>
+          </div>
+
+          {notesLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
+            </div>
+          ) : filteredNotesStatus && filteredNotesStatus.length === 0 ? (
+            <EmptyState icon="fa-solid fa-book-open" title="No topics found" />
+          ) : (
+            <Card padding="none" className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-ink-900 text-white">
+                  <tr>
+                    <th className="p-3 text-left font-semibold">Subject / Topic</th>
+                    <th className="p-3 text-left font-semibold">Questions</th>
+                    <th className="p-3 text-left font-semibold">Status</th>
+                    <th className="p-3 text-left font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredNotesStatus?.map((item) => (
+                    <tr key={noteKey(item)} className="border-t border-ink-100 hover:bg-ink-50/60">
+                      <td className="p-3">
+                        <div className="font-medium text-ink-800">{item.topic}</div>
+                        <div className="text-xs text-ink-400">{item.subject}</div>
+                      </td>
+                      <td className="p-3 text-ink-600">{item.question_count}</td>
+                      <td className="p-3">
+                        <Badge tone={item.status === 'active' ? 'success' : item.status === 'draft' ? 'warning' : 'neutral'}>
+                          {item.status}
+                        </Badge>
+                      </td>
+                      <td className="p-3 whitespace-nowrap">
+                        <button
+                          onClick={() => generateNote(item, item.status !== 'missing')}
+                          disabled={generatingKey === noteKey(item)}
+                          className="text-brand-600 font-semibold mr-3 hover:underline disabled:text-ink-300 disabled:no-underline"
+                        >
+                          {generatingKey === noteKey(item) ? 'Generating…' : item.status === 'missing' ? 'Generate with AI' : 'Regenerate'}
+                        </button>
+                        {item.note_id && (
+                          <button onClick={() => openNoteEditor(item)} className="text-ink-600 font-semibold hover:underline">
+                            Edit
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

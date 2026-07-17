@@ -14,6 +14,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-gauge-high' },
   { to: '/subjects', label: 'Subjects', icon: 'fa-solid fa-book-open' },
+  { to: '/learn', label: 'Learn', icon: 'fa-solid fa-graduation-cap' },
   { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
   { to: '/blitz', label: 'Blitz', icon: 'fa-solid fa-bolt' },
   { to: '/mock', label: 'Full Mock', icon: 'fa-solid fa-file-signature' },
