@@ -416,6 +416,34 @@ class PremiumStatusOut(BaseModel):
     free_mock_exams_remaining: int
 
 
+# ---------- Family / guardian links (Phase 5) ----------
+class MyCodeOut(BaseModel):
+    code: str
+
+
+class LinkIn(BaseModel):
+    code: str = Field(min_length=1, max_length=16)
+
+
+class LinkedChildOut(BaseModel):
+    id: int
+    username: str
+    current_streak: int
+    points: int
+    linked_at: datetime
+
+
+class ChildSummaryOut(BaseModel):
+    id: int
+    username: str
+    points: int
+    current_streak: int
+    longest_streak: int
+    topic_stats: list[TopicStat]
+    recommended_topics: list[TopicStat]
+    score_estimate: ScoreEstimate
+
+
 class TopStudentEntry(BaseModel):
     rank: int
     username: str

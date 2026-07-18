@@ -37,6 +37,13 @@ class User(Base):
     # Dormant premium/subscription plumbing -- not enforced anywhere right now.
     premium_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
+    # Short shareable code so a parent/guardian/tutor can link themselves as
+    # a read-only watcher of this account's progress (see GuardianLink
+    # below), without ever needing this account's password. Generated
+    # lazily on first request (routers/family.py), not backfilled -- most
+    # accounts will never need one.
+    guardian_link_code: Mapped[str | None] = mapped_column(String(16), unique=True, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     responses: Mapped[list["UserResponse"]] = relationship(back_populates="user")
@@ -206,6 +213,29 @@ class Payment(Base):
     status: Mapped[str] = mapped_column(String(20), default="pending")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class GuardianLink(Base):
+    """
+    A parent/guardian/tutor account linked as a read-only watcher of a
+    student account's progress, established when the guardian redeems the
+    student's `guardian_link_code` (routers/family.py). Deliberately generic
+    -- the same link type covers both "parent watching one child" and "tutor
+    watching several students" (a tutor is just a guardian_user_id with
+    multiple rows), so this doesn't need a separate classroom/cohort model
+    for a first version. No password sharing, no elevated access -- a
+    guardian can only ever read aggregate stats, never act as the student.
+    """
+    __tablename__ = "guardian_link"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    guardian_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    student_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("guardian_user_id", "student_user_id", name="uq_guardian_student"),
+    )
 
 
 class PasswordResetToken(Base):

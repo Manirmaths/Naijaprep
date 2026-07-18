@@ -1,32 +1,37 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import Avatar from './ui/Avatar';
+import LanguageSwitcher from './ui/LanguageSwitcher';
 import { disablePush, enablePush, getPushState, type PushSupport } from '../lib/push';
 
 interface NavItem {
   to: string;
-  label: string;
+  labelKey: string;
   icon: string;
   adminOnly?: boolean;
 }
 
+// labelKey looks up i18n/translations.ts -- see LanguageContext's t().
 const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-gauge-high' },
-  { to: '/subjects', label: 'Subjects', icon: 'fa-solid fa-book-open' },
-  { to: '/learn', label: 'Learn', icon: 'fa-solid fa-graduation-cap' },
-  { to: '/leaderboard', label: 'Leaderboard', icon: 'fa-solid fa-ranking-star' },
-  { to: '/blitz', label: 'Blitz', icon: 'fa-solid fa-bolt' },
-  { to: '/mock', label: 'Full Mock', icon: 'fa-solid fa-file-signature' },
-  { to: '/study-planner', label: 'Study Planner', icon: 'fa-solid fa-calendar-days' },
-  { to: '/flashcards', label: 'Flashcards', icon: 'fa-solid fa-layer-group' },
-  { to: '/achievements', label: 'Achievements', icon: 'fa-solid fa-medal' },
-  { to: '/review', label: 'Marked for review', icon: 'fa-solid fa-bookmark' },
-  { to: '/admin', label: 'Admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: 'fa-solid fa-gauge-high' },
+  { to: '/subjects', labelKey: 'nav.subjects', icon: 'fa-solid fa-book-open' },
+  { to: '/learn', labelKey: 'nav.learn', icon: 'fa-solid fa-graduation-cap' },
+  { to: '/leaderboard', labelKey: 'nav.leaderboard', icon: 'fa-solid fa-ranking-star' },
+  { to: '/blitz', labelKey: 'nav.blitz', icon: 'fa-solid fa-bolt' },
+  { to: '/mock', labelKey: 'nav.mock', icon: 'fa-solid fa-file-signature' },
+  { to: '/study-planner', labelKey: 'nav.studyPlanner', icon: 'fa-solid fa-calendar-days' },
+  { to: '/flashcards', labelKey: 'nav.flashcards', icon: 'fa-solid fa-layer-group' },
+  { to: '/achievements', labelKey: 'nav.achievements', icon: 'fa-solid fa-medal' },
+  { to: '/review', labelKey: 'nav.review', icon: 'fa-solid fa-bookmark' },
+  { to: '/family', labelKey: 'nav.family', icon: 'fa-solid fa-people-roof' },
+  { to: '/admin', labelKey: 'nav.admin', icon: 'fa-solid fa-user-shield', adminOnly: true },
 ];
 
 export default function AppShell() {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pushState, setPushState] = useState<PushSupport>('unsupported');
@@ -95,10 +100,14 @@ export default function AppShell() {
             }
           >
             <i className={`${item.icon} w-4 text-center`} />
-            {item.label}
+            {t(item.labelKey)}
           </NavLink>
         ))}
       </nav>
+
+      <div className="px-5 pb-2">
+        <LanguageSwitcher />
+      </div>
 
       <div className="p-3 border-t border-ink-100">
         <div className="flex items-center gap-3 px-2 py-2">

@@ -35,6 +35,14 @@ _PENDING_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "user": [
         ("streak_freezes", "INTEGER NOT NULL DEFAULT 0"),
         ("daily_goal", "INTEGER NOT NULL DEFAULT 50"),
+        # No UNIQUE here deliberately -- SQLite/Postgres ADD COLUMN can't
+        # carry a inline UNIQUE constraint uniformly across both dialects in
+        # one ALTER. The column is nullable and only ever populated one row
+        # at a time via routers/family.py's own uniqueness-checked
+        # generation loop, so an application-level guarantee is sufficient
+        # here (same reasoning as question_id's uniqueness being enforced at
+        # the ORM/import-script level in practice).
+        ("guardian_link_code", "VARCHAR(16)"),
     ],
     "quiz_attempt": [
         # Plain TEXT, not a native JSON/JSONB column type -- SQLAlchemy's

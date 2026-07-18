@@ -9,7 +9,7 @@ from app.rate_limit import limiter
 from app import models  # noqa: F401 -- ensure models are registered before create_all
 from app.routers import (
     auth, subjects, quiz, dashboard, review, admin, leaderboard, blitz, mock, achievements,
-    smart_review, tutor, notifications, study_planner, flashcards, public, notes, payments,
+    smart_review, tutor, notifications, study_planner, flashcards, public, notes, payments, family,
 )
 
 # Interactive API docs (Swagger/ReDoc) pull scripts from a CDN and expose the
@@ -84,6 +84,7 @@ app.include_router(flashcards.router)
 app.include_router(public.router)
 app.include_router(notes.router)
 app.include_router(payments.router)
+app.include_router(family.router)
 
 
 @app.get("/api/health")

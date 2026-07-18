@@ -1,9 +1,12 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import Button from './ui/Button';
+import LanguageSwitcher from './ui/LanguageSwitcher';
 
 export default function PublicLayout() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isHome = location.pathname === '/';
@@ -34,18 +37,19 @@ export default function PublicLayout() {
             )}
 
             {!isAuthPage && (
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <LanguageSwitcher />
                 {user ? (
                   <Link to="/dashboard">
-                    <Button size="sm">Go to Dashboard</Button>
+                    <Button size="sm">{t('nav.goToDashboard')}</Button>
                   </Link>
                 ) : (
                   <>
                     <Link to="/login">
-                      <Button variant="ghost" size="sm">Log in</Button>
+                      <Button variant="ghost" size="sm">{t('nav.login')}</Button>
                     </Link>
                     <Link to="/register">
-                      <Button size="sm">Get Started Free</Button>
+                      <Button size="sm">{t('nav.getStarted')}</Button>
                     </Link>
                   </>
                 )}

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../api/client';
 import type { PublicQuestion, TopStudents } from '../api/types';
 import Button from '../components/ui/Button';
@@ -207,6 +208,7 @@ export default function Home() {
     'Free JAMB, WAEC, NECO and Post-UTME practice questions across 11 subjects, with instant explanations, an AI tutor, full CBT mock exams, and progress tracking built for Nigerian students.'
   );
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <div>
@@ -214,28 +216,25 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-20 sm:pt-24 sm:pb-28">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 text-brand-700 px-3 py-1 text-xs font-bold mb-5">
-            <i className="fa-solid fa-graduation-cap" /> JAMB · WAEC · NECO · Post-UTME
+            <i className="fa-solid fa-graduation-cap" /> {t('home.badge')}
           </span>
           <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-ink-900 leading-tight tracking-tight">
-            Practice smarter. <span className="text-brand-500">Walk into exam day ready.</span>
+            {t('home.heroTitle1')} <span className="text-brand-500">{t('home.heroTitle2')}</span>
           </h1>
-          <p className="mt-5 text-lg text-ink-500 leading-relaxed">
-            Naija Prep gives you focused subject and topic practice, an AI tutor, a full JAMB CBT mock,
-            spaced-repetition review, and progress tracking built specifically for Nigerian students.
-          </p>
+          <p className="mt-5 text-lg text-ink-500 leading-relaxed">{t('home.heroSubtitle')}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link to={user ? '/dashboard' : '/try'}>
               <Button size="lg" icon={<i className="fa-solid fa-arrow-right" />}>
-                {user ? 'Go to your dashboard' : 'Try 10 free questions'}
+                {user ? t('home.ctaDashboard') : t('home.ctaTry')}
               </Button>
             </Link>
             <Link to={user ? '/mock' : '/register'}>
               <Button size="lg" variant="outline" icon={<i className="fa-solid fa-file-signature" />}>
-                {user ? 'Take a mock CBT' : 'Create a free account'}
+                {user ? t('home.ctaMock') : t('home.ctaRegister')}
               </Button>
             </Link>
           </div>
-          <p className="mt-4 text-sm text-ink-400">No sign-up needed to try a sample — no card required, ever.</p>
+          <p className="mt-4 text-sm text-ink-400">{t('home.noCard')}</p>
         </div>
       </section>
 

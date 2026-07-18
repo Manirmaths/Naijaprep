@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
 import { Input, PasswordInput } from '../components/ui/Input';
@@ -13,6 +14,7 @@ export default function Register() {
     'Create a free Naija Prep account for JAMB, WAEC and NECO practice questions, an AI tutor, and a full CBT mock exam.'
   );
   const { register } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -56,12 +58,12 @@ export default function Register() {
         )}
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <Input label="Username" required minLength={2} maxLength={20} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="chidera_reads" />
-          <Input type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-          <PasswordInput label="Password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" />
+          <Input label={t('auth.usernameLabel')} required minLength={2} maxLength={20} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="chidera_reads" />
+          <Input type="email" label={t('auth.emailLabel')} required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+          <PasswordInput label={t('auth.passwordLabel')} required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" />
           <PasswordInput label="Confirm password" required minLength={8} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" />
           <Button type="submit" fullWidth size="lg" loading={busy}>
-            {busy ? 'Creating account…' : 'Sign up'}
+            {busy ? 'Creating account…' : t('auth.registerButton')}
           </Button>
         </form>
 

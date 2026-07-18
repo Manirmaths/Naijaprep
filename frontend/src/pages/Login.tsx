@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
 import { Input, PasswordInput } from '../components/ui/Input';
@@ -10,6 +11,7 @@ import useDocumentMeta from '../hooks/useDocumentMeta';
 export default function Login() {
   useDocumentMeta('Log in', 'Log in to your Naija Prep account to continue your JAMB, WAEC and NECO practice.');
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,17 +45,17 @@ export default function Login() {
         )}
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <Input type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+          <Input type="email" label={t('auth.emailLabel')} required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
           <div>
-            <PasswordInput label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <PasswordInput label={t('auth.passwordLabel')} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             <div className="text-right mt-1.5">
               <Link to="/forgot-password" className="text-xs font-semibold text-brand-600 hover:text-brand-700">
-                Forgot password?
+                {t('auth.forgotPassword')}
               </Link>
             </div>
           </div>
           <Button type="submit" fullWidth size="lg" loading={busy}>
-            {busy ? 'Logging in…' : 'Log in'}
+            {busy ? 'Logging in…' : t('auth.loginButton')}
           </Button>
         </form>
 

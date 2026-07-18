@@ -317,6 +317,29 @@ export interface PaymentInitialize {
   reference: string;
 }
 
+export interface MyCode {
+  code: string;
+}
+
+export interface LinkedChild {
+  id: number;
+  username: string;
+  current_streak: number;
+  points: number;
+  linked_at: string;
+}
+
+export interface ChildSummary {
+  id: number;
+  username: string;
+  points: number;
+  current_streak: number;
+  longest_streak: number;
+  topic_stats: TopicStat[];
+  recommended_topics: TopicStat[];
+  score_estimate: ScoreEstimate;
+}
+
 export interface GlossaryTerm {
   term: string;
   definition: string;
