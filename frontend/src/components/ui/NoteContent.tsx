@@ -49,7 +49,11 @@ function parseBlocks(md: string): Block[] {
       continue;
     }
     if (EXAMPLE_RE.test(line)) {
-      const lines: string[] = [];
+      // The opening "Example N:" line always matches isBreak (it's an
+      // example line itself), so it must be consumed unconditionally here --
+      // otherwise the loop below never advances past it and spins forever.
+      const lines: string[] = [rawLines[i].trim()];
+      i++;
       while (i < rawLines.length && rawLines[i].trim() && !isBreak(rawLines[i].trim())) {
         lines.push(rawLines[i].trim());
         i++;
