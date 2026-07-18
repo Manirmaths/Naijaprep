@@ -84,6 +84,7 @@ export default function Admin() {
   const [noteForm, setNoteForm] = useState<NoteFormState>(emptyNoteForm);
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [publishingAll, setPublishingAll] = useState(false);
 
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => api.get<AdminStats>('/api/admin/stats') });
   const { data: passages } = useQuery({ queryKey: ['admin-passages'], queryFn: () => api.get<Passage[]>('/api/admin/passages') });
@@ -247,6 +248,24 @@ export default function Admin() {
   };
 
   const filteredNotesStatus = notesStatus?.filter((n) => !noteSubjectFilter || n.subject === noteSubjectFilter);
+
+  const draftCount = (notesStatus ?? []).filter((n) => n.status === 'draft' && (!noteSubjectFilter || n.subject === noteSubjectFilter)).length;
+
+  const publishAllNotes = async () => {
+    if (!draftCount || publishingAll) return;
+    const scope = noteSubjectFilter || 'all subjects';
+    if (!confirm(`Publish all ${draftCount} draft note(s) in ${scope}? Students will see them immediately.`)) return;
+    setPublishingAll(true);
+    setNoteError(null);
+    try {
+      await api.post(`/api/admin/notes/publish-all${noteSubjectFilter ? `?subject=${encodeURIComponent(noteSubjectFilter)}` : ''}`);
+      queryClient.invalidateQueries({ queryKey: ['admin-notes-status'] });
+    } catch (err) {
+      setNoteError(err instanceof ApiError ? err.message : 'Could not publish drafts.');
+    } finally {
+      setPublishingAll(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -442,11 +461,22 @@ export default function Admin() {
             </Card>
           )}
 
-          <div className="mb-4 max-w-xs">
-            <Select value={noteSubjectFilter} onChange={(e) => setNoteSubjectFilter(e.target.value)}>
-              <option value="">All subjects</option>
-              {stats?.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
-            </Select>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="max-w-xs w-full sm:w-auto">
+              <Select value={noteSubjectFilter} onChange={(e) => setNoteSubjectFilter(e.target.value)}>
+                <option value="">All subjects</option>
+                {stats?.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+              </Select>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={publishAllNotes}
+              disabled={!draftCount || publishingAll}
+              icon={<i className="fa-solid fa-check-double" />}
+            >
+              {publishingAll ? 'Publishing…' : `Publish all drafts${draftCount ? ` (${draftCount})` : ''}`}
+            </Button>
           </div>
 
           {notesLoading ? (

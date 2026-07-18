@@ -241,6 +241,21 @@ def notes_status(db: Session = Depends(get_db), _admin: User = Depends(require_a
     return items
 
 
+@router.post("/notes/publish-all")
+def publish_all_notes(subject: str | None = None, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
+    if subject and subject not in SUBJECTS:
+        raise HTTPException(status_code=404, detail="Unknown subject.")
+
+    q = db.query(LessonNote).filter(LessonNote.status == "draft")
+    if subject:
+        q = q.filter(LessonNote.subject == subject)
+    drafts = q.all()
+    for note in drafts:
+        note.status = "active"
+    db.commit()
+    return {"published": len(drafts)}
+
+
 @router.get("/notes/{subject}/{topic}", response_model=LessonNoteOut)
 def admin_get_note(subject: str, topic: str, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     note = db.query(LessonNote).filter(LessonNote.subject == subject, LessonNote.topic == topic).first()

@@ -531,6 +531,240 @@ Example 5: A coin is tossed and a die is rolled. Find the probability of getting
 These are independent: \(P(\text{heads and }6) = \dfrac{1}{2}\times\dfrac{1}{6} = \dfrac{1}{12}\).""",
         "related_topics": ["Inequalities, Permutation, and Combination", "Number, Fractions, and Approximation", "Commercial Arithmetic"],
     },
+    {
+        "subject": "English",
+        "topic": "Reading Comprehension",
+        "title": "Reading Comprehension",
+        "summary": "How to read a passage fast and answer literal, inferential, vocabulary, and tone questions accurately -- without re-reading the whole passage for every question.",
+        "glossary": [
+            {"term": "Skimming", "definition": "reading quickly to get the general idea of a passage, not every word"},
+            {"term": "Scanning", "definition": "moving your eyes over a passage to locate one specific fact or word"},
+            {"term": "Inference", "definition": "a conclusion the passage strongly implies but never states outright"},
+            {"term": "Context clue", "definition": "the surrounding words that tell you what an unfamiliar word means in that sentence"},
+            {"term": "Tone", "definition": "the author's attitude towards the subject -- e.g. critical, admiring, sarcastic, neutral"},
+            {"term": "Main idea", "definition": "the single point the whole passage is built around, as opposed to a supporting detail"},
+        ],
+        "content_md": r"""## What comprehension passages test
+
+Every JAMB comprehension passage is followed by a mix of question types: literal (the answer is stated directly), inferential (the answer is implied, not written), vocabulary-in-context, tone/attitude, and main idea/title. Knowing which type you're facing tells you where to look for the answer.
+
+## Read the questions first
+
+Before reading the passage itself, skim the questions (not the options). This tells you what to hunt for, so your first read of the passage is already purposeful instead of passive.
+
+## The two-pass approach
+
+First pass: read the whole passage at normal speed for the general idea -- don't stop for words you don't know. Second pass: go question by question, scanning back to the relevant part of the passage to confirm your answer. Never answer from memory alone; always verify against the text.
+
+## Literal questions
+
+These ask for a fact stated directly in the passage. Scan for keywords from the question -- names, numbers, dates -- and read the sentence around that keyword carefully.
+
+Example 1: A passage states "The festival, first held in 1962, now attracts over ten thousand visitors annually." A question asks when the festival began.
+Scan for the number and read its sentence: the passage states 1962 directly, so that is the literal answer -- no interpretation needed.
+
+## Inferential questions
+
+These ask what the passage suggests without saying it outright. Look for word choices, contrasts, or cause-and-effect language that point to an unstated conclusion.
+
+Example 2: A passage describes a trader who "counted his coins twice before locking the shop, then walked home by the longer, well-lit road." A question asks what this suggests about the trader.
+Nothing states he is careful or cautious, but counting money twice and choosing a longer, well-lit route over a shorter one both imply caution -- that is the inference, built from two small details rather than one stated fact.
+
+## Vocabulary-in-context questions
+
+These ask what a word means as used in the passage -- not its general dictionary meaning. A word like "sound" can mean "healthy," "make noise," or "reasonable" depending on context; always re-read the full sentence, not just the word.
+
+Example 3: "Her argument was sound, backed by three independent studies." A question asks what "sound" means here.
+The sentence is about an argument backed by evidence, not about noise or health -- so "sound" here means valid/well-founded, not any of its other common meanings.
+
+## Tone and the author's attitude
+
+Tone questions ask how the author feels about the subject, shown through word choice rather than direct statement. Common tone words tested: critical, admiring, sarcastic, nostalgic, objective/neutral, sympathetic, mocking. Words like "sadly," "unfortunately," "remarkably," or "predictably" are strong tone signals -- watch for them.
+
+## Main idea and title questions
+
+The main idea is usually built or confirmed in the first and last paragraphs -- the opening introduces the topic, the closing often restates or sums it up. A wrong option for a "best title" question is usually too narrow (only covers one paragraph) or too broad (covers more than the passage discusses).
+
+Example 4: A passage spends one paragraph each on causes of soil erosion, its effects on farming, and government prevention efforts. A question asks for the best title.
+An option naming only "Causes of Soil Erosion" is too narrow -- it ignores two of the three paragraphs. The best title covers all three: something like "Soil Erosion: Causes, Effects, and Prevention."
+
+## Common traps to avoid
+
+Options containing absolute words like "always," "never," or "completely" are often wrong, because passages rarely make such strong claims. An option can also be true in real life but still wrong if the passage itself never says it -- always check the text, not your outside knowledge.""",
+        "related_topics": ["Lexis and Structure", "Cloze Test"],
+    },
+    {
+        "subject": "English",
+        "topic": "Lexis and Structure",
+        "title": "Lexis and Structure",
+        "summary": "The grammar and vocabulary rules JAMB tests most: synonyms/antonyms, idioms, concord, tense, prepositions, and sentence transformation (active/passive, direct/indirect speech).",
+        "glossary": [
+            {"term": "Concord", "definition": "subject-verb agreement -- a singular subject takes a singular verb, a plural subject takes a plural verb"},
+            {"term": "Synonym", "definition": "a word with the same or nearly the same meaning as another"},
+            {"term": "Antonym", "definition": "a word with the opposite meaning to another"},
+            {"term": "Idiom", "definition": "a fixed expression whose meaning can't be worked out from its individual words, e.g. \"spill the beans\""},
+            {"term": "Active voice", "definition": "the subject performs the action, e.g. \"The boy kicked the ball\""},
+            {"term": "Passive voice", "definition": "the subject receives the action, e.g. \"The ball was kicked by the boy\""},
+            {"term": "Reported (indirect) speech", "definition": "retelling what someone said without quoting their exact words"},
+        ],
+        "content_md": r"""## Synonyms and antonyms
+
+JAMB tests both directly ("choose the word closest in meaning to...") and inside sentences ("choose the word that best replaces the underlined word"). Learn words in groups, not isolation -- e.g. happy/glad/elated/jubilant (increasing intensity) is more useful than memorising single pairs.
+
+Example 1: Choose the word closest in meaning to "meticulous" as used in "She was meticulous in her record-keeping."
+Meticulous describes extreme, careful attention to detail -- the closest synonym among typical options is "thorough," not "quick" or "careless" (which is actually its antonym).
+
+## Idiomatic expressions
+
+Idioms cannot be translated word-for-word. Learn the whole phrase and its real meaning together.
+
+Example 2: "The manager decided to turn a blind eye to the latecomers." What does the idiom mean?
+"Turn a blind eye" means to deliberately ignore something you've noticed -- not a literal statement about eyesight.
+
+## Concord (subject-verb agreement)
+
+- A singular subject takes a singular verb: "The student writes every day."
+- A plural subject takes a plural verb: "The students write every day."
+- Subjects joined by "and" are usually plural: "Musa and Ada are here."
+- Subjects joined by "or"/"nor" agree with the nearer subject: "Neither the teacher nor the students were ready."
+- Collective nouns (team, family, government) usually take a singular verb when acting as one unit: "The team is winning."
+- Indefinite pronouns like "everyone," "everybody," "each," and "nobody" are always singular: "Everyone is present."
+
+Example 3: Choose the correct option: "Neither of the answers ___ correct."
+"Neither" is singular even though it refers to two things, so the verb must be singular: "is correct," not "are correct."
+
+## Tense and aspect
+
+Tense errors are one of the most common JAMB traps -- especially mixing past and present within one sentence, and misusing the present perfect (have/has + past participle) for an action still linked to now.
+
+Example 4: Choose the correct option: "By the time we arrived, the meeting ___ already ___."
+This describes one past action completed before another past action, which needs the past perfect: "had already started," not "has already started" or "already starts."
+
+## Prepositions
+
+Many JAMB errors involve prepositions fixed to particular words (collocations) rather than logic -- these must be memorised: "married to" (not "with"), "different from" (not "than," in formal English), "responsible for," "capable of," "interested in," "arrive at/in" (not "arrive to").
+
+Example 5: Choose the correct option: "He is very good ___ mathematics."
+"Good at" is the fixed collocation -- "good in" or "good on" are not standard here.
+
+## Active and passive voice
+
+To change active to passive: move the object of the active sentence to the front, add a form of "be" + past participle, and (optionally) add "by + the original subject."
+
+Example 6: Change to passive voice: "The committee approved the budget."
+The object "the budget" moves to the front: "The budget was approved by the committee."
+
+## Direct and indirect (reported) speech
+
+When reporting speech, tenses usually shift one step back (present becomes past, past becomes past perfect), and pronouns/time words change to fit the new speaker's perspective ("today" becomes "that day," "tomorrow" becomes "the next day").
+
+Example 7: Change to indirect speech: Ada said, "I am tired today."
+The present tense shifts back and "today" changes: Ada said that she was tired that day.
+
+## Sentence types
+
+- **Simple sentence**: one independent clause, e.g. "The rain stopped."
+- **Compound sentence**: two independent clauses joined by "and," "but," "or," or a semicolon, e.g. "The rain stopped, and the sun came out."
+- **Complex sentence**: an independent clause plus a dependent clause introduced by a word like "because," "although," "when," or "since" -- e.g. "The match was cancelled because the rain did not stop." """,
+        "related_topics": ["Reading Comprehension", "Cloze Test"],
+    },
+    {
+        "subject": "English",
+        "topic": "Cloze Test",
+        "title": "Cloze Test",
+        "summary": "A worked approach to filling numbered blanks in a passage using grammar, meaning, and collocation clues from the surrounding sentences.",
+        "glossary": [
+            {"term": "Cloze test", "definition": "a passage with words removed and replaced by numbered blanks, which you fill by choosing the best option for each"},
+            {"term": "Collocation", "definition": "words that habitually go together, e.g. \"heavy rain\" rather than \"strong rain\""},
+            {"term": "Cohesion", "definition": "how sentences in a passage connect logically and grammatically to each other"},
+        ],
+        "content_md": r"""## What a cloze test is
+
+A cloze passage removes roughly 10-15 words and replaces each with a numbered blank. For each blank you're given four option words, and only one fits both the grammar and the meaning of that exact spot -- not just any word that could plausibly fit an isolated sentence.
+
+## Read the whole passage first
+
+Never fill blanks as you meet them on a first read. Read the entire passage once, ignoring the blanks, to understand the overall topic and tone. This context often makes an otherwise-tricky blank obvious, because you already know what the passage is generally about.
+
+## Using the words before and after the blank
+
+The words immediately surrounding a blank usually narrow it down more than the whole passage does. Check what part of speech is needed (noun, verb, adjective, preposition) and whether the sentence needs a word that matches the tense and number of nearby verbs and subjects.
+
+Example 1: "The farmers work hard every season, but the ___ rains this year destroyed most of the crop." Options: (a) heavy (b) strong (c) hard (d) big
+The blank describes rain, and "rain" collocates specifically with "heavy" in standard English -- "strong rain" and "hard rain" are not the natural pairing JAMB expects, even though they might sound almost plausible in isolation.
+
+## Watching for collocations
+
+Certain words are almost always paired with specific partners: "make a decision" (not "do a decision"), "heavy traffic," "strictly forbidden," "deeply concerned," "highly unlikely." When a blank sits next to a strong collocate, that partner word usually decides the answer.
+
+Example 2: "The government has ___ forbidden the importation of the banned chemical." Options: (a) strictly (b) hardly (c) rarely (d) barely
+"Strictly forbidden" is the standard collocation for an absolute ban -- the passage's meaning (a firm prohibition) also rules out "hardly," "rarely," and "barely," which all weaken the statement instead of strengthening it.
+
+## Keeping tense and grammar consistent
+
+A cloze passage is usually written in one consistent tense throughout. If the surrounding sentences are in the past tense, the correct option for a verb blank must also be in the past tense, even if another option is a "more common" word.
+
+Example 3: "Yesteryear, farming ___ the major occupation of the villagers before the discovery of oil." Options: (a) was (b) is (c) has been (d) will be
+The passage marker "yesteryear" together with "before the discovery of oil" fixes this firmly in the past, so only the simple past "was" is grammatically consistent with the rest of the sentence.""",
+        "related_topics": ["Lexis and Structure", "Reading Comprehension"],
+    },
+    {
+        "subject": "English",
+        "topic": "Oral English",
+        "title": "Oral English",
+        "summary": "Vowel and consonant sounds, silent letters, word stress, and rhymes -- tested by asking which word shares (or differs from) the sound of an underlined letter, or which syllable carries the stress.",
+        "glossary": [
+            {"term": "Vowel sound", "definition": "a speech sound made with an open vocal tract and no blockage of airflow, e.g. the sounds in \"cat,\" \"see,\" \"go\""},
+            {"term": "Consonant sound", "definition": "a speech sound made by partly or fully blocking the airflow, e.g. \"b,\" \"t,\" \"sh\""},
+            {"term": "Diphthong", "definition": "a single syllable where the tongue glides from one vowel sound to another, e.g. the \"oy\" in \"boy\""},
+            {"term": "Monophthong", "definition": "a single, unchanging vowel sound, e.g. the \"ee\" in \"see\""},
+            {"term": "Stress", "definition": "the syllable in a word pronounced with more force and a clearer vowel than the others"},
+            {"term": "Silent letter", "definition": "a letter written in a word but not pronounced, e.g. the \"b\" in \"comb\""},
+            {"term": "Homophone", "definition": "words that sound identical but differ in spelling and meaning, e.g. \"flower\" and \"flour\""},
+        ],
+        "content_md": r"""## Vowel sounds
+
+English has more vowel sounds than vowel letters, so the same letter can be pronounced differently in different words, and different letters can share the same sound. Short vowel sounds include those in "bit," "bet," "cat," "cut," "hot," and "put." Long vowel sounds include those in "see," "car," "saw," "too," and "her." JAMB questions usually give an underlined letter in a keyword and ask which option word has the same (or a different) vowel sound.
+
+Example 1: Which word has the same vowel sound as the underlined letter in "s__ea__t" (seat)? Options: (a) bread (b) neat (c) great (d) head
+"Seat" uses the long "ee" sound. Of the options, only "neat" shares that exact sound -- "bread" and "head" use the short "e" sound, and "great" uses a completely different vowel sound (like "ay").
+
+## Diphthongs
+
+A diphthong is one syllable where the sound glides between two vowel positions, common examples being the sounds in "day," "my," "boy," "how," "go," "here," "there," and "sure." These are frequently confused with monophthongs (single, steady vowel sounds) in exam questions.
+
+Example 2: Which word has a different vowel sound from the others? Options: (a) toy (b) boil (c) coin (d) food
+"Toy," "boil," and "coin" all share the same gliding "oy" diphthong. "Food" uses a long, steady monophthong instead, making it the odd one out.
+
+## Consonant sounds
+
+Consonants come in voiced/voiceless pairs made the same way in the mouth, differing only in whether the vocal cords vibrate: /p/-/b/, /t/-/d/, /k/-/g/, /f/-/v/, /s/-/z/. Letter combinations can also represent a single consonant sound, such as "sh" in "ship," "ch" in "chair," "th" in "think" (voiceless) versus "th" in "this" (voiced), and "ng" in "sing."
+
+Example 3: Which word has the same consonant sound as the underlined letters in "thi__n__k"? Options: (a) this (b) that (c) three (d) then
+"Think" uses the voiceless "th" sound (no vocal cord vibration). "Three" shares that same voiceless sound, while "this," "that," and "then" all use the voiced "th" instead.
+
+## Silent letters
+
+Many English words keep a letter in spelling that is no longer pronounced. Common patterns: "b" after "m" at a word's end (comb, climb, thumb), "k" before "n" at a word's start (know, knee, knife), "l" in some words with "al" or "ol" (half, walk, talk, calm), "w" before "r" (write, wrong, wrap), and silent "h" in some words (hour, honest, honour).
+
+Example 4: Which letter is silent in "psychology"?
+The "p" at the start is silent -- the word is pronounced starting with the "s" sound, a pattern shared by other Greek-derived words like "pneumonia" and "psalm."
+
+## Word and sentence stress
+
+Many two-syllable English words change meaning depending on which syllable is stressed -- typically the first syllable for a noun and the second for the related verb: 'CONtent (satisfied, or as a noun meaning "what's inside") versus con'TENT is not how this pair works, but classic exam examples include 'PROduce (the noun, meaning farm goods) versus pro'DUCE (the verb, meaning to make), and 'REcord (the noun) versus re'CORD (the verb).
+
+Example 5: Which syllable is stressed in "record" when it is used as a verb, as in "Please record the meeting"?
+As a verb, the stress falls on the second syllable: re'CORD. When the same word is a noun ("I have a record of the meeting"), the stress shifts to the first syllable: 'REcord.
+
+## Rhymes and homophones
+
+Rhyme questions ask which word ends with the same sound as a given word -- judged by sound, not spelling, so "though" rhymes with "go" despite looking very different. Homophone questions test words that sound identical but are spelled differently and mean different things, such as "flower"/"flour," "wait"/"weight," and "there"/"their"/"they're."
+
+Example 6: Which word rhymes with "cough"? Options: (a) rough (b) though (c) bough (d) enough
+Despite all four words ending in "-ough," they are pronounced differently. "Cough" rhymes with "off." Among the options, "rough" and "enough" rhyme with each other (ending in an "-uff" sound) but not with "cough" -- and neither do "though" (rhymes with "go") or "bough" (rhymes with "cow"). In practice, JAMB's correct answer for this classic set depends on the exact option list given, which is why this topic rewards learning specific word groups rather than guessing from spelling alone.""",
+        "related_topics": ["Lexis and Structure", "Reading Comprehension"],
+    },
 ]
 
 
