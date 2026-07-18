@@ -1,0 +1,302 @@
+[
+  {
+    "subject": "Mathematics",
+    "topic": "Algebraic Processes",
+    "title": "Algebraic Processes",
+    "summary": "How to simplify, factorise, and solve equations built from algebraic expressions -- the foundation for almost every other JAMB Mathematics topic.",
+    "glossary": [
+      {
+        "term": "Variable",
+        "definition": "A letter (like x or y) standing in for an unknown or changing number."
+      },
+      {
+        "term": "Coefficient",
+        "definition": "The number multiplying a variable, e.g. 3 in \\(3x\\)."
+      },
+      {
+        "term": "Factorisation",
+        "definition": "Writing an expression as a product of simpler expressions."
+      },
+      {
+        "term": "Simultaneous equations",
+        "definition": "Two or more equations that must be solved together for the same unknowns."
+      }
+    ],
+    "content_md": "## Simplifying and expanding expressions\nAlgebra uses letters to represent numbers so we can write general rules. To simplify an expression, collect **like terms** (terms with exactly the same letters and powers) and combine their coefficients.\n\nExample 1: Simplify \\(3x + 5y - x + 2y\\).\nGroup like terms: \\((3x - x) + (5y + 2y) = 2x + 7y\\).\n\nTo expand brackets, multiply every term inside the bracket by whatever is outside it.\n\nExample 2: Expand \\(3(2x - 5) + 4x\\).\n\\(3(2x-5) = 6x - 15\\), so the expression becomes \\(6x - 15 + 4x = 10x - 15\\).\n\n## Factorisation\nFactorising is the reverse of expanding -- writing an expression as a product.\n\n- Common factor: take out the highest common factor of every term, e.g. \\(6x^2 + 9x = 3x(2x+3)\\)\n- Difference of two squares: \\(a^2 - b^2 = (a-b)(a+b)\\)\n- Quadratic trinomials: find two numbers that multiply to give the constant term and add to give the coefficient of \\(x\\)\n\nExample 3: Factorise \\(x^2 + 5x + 6\\).\nWe need two numbers that multiply to 6 and add to 5: these are 2 and 3. So \\(x^2+5x+6=(x+2)(x+3)\\).\n\n## Solving linear equations\nTo solve for \\(x\\), do the same operation to both sides until \\(x\\) stands alone.\n\nExample 4: Solve \\(4x - 7 = 13\\).\nAdd 7 to both sides: \\(4x = 20\\). Divide by 4: \\(x = 5\\).\n\n## Simultaneous equations\nWhen two equations share the same two unknowns, solve by **elimination** (add/subtract equations to remove one variable) or **substitution** (make one variable the subject and substitute it into the other equation).\n\nExample 5: Solve \\(x + y = 7\\) and \\(x - y = 1\\).\nAdding the equations: \\(2x = 8\\), so \\(x = 4\\). Substituting back: \\(4 + y = 7\\), so \\(y = 3\\).\n\n## Quadratic equations\nA quadratic has the form \\(ax^2+bx+c=0\\). Solve either by factorising or with the quadratic formula:\n\\(x = \\dfrac{-b \\pm \\sqrt{b^2-4ac}}{2a}\\)\n\nExample 6: Solve \\(x^2 - x - 6 = 0\\).\nFactorise: \\((x-3)(x+2)=0\\), so \\(x=3\\) or \\(x=-2\\).",
+    "related_topics": [
+      "Sets and Binary Operations",
+      "Inequalities, Permutation, and Combination",
+      "Sequences, Series, and Variation"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Calculus",
+    "title": "Calculus",
+    "summary": "The mathematics of change: differentiation finds rates of change and gradients, integration reverses it to find areas.",
+    "glossary": [
+      {
+        "term": "Derivative",
+        "definition": "The rate of change of a function -- written \\(\\dfrac{dy}{dx}\\)."
+      },
+      {
+        "term": "Stationary point",
+        "definition": "A point where the gradient is zero (a maximum, minimum, or inflection)."
+      },
+      {
+        "term": "Integration",
+        "definition": "The reverse process of differentiation; also used to find area under a curve."
+      },
+      {
+        "term": "Definite integral",
+        "definition": "An integral evaluated between two limits, giving a numerical area."
+      }
+    ],
+    "content_md": "## What calculus studies\nCalculus has two main branches tested at this level: **differentiation** (finding rates of change) and **integration** (finding areas, and reversing differentiation).\n\n## Rules of differentiation\nFor \\(y = ax^n\\), the derivative is \\(\\dfrac{dy}{dx} = nax^{n-1}\\). This **power rule** differentiates every polynomial term.\n\nExample 1: Differentiate \\(y = 4x^3 - 5x^2 + 7\\).\nApplying the power rule to each term: \\(\\dfrac{dy}{dx} = 12x^2 - 10x\\). (The constant 7 disappears since its rate of change is zero.)\n\n## Gradients and stationary points\nThe derivative \\(\\dfrac{dy}{dx}\\) gives the **gradient** of the curve at any point \\(x\\). A **stationary point** occurs where \\(\\dfrac{dy}{dx} = 0\\).\n\nExample 2: Find the stationary point of \\(y = x^2 - 4x + 1\\).\n\\(\\dfrac{dy}{dx} = 2x - 4\\). Setting this to zero: \\(2x-4=0\\), so \\(x=2\\). Substituting back, \\(y = 4-8+1=-3\\). The stationary point is \\((2,-3)\\), and since the coefficient of \\(x^2\\) is positive, it is a minimum.\n\n## Rules of integration\nIntegration reverses differentiation. For \\(x^n\\) (where \\(n \\ne -1\\)):\n\\(\\int x^n\\,dx = \\dfrac{x^{n+1}}{n+1} + c\\)\nThe \\(+c\\) is the **constant of integration**, needed because differentiating any constant gives zero, so the original constant can't be recovered.\n\nExample 3: Integrate \\(\\int (6x^2 - 4x)\\,dx\\).\n\\(\\int 6x^2\\,dx = 2x^3\\) and \\(\\int 4x\\,dx = 2x^2\\), so the answer is \\(2x^3 - 2x^2 + c\\).\n\n## Definite integrals and area\nA definite integral \\(\\int_a^b f(x)\\,dx\\) gives the area between the curve and the x-axis from \\(x=a\\) to \\(x=b\\): integrate normally, then substitute the upper limit and subtract the result of substituting the lower limit.\n\nExample 4: Evaluate \\(\\int_1^3 2x\\,dx\\).\n\\(\\int 2x\\,dx = x^2\\). Evaluate: \\(3^2 - 1^2 = 9-1=8\\).",
+    "related_topics": [
+      "Algebraic Processes",
+      "Coordinate Geometry and Trigonometry",
+      "Sequences, Series, and Variation"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Commercial Arithmetic",
+    "title": "Commercial Arithmetic",
+    "summary": "The everyday maths of money -- profit and loss, interest, depreciation, and sharing amounts in a ratio.",
+    "glossary": [
+      {
+        "term": "Principal",
+        "definition": "The original sum of money before interest is added."
+      },
+      {
+        "term": "Simple interest",
+        "definition": "Interest calculated only on the original principal."
+      },
+      {
+        "term": "Compound interest",
+        "definition": "Interest calculated on the principal plus interest already earned."
+      },
+      {
+        "term": "Depreciation",
+        "definition": "The reduction in an asset's value over time."
+      }
+    ],
+    "content_md": "## Percentages, profit, and loss\n**Profit** = Selling Price minus Cost Price (when selling price is higher). **Loss** = Cost Price minus Selling Price (when cost price is higher).\nPercentage profit \\(= \\dfrac{\\text{Profit}}{\\text{Cost Price}} \\times 100\\%\\).\n\nExample 1: A trader buys a bag of rice for N20,000 and sells it for N23,000. Find the percentage profit.\nProfit = 23,000 minus 20,000 = N3,000. Percentage profit \\(= \\dfrac{3000}{20000}\\times100\\%=15\\%\\).\n\n## Simple interest\nSimple interest is calculated only on the original principal, not on any interest already earned.\n\\(I = \\dfrac{PRT}{100}\\), where \\(P\\) is the principal, \\(R\\) is the rate per year, and \\(T\\) is the time in years.\n\nExample 2: Find the simple interest on N50,000 for 3 years at 8% per annum.\n\\(I = \\dfrac{50000 \\times 8 \\times 3}{100} = 12000\\). The interest is N12,000, so the amount owed after 3 years is N62,000.\n\n## Compound interest\nCompound interest is calculated on the principal plus any interest already added, so it grows faster than simple interest.\n\\(A = P\\left(1+\\dfrac{R}{100}\\right)^T\\), where \\(A\\) is the final amount.\n\nExample 3: Find the compound interest on N40,000 for 2 years at 10% per annum.\n\\(A = 40000(1.1)^2 = 40000 \\times 1.21 = 48400\\). Compound interest \\(= 48400 - 40000 = N8400\\).\n\n## Depreciation\nDepreciation reduces an asset's value over time, using a similar formula to compound interest but with a decrease:\n\\(A = P\\left(1-\\dfrac{R}{100}\\right)^T\\)\n\nExample 4: A car worth N2,000,000 depreciates at 15% per year. Find its value after 2 years.\n\\(A = 2000000(0.85)^2 = 2000000 \\times 0.7225 = N1{,}445{,}000\\).\n\n## Ratio, proportion, and rate\nQuantities are shared in a given ratio by dividing the total into that many equal \"parts.\"\n\nExample 5: Share N90,000 between two partners in the ratio 2:3.\nTotal parts = 2+3 = 5. Each part = 90,000 divided by 5 = 18,000. First partner gets \\(2\\times18000=N36{,}000\\); second gets \\(3\\times18000=N54{,}000\\).",
+    "related_topics": [
+      "Number, Fractions, and Approximation",
+      "Sequences, Series, and Variation",
+      "Algebraic Processes"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Coordinate Geometry and Trigonometry",
+    "title": "Coordinate Geometry and Trigonometry",
+    "summary": "Describing lines and points with coordinates, and finding unknown angles and sides in triangles using trigonometric ratios.",
+    "glossary": [
+      {
+        "term": "Gradient",
+        "definition": "A measure of the steepness/slope of a line."
+      },
+      {
+        "term": "Trigonometric ratio",
+        "definition": "sin, cos, or tan of an angle -- a ratio of two sides of a right triangle."
+      },
+      {
+        "term": "Sine rule / cosine rule",
+        "definition": "Formulas relating sides and angles in any triangle, not just right-angled ones."
+      },
+      {
+        "term": "Bearing",
+        "definition": "A direction measured clockwise from North, given as three digits, e.g. 045 degrees."
+      }
+    ],
+    "content_md": "## Distance, midpoint, and gradient\nFor two points \\((x_1,y_1)\\) and \\((x_2,y_2)\\):\n- Distance: \\(\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\\)\n- Midpoint: \\(\\left(\\dfrac{x_1+x_2}{2}, \\dfrac{y_1+y_2}{2}\\right)\\)\n- Gradient: \\(\\dfrac{y_2-y_1}{x_2-x_1}\\)\n\nExample 1: Find the distance and gradient between \\(A(1,2)\\) and \\(B(4,6)\\).\nDistance: \\(\\sqrt{(4-1)^2+(6-2)^2}=\\sqrt{9+16}=\\sqrt{25}=5\\). Gradient: \\(\\dfrac{6-2}{4-1}=\\dfrac{4}{3}\\).\n\n## Equation of a straight line\nThe line through a point with gradient \\(m\\) is \\(y-y_1=m(x-x_1)\\), often rearranged to \\(y=mx+c\\) where \\(c\\) is the y-intercept.\n\nExample 2: Find the equation of the line through \\((2,3)\\) with gradient 4.\n\\(y-3=4(x-2)\\), so \\(y=4x-8+3=4x-5\\).\n\n## Trigonometric ratios\nIn a right-angled triangle, for angle \\(\\theta\\): **SOHCAHTOA** -- \\(\\sin\\theta=\\dfrac{\\text{opposite}}{\\text{hypotenuse}}\\), \\(\\cos\\theta=\\dfrac{\\text{adjacent}}{\\text{hypotenuse}}\\), \\(\\tan\\theta=\\dfrac{\\text{opposite}}{\\text{adjacent}}\\).\n\nExample 3: In a right triangle, the side opposite a 30-degree angle is 5 cm. Find the hypotenuse.\n\\(\\sin30^\\circ=\\dfrac{5}{h}\\), and \\(\\sin30^\\circ=0.5\\), so \\(h=\\dfrac{5}{0.5}=10\\) cm.\n\n## Sine and cosine rules\nFor any triangle (not just right-angled): Sine rule: \\(\\dfrac{a}{\\sin A}=\\dfrac{b}{\\sin B}=\\dfrac{c}{\\sin C}\\). Cosine rule: \\(a^2=b^2+c^2-2bc\\cos A\\).\n\nExample 4: In triangle ABC, \\(a=7\\), \\(b=9\\), and angle \\(C=60^\\circ\\). Find \\(c\\).\n\\(c^2 = 7^2+9^2-2(7)(9)\\cos60^\\circ = 49+81-126(0.5)=130-63=67\\), so \\(c=\\sqrt{67}\\approx8.19\\).\n\n## Bearings and angles of elevation/depression\nA bearing is measured clockwise from North, always given as three digits (e.g. 045, 270). An angle of elevation is measured upward from the horizontal; an angle of depression is measured downward -- they are equal (alternate angles) between two observers looking at each other.\n\nExample 5: A ship sails on a bearing of 060 for 10 km. How far east has it travelled?\nEast component \\(=10\\sin60^\\circ=10\\times0.866\\approx8.66\\) km.",
+    "related_topics": [
+      "Geometry and Mensuration",
+      "Calculus",
+      "Sequences, Series, and Variation"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Geometry and Mensuration",
+    "title": "Geometry and Mensuration",
+    "summary": "Angle facts, circle theorems, and formulas for the perimeter, area, and volume of common shapes and solids.",
+    "glossary": [
+      {
+        "term": "Circle theorem",
+        "definition": "A rule about angles formed by chords, radii, or tangents in a circle."
+      },
+      {
+        "term": "Congruent",
+        "definition": "Identical in shape and size."
+      },
+      {
+        "term": "Similar",
+        "definition": "Same shape with equal angles and proportional sides, but not necessarily the same size."
+      },
+      {
+        "term": "Mensuration",
+        "definition": "The branch of maths concerned with measuring length, area, and volume."
+      }
+    ],
+    "content_md": "## Angles\nAngles on a straight line sum to 180 degrees; angles at a point sum to 360 degrees; the interior angles of a triangle sum to 180 degrees. For any polygon with \\(n\\) sides, the sum of interior angles is \\((n-2)\\times180^\\circ\\).\n\nExample 1: Find the sum of interior angles of a hexagon (6 sides), and hence each interior angle if it is regular.\nSum \\(=(6-2)\\times180^\\circ=720^\\circ\\). Each angle (regular hexagon) \\(=720^\\circ\\div6=120^\\circ\\).\n\n## Circle theorems\n- The angle at the centre is twice the angle at the circumference standing on the same arc\n- Angles in the same segment are equal\n- The angle in a semicircle is 90 degrees\n- Opposite angles of a cyclic quadrilateral sum to 180 degrees\n\nExample 2: A cyclic quadrilateral has one angle of 110 degrees. Find the opposite angle.\nOpposite angles sum to 180 degrees, so the other angle \\(=180^\\circ-110^\\circ=70^\\circ\\).\n\n## Perimeter and area\n- Triangle: \\(\\text{Area}=\\dfrac12 \\times \\text{base} \\times \\text{height}\\)\n- Circle: circumference \\(=2\\pi r\\), area \\(=\\pi r^2\\)\n- Trapezium: \\(\\text{Area}=\\dfrac12(a+b)h\\)\n\nExample 3: Find the area of a circle of radius 7 cm. (Use \\(\\pi\\approx\\dfrac{22}{7}\\).)\nArea \\(=\\dfrac{22}{7}\\times7^2=\\dfrac{22}{7}\\times49=154\\) cm squared.\n\n## Volume and surface area of solids\n- Cuboid: volume \\(=l\\times w\\times h\\)\n- Cylinder: volume \\(=\\pi r^2h\\); curved surface area \\(=2\\pi rh\\)\n- Cone: volume \\(=\\dfrac13\\pi r^2h\\)\n- Sphere: volume \\(=\\dfrac43\\pi r^3\\); surface area \\(=4\\pi r^2\\)\n\nExample 4: Find the volume of a cylinder with radius 3 cm and height 10 cm. (Use \\(\\pi\\approx3.14\\).)\nVolume \\(=3.14\\times3^2\\times10=3.14\\times9\\times10=282.6\\) cm cubed.\n\n## Pythagoras' theorem and similarity\nIn a right-angled triangle, \\(\\text{hypotenuse}^2\\) equals the sum of the squares of the other two sides. Similar triangles have equal corresponding angles and proportional sides; congruent triangles are identical in shape and size.\n\nExample 5: A right triangle has legs 6 cm and 8 cm. Find the hypotenuse.\n\\(h=\\sqrt{6^2+8^2}=\\sqrt{36+64}=\\sqrt{100}=10\\) cm.",
+    "related_topics": [
+      "Coordinate Geometry and Trigonometry",
+      "Number, Fractions, and Approximation",
+      "Sets and Binary Operations"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Inequalities, Permutation, and Combination",
+    "title": "Inequalities, Permutation, and Combination",
+    "summary": "Solving and representing inequalities, and counting arrangements (permutations) versus selections (combinations).",
+    "glossary": [
+      {
+        "term": "Inequality",
+        "definition": "A statement that one quantity is less than, greater than, or not equal to another."
+      },
+      {
+        "term": "Permutation",
+        "definition": "An arrangement of items where the order matters."
+      },
+      {
+        "term": "Combination",
+        "definition": "A selection of items where the order does not matter."
+      },
+      {
+        "term": "Factorial",
+        "definition": "Written n!, the product of all whole numbers from n down to 1."
+      }
+    ],
+    "content_md": "## Solving linear inequalities\nInequalities behave like equations, with one key rule: multiplying or dividing by a negative number reverses the inequality sign.\n\nExample 1: Solve \\(3x+2<14\\).\n\\(3x<12\\), so \\(x<4\\).\n\nExample 2: Solve \\(-2x+5\\ge1\\).\n\\(-2x\\ge-4\\). Dividing by -2 (reverse the sign): \\(x\\le2\\).\n\n## Representing inequalities on a number line\nAn open circle shows a boundary that is not included (for \\(<\\) or \\(>\\)); a filled circle shows a boundary that is included (for \\(\\le\\) or \\(\\ge\\)).\n\n## Permutations\nA **permutation** is an arrangement where order matters. The number of ways to arrange \\(r\\) items chosen from \\(n\\) is:\n\\(^{n}P_{r}=\\dfrac{n!}{(n-r)!}\\), where \\(n!\\) (\"n factorial\") means \\(n\\times(n-1)\\times(n-2)\\times\\cdots\\times1\\).\n\nExample 3: In how many ways can 3 students be selected and arranged from a class of 8 for 1st, 2nd, and 3rd place?\n\\(^{8}P_{3}=\\dfrac{8!}{5!}=8\\times7\\times6=336\\) ways.\n\n## Combinations\nA **combination** is a selection where order does not matter.\n\\(^{n}C_{r}=\\dfrac{n!}{r!(n-r)!}\\)\n\nExample 4: In how many ways can a committee of 3 be chosen from 8 people?\n\\(^{8}C_{3}=\\dfrac{8!}{3!5!}=\\dfrac{8\\times7\\times6}{3\\times2\\times1}=\\dfrac{336}{6}=56\\) ways.\n\nThe key exam clue: if rearranging the same items counts as a different outcome (like exam positions or a PIN code), use permutation; if it counts as the same outcome (like a committee or a hand of cards), use combination.",
+    "related_topics": [
+      "Statistics and Probability",
+      "Sets and Binary Operations",
+      "Algebraic Processes"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Number, Fractions, and Approximation",
+    "title": "Number, Fractions, and Approximation",
+    "summary": "Working with number bases, indices, surds, standard form, and rounding to a given accuracy.",
+    "glossary": [
+      {
+        "term": "Number base",
+        "definition": "A counting system where place value is based on powers of a chosen number, e.g. base 2 (binary)."
+      },
+      {
+        "term": "Index (power)",
+        "definition": "How many times a number is multiplied by itself, e.g. the 3 in \\(2^3\\)."
+      },
+      {
+        "term": "Surd",
+        "definition": "An irrational root, like \\(\\sqrt2\\), that cannot be simplified to a whole number."
+      },
+      {
+        "term": "Standard form",
+        "definition": "A number written as \\(A\\times10^n\\) where \\(1\\le A<10\\)."
+      }
+    ],
+    "content_md": "## Number bases\nOur everyday numbers are in base 10. In base \\(b\\), each digit's place value is a power of \\(b\\).\n\nExample 1: Convert \\(1101_2\\) to base 10.\n\\(1101_2 = (1\\times2^3)+(1\\times2^2)+(0\\times2^1)+(1\\times2^0)=8+4+0+1=13\\) in base 10.\n\nExample 2: Convert 23 (base 10) to base 2.\nRepeatedly divide by 2 and record remainders from bottom to top: \\(23 = 10111_2\\) (since \\(16+4+2+1=23\\)).\n\n## Indices (powers)\nLaws of indices: \\(a^m\\times a^n=a^{m+n}\\); \\(\\dfrac{a^m}{a^n}=a^{m-n}\\); \\((a^m)^n=a^{mn}\\); \\(a^0=1\\); \\(a^{-n}=\\dfrac{1}{a^n}\\).\n\nExample 3: Simplify \\(\\dfrac{2^5\\times2^3}{2^4}\\).\n\\(=2^{5+3-4}=2^4=16\\).\n\n## Surds\nA surd is an irrational root, like \\(\\sqrt2\\), that cannot be simplified to a whole number. Simplify by taking out perfect-square factors.\n\nExample 4: Simplify \\(\\sqrt{50}\\).\n\\(\\sqrt{50}=\\sqrt{25\\times2}=\\sqrt{25}\\times\\sqrt2=5\\sqrt2\\).\n\n## Standard form\nA number in standard form is written as \\(A\\times10^n\\), where \\(1\\le A<10\\).\n\nExample 5: Write 0.00034 in standard form.\n\\(0.00034=3.4\\times10^{-4}\\).\n\n## Approximation and significant figures\nTo round to a given number of significant figures, count from the first non-zero digit and round normally.\n\nExample 6: Round 4.2857 to 3 significant figures.\nThe first 3 significant digits are 4, 2, 8. The digits that follow (57) round the 8 up to 9, giving **4.29**.",
+    "related_topics": [
+      "Commercial Arithmetic",
+      "Algebraic Processes",
+      "Sequences, Series, and Variation"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Sequences, Series, and Variation",
+    "title": "Sequences, Series, and Variation",
+    "summary": "Number patterns that increase by a constant amount (AP) or a constant ratio (GP), and how one quantity varies with another.",
+    "glossary": [
+      {
+        "term": "Arithmetic progression (AP)",
+        "definition": "A sequence where each term increases by a constant amount."
+      },
+      {
+        "term": "Geometric progression (GP)",
+        "definition": "A sequence where each term is multiplied by a constant ratio."
+      },
+      {
+        "term": "Common difference",
+        "definition": "The constant amount added between consecutive terms of an AP."
+      },
+      {
+        "term": "Common ratio",
+        "definition": "The constant multiplier between consecutive terms of a GP."
+      }
+    ],
+    "content_md": "## Arithmetic progression (AP)\nAn AP is a sequence where each term increases (or decreases) by a constant common difference, \\(d\\).\nnth term: \\(T_n=a+(n-1)d\\). Sum of \\(n\\) terms: \\(S_n=\\dfrac{n}{2}[2a+(n-1)d]\\).\n\nExample 1: Find the 10th term of the AP 3, 7, 11, 15, ...\n\\(a=3\\), \\(d=4\\). \\(T_{10}=3+(10-1)(4)=3+36=39\\).\n\nExample 2: Find the sum of the first 10 terms of the same AP.\n\\(S_{10}=\\dfrac{10}{2}[2(3)+9(4)]=5[6+36]=5\\times42=210\\).\n\n## Geometric progression (GP)\nA GP is a sequence where each term is multiplied by a constant common ratio, \\(r\\).\nnth term: \\(T_n=ar^{n-1}\\). Sum of \\(n\\) terms: \\(S_n=\\dfrac{a(r^n-1)}{r-1}\\) (for \\(r\\ne1\\)). Sum to infinity (only when \\(-1<r<1\\)): \\(S_\\infty=\\dfrac{a}{1-r}\\).\n\nExample 3: Find the 6th term of the GP 2, 6, 18, 54, ...\n\\(a=2\\), \\(r=3\\). \\(T_6=2(3)^5=2\\times243=486\\).\n\nExample 4: Find the sum to infinity of \\(8+4+2+1+\\cdots\\)\n\\(a=8\\), \\(r=\\dfrac12\\). \\(S_\\infty=\\dfrac{8}{1-\\frac12}=\\dfrac{8}{\\frac12}=16\\).\n\n## Variation\n- Direct variation: \\(y=kx\\) -- as \\(x\\) increases, \\(y\\) increases proportionally\n- Inverse variation: \\(y=\\dfrac{k}{x}\\) -- as \\(x\\) increases, \\(y\\) decreases proportionally\n- Joint variation: \\(y\\) depends on more than one quantity at once, e.g. \\(y=kxz\\)\n\nExample 5: \\(y\\) varies directly as \\(x\\). When \\(x=5\\), \\(y=20\\). Find \\(y\\) when \\(x=8\\).\n\\(y=kx \\Rightarrow 20=5k \\Rightarrow k=4\\). When \\(x=8\\): \\(y=4\\times8=32\\).",
+    "related_topics": [
+      "Algebraic Processes",
+      "Calculus",
+      "Statistics and Probability"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Sets and Binary Operations",
+    "title": "Sets and Binary Operations",
+    "summary": "Describing collections of objects with set notation and Venn diagrams, and the rules that govern how binary operations combine elements.",
+    "glossary": [
+      {
+        "term": "Set",
+        "definition": "A well-defined collection of distinct objects."
+      },
+      {
+        "term": "Union (A union B)",
+        "definition": "Everything that is in A or B (or both)."
+      },
+      {
+        "term": "Intersection (A intersect B)",
+        "definition": "Only what is in both A and B."
+      },
+      {
+        "term": "Binary operation",
+        "definition": "A rule that combines any two elements of a set to give another element."
+      }
+    ],
+    "content_md": "## Set notation\nA set is a well-defined collection of objects. \\(A\\cup B\\) is the union (everything in A or B); \\(A\\cap B\\) is the intersection (only what's in both); \\(A'\\) is the complement (everything in the universal set \\(U\\) not in A); \\(n(A)\\) means \"the number of elements in A.\"\n\n## Venn diagrams and two-set problems\nFor any two sets: \\(n(A\\cup B)=n(A)+n(B)-n(A\\cap B)\\).\n\nExample 1: In a class of 40 students, 25 like Mathematics, 20 like English, and 10 like both. How many like at least one subject?\n\\(n(M\\cup E)=25+20-10=35\\) students.\n\nExample 2: Using the same numbers, how many like neither subject?\nNeither \\(=40-35=5\\) students.\n\n## Three-set problems\nWith three sets, draw a Venn diagram and fill it in from the centre outward, since the \"all three\" region is needed before the two-set overlaps can be split correctly.\n\nExample 3: In a class of 50 students, every student studies at least one of Physics, Chemistry, or Biology. \\(n(P)=22\\), \\(n(C)=27\\), \\(n(B)=23\\), \\(n(P\\cap C)=8\\), \\(n(C\\cap B)=10\\), \\(n(P\\cap B)=7\\), and \\(n(P\\cap C\\cap B)=3\\). How many students study Biology only?\nFill the Venn diagram from the centre outward. Biology only \\(=n(B)-n(P\\cap B)-n(C\\cap B)+n(P\\cap C\\cap B)=23-7-10+3=9\\) students.\n\n## Binary operations\nA binary operation (often written \\(*\\)) combines any two elements of a set to give another element of the same set.\n- Closed: the result always stays in the set\n- Commutative: \\(a*b=b*a\\)\n- Associative: \\((a*b)*c=a*(b*c)\\)\n- Identity element \\(e\\): \\(a*e=e*a=a\\) for every \\(a\\)\n\nExample 4: The operation \\(a*b=a+b+ab\\) is defined on the real numbers. Find \\(2*3\\).\n\\(2*3=2+3+(2\\times3)=2+3+6=11\\).\n\nExample 5: Find the identity element for \\(a*b=a+b-4\\).\nWe need \\(a*e=a\\): \\(a+e-4=a \\Rightarrow e=4\\). The identity element is 4.",
+    "related_topics": [
+      "Inequalities, Permutation, and Combination",
+      "Statistics and Probability",
+      "Algebraic Processes"
+    ]
+  },
+  {
+    "subject": "Mathematics",
+    "topic": "Statistics and Probability",
+    "title": "Statistics and Probability",
+    "summary": "Summarising data with averages and spread, reading frequency tables and charts, and calculating the likelihood of events.",
+    "glossary": [
+      {
+        "term": "Mean",
+        "definition": "The sum of all values divided by the number of values."
+      },
+      {
+        "term": "Median",
+        "definition": "The middle value when data is arranged in order."
+      },
+      {
+        "term": "Mode",
+        "definition": "The value that occurs most often in a data set."
+      },
+      {
+        "term": "Probability",
+        "definition": "A measure, between 0 and 1, of how likely an event is to happen."
+      }
+    ],
+    "content_md": "## Measures of central tendency\n- Mean: sum of all values divided by number of values\n- Median: the middle value when data is arranged in order (average of the two middle values if there is an even number of items)\n- Mode: the value that occurs most often\n\nExample 1: Find the mean, median, and mode of 4, 7, 4, 9, 6, 4, 8.\nMean \\(=\\dfrac{4+7+4+9+6+4+8}{7}=\\dfrac{42}{7}=6\\). Arranged in order: 4,4,4,6,7,8,9 -- median (middle of 7 values) \\(=6\\). Mode \\(=4\\) (appears three times).\n\n## Measures of dispersion\nRange = highest value minus lowest value. For grouped data, use a frequency table with class midpoints to estimate the mean: \\(\\text{mean}=\\dfrac{\\sum fx}{\\sum f}\\), where \\(f\\) is frequency and \\(x\\) is the class midpoint.\n\nExample 2: Find the range of the data set in Example 1.\nRange \\(=9-4=5\\).\n\n## Frequency tables, histograms, and ogives\nA histogram shows frequency against class intervals with no gaps between bars (unlike a bar chart). A cumulative frequency curve (ogive) plots running totals and is used to read off the median and quartiles graphically.\n\n## Basic probability\nProbability of an event \\(=\\dfrac{\\text{number of favourable outcomes}}{\\text{total number of possible outcomes}}\\), always between 0 and 1.\n\nExample 3: A bag contains 5 red balls and 3 blue balls. Find the probability of picking a red ball.\n\\(P(\\text{red})=\\dfrac{5}{5+3}=\\dfrac{5}{8}\\).\n\n## Combined events\n- Addition rule (either/or, mutually exclusive events): \\(P(A \\text{ or } B)=P(A)+P(B)\\)\n- Multiplication rule (both/and, independent events): \\(P(A \\text{ and } B)=P(A)\\times P(B)\\)\n\nExample 4: A coin is tossed and a die is rolled. Find the probability of getting a head and a 6.\nThese are independent events: \\(P(\\text{head})=\\dfrac12\\), \\(P(6)=\\dfrac16\\). \\(P(\\text{head and }6)=\\dfrac12\\times\\dfrac16=\\dfrac{1}{12}\\).",
+    "related_topics": [
+      "Inequalities, Permutation, and Combination",
+      "Sequences, Series, and Variation",
+      "Number, Fractions, and Approximation"
+    ]
+  }
+]

@@ -80,7 +80,6 @@ export default function Admin() {
 
   const [noteSubjectFilter, setNoteSubjectFilter] = useState('');
   const [noteError, setNoteError] = useState<string | null>(null);
-  const [generatingKey, setGeneratingKey] = useState<string | null>(null);
   const [editingNoteItem, setEditingNoteItem] = useState<NoteStatusItem | null>(null);
   const [noteForm, setNoteForm] = useState<NoteFormState>(emptyNoteForm);
   const [showNoteForm, setShowNoteForm] = useState(false);
@@ -207,22 +206,6 @@ export default function Admin() {
     });
     setShowNoteForm(true);
     setNoteError(null);
-  };
-
-  const generateNote = async (item: NoteStatusItem, force: boolean) => {
-    setGeneratingKey(noteKey(item));
-    setNoteError(null);
-    try {
-      const note = await api.post<LessonNote>('/api/admin/notes/generate', {
-        subject: item.subject, topic: item.topic, force,
-      });
-      queryClient.invalidateQueries({ queryKey: ['admin-notes-status'] });
-      openNoteFromNote(item, note);
-    } catch (err) {
-      setNoteError(err instanceof ApiError ? err.message : 'Could not generate this note.');
-    } finally {
-      setGeneratingKey(null);
-    }
   };
 
   const openNoteEditor = async (item: NoteStatusItem) => {
@@ -399,7 +382,7 @@ export default function Admin() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-display font-bold text-lg text-ink-900">{editingNoteItem.subject} — {editingNoteItem.topic}</h2>
-                  <p className="text-xs text-ink-400 mt-0.5">Review AI-drafted content before publishing. Nothing here is visible to students until status is Active.</p>
+                  <p className="text-xs text-ink-400 mt-0.5">Review this draft before publishing. Nothing here is visible to students until status is Active.</p>
                 </div>
                 <button type="button" onClick={() => setShowNoteForm(false)} className="text-ink-400 hover:text-ink-700">
                   <i className="fa-solid fa-xmark text-lg" />
@@ -497,15 +480,11 @@ export default function Admin() {
                         </Badge>
                       </td>
                       <td className="p-3 whitespace-nowrap">
-                        <button
-                          onClick={() => generateNote(item, item.status !== 'missing')}
-                          disabled={generatingKey === noteKey(item)}
-                          className="text-brand-600 font-semibold mr-3 hover:underline disabled:text-ink-300 disabled:no-underline"
-                        >
-                          {generatingKey === noteKey(item) ? 'Generating…' : item.status === 'missing' ? 'Generate with AI' : 'Regenerate'}
-                        </button>
+                        {!item.note_id && (
+                          <span className="text-xs text-ink-400">Add via seed_lesson_notes.py</span>
+                        )}
                         {item.note_id && (
-                          <button onClick={() => openNoteEditor(item)} className="text-ink-600 font-semibold hover:underline">
+                          <button onClick={() => openNoteEditor(item)} className="text-brand-600 font-semibold hover:underline">
                             Edit
                           </button>
                         )}
