@@ -10,6 +10,12 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-ink-50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-ink-900 focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-pop focus:font-semibold"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-ink-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
@@ -49,7 +55,7 @@ export default function PublicLayout() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
 

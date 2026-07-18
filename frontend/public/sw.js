@@ -8,9 +8,12 @@
 // NOT cached: anything under /api/ -- this is a practice app, serving stale
 // quiz/dashboard data offline would be actively misleading, so API calls
 // always hit the network and the app's existing error states handle failure.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `naijaprep-${CACHE_VERSION}`;
-const APP_SHELL = ['/', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
+const APP_SHELL = [
+  '/', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
+  '/offline.html',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -38,7 +41,9 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return;
 
-  // SPA navigations: network-first, fall back to the cached shell offline.
+  // SPA navigations: network-first, fall back to the cached shell offline,
+  // and if even that isn't cached yet (first-ever visit with no connection),
+  // a static offline.html instead of the browser's generic error page.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -47,7 +52,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
           return res;
         })
-        .catch(() => caches.match('/'))
+        .catch(() => caches.match('/').then((cached) => cached || caches.match('/offline.html')))
     );
     return;
   }

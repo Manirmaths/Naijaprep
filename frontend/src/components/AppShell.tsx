@@ -36,6 +36,17 @@ export default function AppShell() {
     getPushState().then(setPushState);
   }, []);
 
+  // Keyboard users have no way to dismiss the mobile drawer otherwise -- the
+  // overlay only closes on click/tap.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileOpen]);
+
   const togglePush = async () => {
     if (pushBusy) return;
     setPushBusy(true);
@@ -110,6 +121,12 @@ export default function AppShell() {
 
   return (
     <div className="min-h-screen flex bg-ink-50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-ink-900 focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-pop focus:font-semibold"
+      >
+        Skip to main content
+      </a>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 border-r border-ink-100 bg-white flex-shrink-0">
         {sidebarContent}
@@ -138,6 +155,7 @@ export default function AppShell() {
                 onClick={togglePush}
                 disabled={pushBusy}
                 title={pushState === 'subscribed' ? 'Daily reminders on -- tap to turn off' : 'Get a reminder if you miss practicing'}
+                aria-label={pushState === 'subscribed' ? 'Daily reminders on -- tap to turn off' : 'Get a reminder if you miss practicing'}
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
                   pushState === 'subscribed' ? 'bg-brand-50 text-brand-600' : 'bg-ink-100 text-ink-400 hover:text-ink-600'
                 }`}
@@ -165,7 +183,7 @@ export default function AppShell() {
           </div>
         </header>
 
-        <main className="flex-1 min-w-0">
+        <main id="main-content" className="flex-1 min-w-0">
           <Outlet />
         </main>
       </div>

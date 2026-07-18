@@ -29,6 +29,7 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const Blitz = lazy(() => import('./pages/Blitz'));
 const Mock = lazy(() => import('./pages/Mock'));
 const MockExam = lazy(() => import('./pages/MockExam'));
+const PaymentCallback = lazy(() => import('./pages/PaymentCallback'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const StudyPlanner = lazy(() => import('./pages/StudyPlanner'));
 const Flashcards = lazy(() => import('./pages/Flashcards'));
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="/blitz" element={<Blitz />} />
           <Route path="/mock" element={<Mock />} />
           <Route path="/mock-attempt/:attemptId" element={<MockExam />} />
+          <Route path="/payment-callback" element={<PaymentCallback />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/study-planner" element={<StudyPlanner />} />
           <Route path="/flashcards" element={<Flashcards />} />

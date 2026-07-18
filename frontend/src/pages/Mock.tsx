@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { api, ApiError } from '../api/client';
-import type { QuizAttempt, Subject } from '../api/types';
+import type { PaymentInitialize, QuizAttempt, Subject } from '../api/types';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
@@ -28,6 +28,8 @@ export default function Mock() {
   const [selected, setSelected] = useState<string[]>([]);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [upgradeNeeded, setUpgradeNeeded] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['subjects'],
@@ -48,12 +50,37 @@ export default function Mock() {
     if (selected.length !== REQUIRED_COUNT || starting) return;
     setStarting(true);
     setError(null);
+    setUpgradeNeeded(false);
     try {
       const attempt = await api.post<QuizAttempt>('/api/mock/start', { subjects: selected });
       navigate(`/mock-attempt/${attempt.attempt_id}`);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Could not start the mock exam.');
+      if (e instanceof ApiError && e.status === 402) {
+        setUpgradeNeeded(true);
+        setError(e.message);
+      } else {
+        setError(e instanceof ApiError ? e.message : 'Could not start the mock exam.');
+      }
       setStarting(false);
+    }
+  };
+
+  const upgrade = async () => {
+    if (upgrading) return;
+    setUpgrading(true);
+    setError(null);
+    try {
+      const { authorization_url } = await api.post<PaymentInitialize>('/api/payments/initialize');
+      window.location.href = authorization_url;
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status === 501
+          ? "Payments aren't set up yet -- check back soon."
+          : e instanceof ApiError
+          ? e.message
+          : 'Could not start checkout.'
+      );
+      setUpgrading(false);
     }
   };
 
@@ -69,9 +96,24 @@ export default function Mock() {
         </p>
       </div>
 
-      {error && (
+      {error && !upgradeNeeded && (
         <Card padding="sm" className="mb-4 bg-danger-50 border-danger-100 text-danger-600 text-sm font-semibold">
           {error}
+        </Card>
+      )}
+
+      {upgradeNeeded && (
+        <Card padding="md" className="mb-6 bg-brand-50 border-brand-100 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-bold text-brand-800">
+              <i className="fa-solid fa-crown mr-1.5" />
+              Free full mock used
+            </p>
+            <p className="text-xs text-brand-700 mt-1">{error}</p>
+          </div>
+          <Button size="sm" onClick={upgrade} loading={upgrading}>
+            Upgrade to Premium
+          </Button>
         </Card>
       )}
 

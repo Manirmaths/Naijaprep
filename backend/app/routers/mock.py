@@ -5,8 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
+from app.config import settings
 from app.database import get_db
 from app.models import Question, QuestionMastery, QuizAttempt, User, UserResponse
+from app.routers.payments import free_mock_exams_used
 from app.schemas import (
     MockAnswerIn, MockNavItem, MockNavOut, MockQuestionOut, MockStartIn, QuizAttemptOut, ResultsOut,
 )
@@ -28,6 +30,23 @@ MOCK_DURATION_SECONDS = 120 * 60
 
 @router.post("/start", response_model=QuizAttemptOut)
 def start_mock(payload: MockStartIn, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    # Freemium gate, first cut: everyone gets FREE_MOCK_EXAMS full mocks
+    # (default 1) to evaluate the real UTME-format exam, then needs premium.
+    # This is a genuine product/pricing decision -- picked "gate the full
+    # mock, not regular practice" as the least disruptive freemium pattern
+    # (matches how most Nigerian exam-prep competitors do it), but which
+    # feature(s) are actually premium is the user's call to revisit, not a
+    # settled decision baked in here.
+    if not user.is_premium and free_mock_exams_used(db, user.id) >= settings.FREE_MOCK_EXAMS:
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"You've used your {settings.FREE_MOCK_EXAMS} free full mock exam"
+                f"{'s' if settings.FREE_MOCK_EXAMS != 1 else ''}. "
+                "Upgrade to Premium for unlimited full mocks."
+            ),
+        )
+
     chosen = payload.subjects or []
     if len(chosen) != 3:
         raise HTTPException(status_code=400, detail="Choose exactly 3 subjects to sit alongside English.")

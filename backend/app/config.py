@@ -14,6 +14,13 @@ class Settings:
     ALGORITHM: str = "HS256"
     PAYSTACK_SECRET_KEY: str = os.environ.get("PAYSTACK_SECRET_KEY", "")
     PAYSTACK_PUBLIC_KEY: str = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
+    # Placeholder pricing -- a real business decision the user should set,
+    # not something to guess permanently. ₦1500/mo default just keeps the
+    # integration runnable end-to-end with sane-looking numbers; override via
+    # env before actually taking real payments.
+    PREMIUM_PRICE_KOBO: int = int(os.environ.get("PREMIUM_PRICE_KOBO", "150000"))  # kobo (₦1,500.00)
+    PREMIUM_DURATION_DAYS: int = int(os.environ.get("PREMIUM_DURATION_DAYS", "30"))
+    FREE_MOCK_EXAMS: int = int(os.environ.get("FREE_MOCK_EXAMS", "1"))
     IS_PRODUCTION: bool = os.environ.get("ENV", "development") == "production"
 
     # Transactional email (password reset) via Resend's HTTP API. Left unset

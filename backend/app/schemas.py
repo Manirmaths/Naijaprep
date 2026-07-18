@@ -404,6 +404,18 @@ class GuestPracticeOut(BaseModel):
     questions: list[GuestQuestionOut]
 
 
+# ---------- Payments (Paystack) ----------
+class PaymentInitializeOut(BaseModel):
+    authorization_url: str
+    reference: str
+
+
+class PremiumStatusOut(BaseModel):
+    is_premium: bool
+    premium_until: Optional[datetime] = None
+    free_mock_exams_remaining: int
+
+
 class TopStudentEntry(BaseModel):
     rank: int
     username: str

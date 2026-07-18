@@ -306,6 +306,17 @@ export interface GuestPractice {
   questions: GuestQuestion[];
 }
 
+export interface PremiumStatus {
+  is_premium: boolean;
+  premium_until: string | null;
+  free_mock_exams_remaining: number;
+}
+
+export interface PaymentInitialize {
+  authorization_url: string;
+  reference: string;
+}
+
 export interface GlossaryTerm {
   term: string;
   definition: string;
