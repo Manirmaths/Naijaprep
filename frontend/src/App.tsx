@@ -12,6 +12,7 @@ import Spinner from './components/ui/Spinner';
 // router/auth shell, and e.g. the rarely-used Admin page's code never loads
 // for a regular student at all.
 const Home = lazy(() => import('./pages/Home'));
+const Try = lazy(() => import('./pages/Try'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
@@ -49,6 +50,7 @@ export default function App() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/try" element={<Try />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

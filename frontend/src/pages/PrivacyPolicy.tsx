@@ -1,4 +1,7 @@
+import useDocumentMeta from '../hooks/useDocumentMeta';
+
 export default function PrivacyPolicy() {
+  useDocumentMeta('Privacy Policy', 'How Naija Prep collects, uses, and protects your data.');
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="font-display font-extrabold text-3xl text-ink-900 mb-2">Privacy Policy</h1>

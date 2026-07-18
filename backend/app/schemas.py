@@ -383,6 +383,27 @@ class PublicQuestionOut(BaseModel):
     explanation: Optional[str] = None
 
 
+# ---------- Guest (unauthenticated) practice ----------
+class GuestQuestionOut(BaseModel):
+    id: int  # not persisted anywhere server-side for a guest -- only used
+    # client-side to key React list items, never sent back to the API.
+    subject: str
+    topic: str
+    question_text: str
+    image_url: Optional[str] = None
+    option_a: str
+    option_b: str
+    option_c: str
+    option_d: str
+    correct_option: str
+    explanation: Optional[str] = None
+
+
+class GuestPracticeOut(BaseModel):
+    subject: str
+    questions: list[GuestQuestionOut]
+
+
 class TopStudentEntry(BaseModel):
     rank: int
     username: str

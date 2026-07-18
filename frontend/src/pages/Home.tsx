@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Spinner from '../components/ui/Spinner';
 import MathText from '../components/ui/MathText';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 const FEATURES = [
   {
@@ -201,6 +202,10 @@ function TopStudentsCard() {
 }
 
 export default function Home() {
+  useDocumentMeta(
+    '',
+    'Free JAMB, WAEC, NECO and Post-UTME practice questions across 11 subjects, with instant explanations, an AI tutor, full CBT mock exams, and progress tracking built for Nigerian students.'
+  );
   const { user } = useAuth();
 
   return (
@@ -219,18 +224,18 @@ export default function Home() {
             spaced-repetition review, and progress tracking built specifically for Nigerian students.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link to={user ? '/dashboard' : '/register'}>
+            <Link to={user ? '/dashboard' : '/try'}>
               <Button size="lg" icon={<i className="fa-solid fa-arrow-right" />}>
-                {user ? 'Go to your dashboard' : 'Start free practice'}
+                {user ? 'Go to your dashboard' : 'Try 10 free questions'}
               </Button>
             </Link>
             <Link to={user ? '/mock' : '/register'}>
               <Button size="lg" variant="outline" icon={<i className="fa-solid fa-file-signature" />}>
-                Take a mock CBT
+                {user ? 'Take a mock CBT' : 'Create a free account'}
               </Button>
             </Link>
           </div>
-          <p className="mt-4 text-sm text-ink-400">No card required. Every subject is free to practice.</p>
+          <p className="mt-4 text-sm text-ink-400">No sign-up needed to try a sample — no card required, ever.</p>
         </div>
       </section>
 

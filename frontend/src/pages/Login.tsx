@@ -5,8 +5,10 @@ import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
 import { Input, PasswordInput } from '../components/ui/Input';
 import Card from '../components/ui/Card';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Login() {
+  useDocumentMeta('Log in', 'Log in to your Naija Prep account to continue your JAMB, WAEC and NECO practice.');
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');

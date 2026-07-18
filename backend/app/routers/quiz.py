@@ -10,10 +10,19 @@ from app.models import Question, QuizAttempt, UserResponse, ReviewQuestion, User
 from app.schemas import (
     QuizStartIn, QuizAttemptOut, QuestionPublic, AnswerIn, AnswerOut, ResultsOut, ResultItem,
 )
+from app.subjects import SUBJECTS
 
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
 RECENT_EXCLUDE_LIMIT = 50
+
+# Onboarding diagnostic: a short, broad sample across every subject so a
+# brand-new user's Dashboard has real topic_stats *and* a projected score
+# immediately, rather than waiting for them to stumble into enough regular
+# practice on their own. 11 subjects x 3 = 33 answers, comfortably over
+# dashboard.py's SCORE_ESTIMATE_MIN_ANSWERS (30) -- finishing the diagnostic
+# unlocks the projected-score card in the same sitting.
+DIAGNOSTIC_QUESTIONS_PER_SUBJECT = 3
 
 # Practice-quiz pacing: give the student roughly a minute per question, with
 # a floor so short quizzes still get a sane amount of time. (JAMB's own CBT
@@ -126,6 +135,46 @@ def start_quiz(payload: QuizStartIn, db: Session = Depends(get_db), user: User =
     return _attempt_out(db, attempt)
 
 
+@router.post("/start-diagnostic", response_model=QuizAttemptOut)
+def start_diagnostic(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.has_taken_diagnostic:
+        raise HTTPException(status_code=400, detail="You've already taken the diagnostic.")
+
+    question_ids: list[int] = []
+    for subject in SUBJECTS:
+        pool = (
+            db.query(Question.id)
+            .filter(Question.status == "active", Question.subject == subject)
+            .all()
+        )
+        pool = [qid for (qid,) in pool]
+        if not pool:
+            continue
+        n = min(DIAGNOSTIC_QUESTIONS_PER_SUBJECT, len(pool))
+        question_ids.extend(random.sample(pool, n))
+
+    if len(question_ids) < 10:
+        # Should only happen on a near-empty dev DB -- a real deployed
+        # question bank always clears this easily.
+        raise HTTPException(status_code=400, detail="Not enough questions available yet for a diagnostic.")
+
+    random.shuffle(question_ids)
+    attempt = QuizAttempt(
+        user_id=user.id,
+        mode="diagnostic",
+        subject=None,
+        topic=None,
+        question_ids=question_ids,
+        current_index=0,
+        score=0,
+        time_limit_seconds=_time_limit_for(len(question_ids)),
+    )
+    db.add(attempt)
+    db.commit()
+    db.refresh(attempt)
+    return _attempt_out(db, attempt)
+
+
 @router.get("/{attempt_id}", response_model=QuizAttemptOut)
 def get_attempt(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     attempt = db.get(QuizAttempt, attempt_id)
@@ -175,6 +224,8 @@ def answer_quiz(attempt_id: int, payload: AnswerIn, db: Session = Depends(get_db
     attempt.current_index += 1
     if attempt.current_index >= len(attempt.question_ids):
         attempt.finished_at = datetime.utcnow()
+        if attempt.mode == "diagnostic":
+            user.has_taken_diagnostic = True
 
     db.commit()
     db.refresh(attempt)

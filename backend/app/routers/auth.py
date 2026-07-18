@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -13,6 +13,7 @@ from app.config import settings
 from app.database import get_db
 from app.email import send_password_reset_email
 from app.models import User, PasswordResetToken
+from app.rate_limit import limiter
 from app.schemas import RegisterIn, LoginIn, UserOut, ForgotPasswordIn, ResetPasswordIn
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -38,7 +39,8 @@ def _hash_token(raw_token: str) -> str:
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def register(payload: RegisterIn, response: Response, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def register(request: Request, payload: RegisterIn, response: Response, db: Session = Depends(get_db)):
     if db.query(User).filter(User.username == payload.username).first():
         raise HTTPException(status_code=400, detail="That username is already taken.")
     if db.query(User).filter(User.email == payload.email).first():
@@ -66,7 +68,8 @@ def register(payload: RegisterIn, response: Response, db: Session = Depends(get_
 
 
 @router.post("/login", response_model=UserOut)
-def login(payload: LoginIn, response: Response, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, payload: LoginIn, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
@@ -86,7 +89,8 @@ def me(user: User = Depends(get_current_user)):
 
 
 @router.post("/forgot-password")
-def forgot_password(payload: ForgotPasswordIn, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def forgot_password(request: Request, payload: ForgotPasswordIn, db: Session = Depends(get_db)):
     # Always return the same generic response whether or not the email is
     # registered -- this avoids leaking which emails have accounts.
     generic_response = {"message": "If that email has an account, a reset link is on its way."}

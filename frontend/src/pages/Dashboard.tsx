@@ -73,6 +73,7 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const [savingGoal, setSavingGoal] = useState(false);
   const [startingReview, setStartingReview] = useState(false);
+  const [startingDiagnostic, setStartingDiagnostic] = useState(false);
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.get<DashboardData>('/api/dashboard'),
@@ -98,6 +99,18 @@ export default function Dashboard() {
     } catch (e) {
       alert(e instanceof ApiError ? e.message : 'Could not start Smart Review.');
       setStartingReview(false);
+    }
+  };
+
+  const startDiagnostic = async () => {
+    if (startingDiagnostic) return;
+    setStartingDiagnostic(true);
+    try {
+      const attempt = await api.post<QuizAttempt>('/api/quiz/start-diagnostic');
+      navigate(`/quiz-attempt/${attempt.attempt_id}`);
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : 'Could not start the diagnostic.');
+      setStartingDiagnostic(false);
     }
   };
 
@@ -251,13 +264,23 @@ export default function Dashboard() {
 
       {!data.has_taken_diagnostic && (
         <Card padding="md" className="bg-brand-50 border-brand-100 mb-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-brand-800 font-medium">
-            <i className="fa-solid fa-circle-info mr-1.5" />
-            New here? Start with any subject to build your first topic stats.
-          </p>
-          <Link to="/subjects">
-            <Button size="sm">Start practicing</Button>
-          </Link>
+          <div>
+            <p className="text-sm text-brand-800 font-semibold">
+              <i className="fa-solid fa-circle-info mr-1.5" />
+              New here? Take the 33-question diagnostic
+            </p>
+            <p className="text-xs text-brand-700 mt-1">
+              Three questions from every subject — get your topic breakdown and a projected score in one go.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button size="sm" onClick={startDiagnostic} loading={startingDiagnostic}>
+              Start diagnostic
+            </Button>
+            <Link to="/subjects">
+              <Button size="sm" variant="ghost">Or pick a subject</Button>
+            </Link>
+          </div>
         </Card>
       )}
 

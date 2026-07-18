@@ -5,8 +5,13 @@ import { ApiError } from '../api/client';
 import Button from '../components/ui/Button';
 import { Input, PasswordInput } from '../components/ui/Input';
 import Card from '../components/ui/Card';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Register() {
+  useDocumentMeta(
+    'Sign up free',
+    'Create a free Naija Prep account for JAMB, WAEC and NECO practice questions, an AI tutor, and a full CBT mock exam.'
+  );
   const { register } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
