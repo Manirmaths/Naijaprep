@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-const SITE_NAME = 'Naija Prep';
-const DEFAULT_TITLE = 'Naija Prep — JAMB, WAEC & NECO Practice';
+const SITE_NAME = 'Burina';
+const DEFAULT_TITLE = 'Burina — Exam Preparation and University Learning';
 
 /**
  * Sets the document title (and, optionally, the meta description) for the

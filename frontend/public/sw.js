@@ -1,4 +1,4 @@
-// Naija Prep service worker -- hand-rolled (no build plugin) so it stays
+// Burina service worker -- hand-rolled (no build plugin) so it stays
 // simple and doesn't add a new build dependency. Two jobs:
 //   1. Cache the app shell + static assets so the site is installable and
 //      still opens (with cached UI) when offline.
@@ -81,10 +81,10 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data.json();
   } catch {
-    payload = { title: 'Naija Prep', body: event.data.text() };
+    payload = { title: 'Burina', body: event.data.text() };
   }
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Naija Prep', {
+    self.registration.showNotification(payload.title || 'Burina', {
       body: payload.body || '',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',

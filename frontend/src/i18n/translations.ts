@@ -38,10 +38,10 @@ export const translations: Record<Language, Dict> = {
     'nav.goToDashboard': 'Go to Dashboard',
 
     'home.badge': 'JAMB · WAEC · NECO · Post-UTME',
-    'home.heroTitle1': 'Practice smarter.',
-    'home.heroTitle2': 'Walk into exam day ready.',
+    'home.heroTitle1': 'Your ambition.',
+    'home.heroTitle2': 'Within reach.',
     'home.heroSubtitle':
-      'Naija Prep gives you focused subject and topic practice, an AI tutor, a full JAMB CBT mock, spaced-repetition review, and progress tracking built specifically for Nigerian students.',
+      'Burina gives you focused subject and topic practice, an AI tutor, a full JAMB CBT mock, spaced-repetition review, and progress tracking built specifically for Nigerian students.',
     'home.ctaTry': 'Try 10 free questions',
     'home.ctaDashboard': 'Go to your dashboard',
     'home.ctaMock': 'Take a mock CBT',
@@ -76,7 +76,7 @@ export const translations: Record<Language, Dict> = {
     'home.heroTitle1': 'Yi karatu da hikima.',
     'home.heroTitle2': 'Shiga jarrabawa a shirye.',
     'home.heroSubtitle':
-      'Naija Prep na baka atisaye a kan kowane fanni da batun karatu, malamin AI, cikakkiyar jarrabawar JAMB (CBT), bita mai tazarar lokaci, da bin diddigin ci gabanka -- an tsara musamman domin daliban Najeriya.',
+      'Burina na baka atisaye a kan kowane fanni da batun karatu, malamin AI, cikakkiyar jarrabawar JAMB (CBT), bita mai tazarar lokaci, da bin diddigin ci gabanka -- an tsara musamman domin daliban Najeriya.',
     'home.ctaTry': 'Gwada tambayoyi 10 kyauta',
     'home.ctaDashboard': 'Zuwa dashboard naka',
     'home.ctaMock': 'Yi jarrabawar CBT ta gwaji',

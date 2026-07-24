@@ -238,6 +238,68 @@ def answer_quiz(attempt_id: int, payload: AnswerIn, db: Session = Depends(get_db
     )
 
 
+@router.post("/{attempt_id}/skip", response_model=QuizAttemptOut)
+def skip_quiz_question(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """
+    No-penalty skip: advances past the current question without recording a
+    UserResponse, so no points/mastery/streak effects -- the student never
+    actually attempted it. quiz_results() already treats a question with no
+    response row as unanswered (blank, not wrong), so this needs no special
+    handling on the results side. Deliberately doesn't reveal correct_option/
+    explanation the way answer_quiz's AnswerOut does -- you skipped it, you
+    don't get to see the answer.
+    """
+    attempt = db.get(QuizAttempt, attempt_id)
+    if not attempt or attempt.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Quiz attempt not found.")
+    if attempt.finished_at or attempt.current_index >= len(attempt.question_ids):
+        raise HTTPException(status_code=400, detail="This quiz attempt is already finished.")
+
+    attempt.current_index += 1
+    if attempt.current_index >= len(attempt.question_ids):
+        attempt.finished_at = datetime.utcnow()
+        if attempt.mode == "diagnostic":
+            user.has_taken_diagnostic = True
+
+    db.commit()
+    db.refresh(attempt)
+    return _attempt_out(db, attempt)
+
+
+@router.post("/{attempt_id}/finish", response_model=QuizAttemptOut)
+def finish_quiz(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """
+    Explicit finalize for the client-side countdown timer (Quiz.tsx): when
+    time runs out, the session ends even if questions remain unanswered, but
+    unlike answer_quiz/skip_quiz_question (which auto-set finished_at once
+    current_index reaches the end), nothing else marks an early, incomplete
+    attempt as finished. Without this, a timed-out attempt with unanswered
+    questions left finished_at null forever even though the student was
+    already bounced to the results page.
+
+    A timed-out diagnostic still counts as "taken" -- has_taken_diagnostic
+    gates whether the onboarding prompt is shown again, and forcing a student
+    to redo the whole diagnostic just because the clock ran out would be
+    punitive, not protective.
+
+    Idempotent: safe to call even if the attempt already finished normally
+    (e.g. the last answer request and the timeout firing in a near-tie) --
+    just returns the current state rather than erroring.
+    """
+    attempt = db.get(QuizAttempt, attempt_id)
+    if not attempt or attempt.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Quiz attempt not found.")
+
+    if not attempt.finished_at:
+        attempt.finished_at = datetime.utcnow()
+        if attempt.mode == "diagnostic":
+            user.has_taken_diagnostic = True
+        db.commit()
+        db.refresh(attempt)
+
+    return _attempt_out(db, attempt)
+
+
 @router.get("/{attempt_id}/results", response_model=ResultsOut)
 def quiz_results(attempt_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     attempt = db.get(QuizAttempt, attempt_id)

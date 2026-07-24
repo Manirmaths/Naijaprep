@@ -1,5 +1,7 @@
 services:
-  # FastAPI backend -> serves the API at api.naijaprep.com.ng
+  # FastAPI backend -> serves the API at api.naijaprep.com.ng (api.burina.ng
+  # to be added as a custom domain in Render once DNS is set up -- see
+  # naijaprep_competitor_and_rename memory for the full migration plan)
   - type: web
     name: naijaprep-api
     runtime: python
@@ -14,7 +16,13 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: FRONTEND_ORIGINS
-        value: https://naijaprep.com.ng,https://www.naijaprep.com.ng
+        # Both domains accepted during the Burina rebrand transition -- keep
+        # naijaprep.com.ng entries FIRST so PUBLIC_APP_URL (which defaults to
+        # FRONTEND_ORIGINS[0] when unset) keeps building password-reset links
+        # against the domain that's actually live today. Once burina.ng DNS
+        # is confirmed working and the native app has been rebuilt/resubmitted
+        # pointing at it, reorder or drop the naijaprep.com.ng entries.
+        value: https://naijaprep.com.ng,https://www.naijaprep.com.ng,https://burina.ng,https://www.burina.ng
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "10080"
       - key: ENV
@@ -24,7 +32,8 @@ services:
       - key: PAYSTACK_PUBLIC_KEY
         sync: false
 
-  # React/Vite frontend -> served at naijaprep.com.ng
+  # React/Vite frontend -> served at naijaprep.com.ng (burina.ng to be added
+  # as a custom domain in Render once DNS is set up)
   - type: web
     name: naijaprep-web
     runtime: static

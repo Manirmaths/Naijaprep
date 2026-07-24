@@ -32,3 +32,5 @@ python -u seed_lesson_notes.py "postgresql://neondb_owner:npg_I6zc1jJdiEyM@ep-ra
 
 python -u sync_questions_db.py "sqlite:///./naijaprep.db"
 python -u seed_lesson_notes.py "sqlite:///./naijaprep.db"
+
+add skip questions

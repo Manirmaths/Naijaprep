@@ -24,9 +24,9 @@ export default function PublicLayout() {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900 flex-shrink-0">
               <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm shadow-sm">
-                N
+                B
               </span>
-              Naija Prep
+              Burina
             </Link>
 
             {isHome && (
@@ -65,7 +65,7 @@ export default function PublicLayout() {
 
       <footer className="bg-ink-900 text-ink-400 py-10 mt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-          <p>&copy; {new Date().getFullYear()} Naija Prep. Built to help Nigerian students succeed in WAEC/JAMB/NECO.</p>
+          <p>&copy; {new Date().getFullYear()} Burina by Arewa Tutorials. Your ambition. Within reach.</p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="hover:text-ink-200 transition-colors">Privacy Policy</Link>
             <p className="flex items-center gap-1 text-ink-500">

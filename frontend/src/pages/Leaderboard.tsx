@@ -64,7 +64,7 @@ export default function Leaderboard() {
       </div>
       <p className="text-ink-500 mb-6">
         {subject === 'overall'
-          ? 'See how you stack up against everyone practicing on Naija Prep.'
+          ? 'See how you stack up against everyone practicing on Burina.'
           : `Top scorers in ${subject}, based on correct answers.`}
       </p>
 

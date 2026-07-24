@@ -27,6 +27,7 @@ export default function Quiz() {
   const [correctStreak, setCorrectStreak] = useState(0);
   const [celebration, setCelebration] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [skipping, setSkipping] = useState(false);
   // Tracks the react-router navigation "key" we last loaded an attempt for.
   // location.key is unique per navigation event (even to the same path/query),
   // so this reliably (a) skips React 18 Strict Mode's double-invoke of this
@@ -79,7 +80,19 @@ export default function Quiz() {
   useEffect(() => {
     if (overallSeconds === null || feedback) return;
     if (overallSeconds <= 0) {
-      navigate(attempt ? `/results/${attempt.attempt_id}` : '/subjects');
+      // Time's up: explicitly finalize the attempt server-side (sets
+      // finished_at) before navigating away, rather than just redirecting
+      // and leaving an attempt with unanswered questions in limbo forever --
+      // see routers/quiz.py's finish_quiz(). Best-effort: if this fails
+      // (e.g. flaky connection right as time runs out) we still navigate,
+      // since quiz_results() already handles an unfinished attempt fine.
+      if (attempt) {
+        api.post(`/api/quiz/${attempt.attempt_id}/finish`).finally(() => {
+          navigate(`/results/${attempt.attempt_id}`);
+        });
+      } else {
+        navigate('/subjects');
+      }
       return;
     }
     const t = setTimeout(() => setOverallSeconds((s) => (s !== null ? s - 1 : s)), 1000);
@@ -134,6 +147,25 @@ export default function Quiz() {
     setAttempt(feedback.next);
     setSelected(null);
     setFeedback(null);
+  };
+
+  const skipQuestion = async () => {
+    if (!attempt || feedback || skipping) return;
+    setSkipping(true);
+    try {
+      const next = await api.post<QuizAttempt>(`/api/quiz/${attempt.attempt_id}/skip`);
+      if (next.finished) {
+        navigate(`/results/${next.attempt_id}`);
+        return;
+      }
+      setAttempt(next);
+      setSelected(null);
+      setFeedback(null);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Could not skip this question.');
+    } finally {
+      setSkipping(false);
+    }
   };
 
   if (loading) return <Spinner className="w-8 h-8 mt-16" />;
@@ -249,9 +281,23 @@ export default function Quiz() {
         )}
 
         {!feedback ? (
-          <Button fullWidth size="lg" onClick={submitAnswer} disabled={!selected || submitting}>
-            {submitting ? 'Submitting…' : 'Submit answer'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-shrink-0"
+              onClick={skipQuestion}
+              disabled={submitting || skipping}
+              title="Move on without answering -- no penalty, but you won't see the explanation"
+            >
+              {skipping ? 'Skipping…' : 'Skip'}
+            </Button>
+            <div className="flex-1">
+              <Button fullWidth size="lg" onClick={submitAnswer} disabled={!selected || submitting || skipping}>
+                {submitting ? 'Submitting…' : 'Submit answer'}
+              </Button>
+            </div>
+          </div>
         ) : (
           <Button fullWidth size="lg" onClick={goNext}>
             {feedback.next.finished ? 'See results' : 'Next question'}

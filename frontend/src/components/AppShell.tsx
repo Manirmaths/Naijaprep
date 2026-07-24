@@ -82,9 +82,9 @@ export default function AppShell() {
     <div className="flex flex-col h-full">
       <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-lg text-ink-900 px-5 py-5">
         <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm shadow-sm">
-          N
+          B
         </span>
-        Naija Prep
+        Burina
       </Link>
 
       <nav className="flex-1 px-3 space-y-1">
